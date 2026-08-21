@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html.theme-dark { color-scheme: dark; }
+html.theme-dark body, html.theme-dark .app-shell { background: #111827; color: #f9fafb; }
+html.theme-dark .bg-white { background-color: #1f2937 !important; }
+html.theme-dark .bg-gray-100 { background-color: #111827 !important; }
+html.theme-dark .text-gray-800, html.theme-dark .text-gray-900, html.theme-dark .text-gray-700 { color: #f9fafb !important; }
+html.theme-dark .text-gray-500, html.theme-dark .text-gray-600 { color: #d1d5db !important; }
+@media (prefers-color-scheme: dark) {
+    html.theme-system body, html.theme-system .app-shell { background: #111827; color: #f9fafb; }
+    html.theme-system .bg-white { background-color: #1f2937 !important; }
+    html.theme-system .text-gray-800, html.theme-system .text-gray-900, html.theme-system .text-gray-700 { color: #f9fafb !important; }
+    html.theme-system .text-gray-500, html.theme-system .text-gray-600 { color: #d1d5db !important; }
+}
+html.density-compact main { line-height: 1.35; }
