@@ -192,6 +192,22 @@ test('project create and edit HTTP flows authenticate and return actionable vali
         ->and($project->fresh()->key)->toBe('UPDATED');
 });
 
+test('project create HTTP flow persists an explicitly submitted initial status', function (): void {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->post('/projects', [
+        'name' => '  Active PlanOps Console  ',
+        'key' => 'active',
+        'status' => ProjectStatus::ACTIVE->value,
+    ]);
+    $created = $user->projects()->where('key', 'ACTIVE')->firstOrFail();
+
+    $response->assertRedirect(route('projects.edit', $created, absolute: false));
+    expect($created->name)->toBe('Active PlanOps Console')
+        ->and($created->key)->toBe('ACTIVE')
+        ->and($created->status)->toBe(ProjectStatus::ACTIVE);
+});
+
 test('project lifecycle HTTP mutations require authentication and use separate status archive and restore endpoints', function (): void {
     $user = User::factory()->create();
     $project = Project::factory()->for($user)->create(['key' => 'PLAN']);

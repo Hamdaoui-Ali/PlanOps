@@ -25,6 +25,32 @@ test('project creation trims names, normalizes keys, and applies lifecycle defau
         ->and($project->next_task_number)->toBe(1);
 });
 
+test('project creation persists an explicitly selected lifecycle status', function (): void {
+    $user = User::factory()->create();
+
+    $project = (new CreateProject)->handle($user, [
+        'name' => 'Active project',
+        'key' => 'ACTIVE',
+        'status' => ProjectStatus::ACTIVE,
+    ]);
+
+    expect($project->fresh()->status)->toBe(ProjectStatus::ACTIVE);
+});
+
+test('project creation persists optional color and icon metadata', function (): void {
+    $user = User::factory()->create();
+
+    $project = (new CreateProject)->handle($user, [
+        'name' => 'Branded project',
+        'key' => 'BRAND',
+        'color' => '#68B8C0',
+        'icon' => 'rocket',
+    ]);
+
+    expect($project->fresh()->color)->toBe('#68B8C0')
+        ->and($project->fresh()->icon)->toBe('rocket');
+});
+
 test('project creation rejects keys outside the uppercase ascii two-to-ten character contract', function (string $key): void {
     $user = User::factory()->create();
 
@@ -82,6 +108,23 @@ test('a project key can change before the project has ever contained a task', fu
     $updated = (new UpdateProject)->handle($user, $project, ['name' => 'Renamed', 'key' => 'NEW']);
 
     expect($updated->fresh()->key)->toBe('NEW');
+});
+
+test('project updates persist changed optional color and icon metadata', function (): void {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create([
+        'key' => 'BRAND',
+        'color' => '#E9B66A',
+        'icon' => 'folder',
+    ]);
+
+    $updated = (new UpdateProject)->handle($user, $project, [
+        'color' => '#68B8C0',
+        'icon' => 'rocket',
+    ]);
+
+    expect($updated->color)->toBe('#68B8C0')
+        ->and($updated->icon)->toBe('rocket');
 });
 
 test('a project key cannot change after a task has been soft deleted', function (): void {
