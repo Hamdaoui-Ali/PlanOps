@@ -149,7 +149,7 @@ test('project index supports search status archive target filters and determinis
         'updated_at' => Carbon::parse('2026-08-27 10:00:00'),
     ]);
     $beta = Project::factory()->for($owner)->onHold()->create([
-        'name' => 'Beta Planning', 'key' => 'BETA', 'target_on' => '2026-08-20',
+        'name' => 'Zeta Planning', 'key' => 'BETA', 'target_on' => '2026-08-20',
         'updated_at' => Carbon::parse('2026-08-27 11:00:00'), 'archived_at' => now(),
     ]);
 
@@ -183,7 +183,7 @@ test('project create and edit HTTP flows authenticate and return actionable vali
         ->and($created->status)->toBe(ProjectStatus::PLANNED)
         ->and($created->next_task_number)->toBe(1);
 
-    $project = Project::factory()->for($user)->create(['key' => 'PLAN']);
+    $project = Project::factory()->for($user)->create(['key' => 'EDIT']);
     $this->actingAs($user)->get("/projects/{$project->id}/edit")->assertOk();
     $this->actingAs($user)->patch("/projects/{$project->id}", [
         'name' => '  Updated project  ', 'key' => 'updated',
