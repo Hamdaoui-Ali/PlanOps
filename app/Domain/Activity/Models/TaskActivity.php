@@ -7,11 +7,14 @@ use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TaskActivity extends Model
 {
+    use HasFactory;
+
     public $timestamps = false;
 
     protected $fillable = [

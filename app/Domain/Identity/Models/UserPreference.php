@@ -7,11 +7,14 @@ use App\Domain\Identity\Enums\ThemePreference;
 use App\Domain\Identity\Enums\WeekStartDay;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserPreference extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'timezone',
         'week_start_day',
