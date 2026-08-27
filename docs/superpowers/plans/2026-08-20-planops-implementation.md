@@ -145,13 +145,13 @@ The repository currently contains only `planops-complete-spec.md`; the following
 - Consumes: authenticated `User` from DYX-002.
 - Produces: typed models and relationships for `User → Projects → Tasks → TaskActivities`, labels/pivot relations, all backed enums, and database constraints/indexes from spec sections 83–95.
 
-- [ ] **Step 1: Write failing schema tests** — assert the seven tables, unique keys `(user_id,key)`, `(project_id,number)`, `(user_id,normalized_name)`, `(task_id,label_id)`, `(user_id)`, task soft deletes, JSON activity columns, and required indexes exist.
-- [ ] **Step 2: Run `php artisan test tests/Feature/Database/SchemaInvariantTest.php`** — expected: FAIL because the migrations and models are absent.
-- [ ] **Step 3: Implement migrations and enums** — use UTC-capable timestamps for real timestamps, `date` for `due_on/start_on/target_on`, `jsonb` for activity values/metadata, `next_task_number BIGINT DEFAULT 1`, and foreign keys that preserve task/activity history under normal archive and soft-delete flows.
-- [ ] **Step 4: Implement relationships and enum mappings** — add `User` ownership relations, same-project task relations, one-level parent/children relations, label pivot relations, `TaskActivity` immutability intent, and `TaskStatus::category()` returning `PLANNED`, `ACTIVE`, or `TERMINAL`.
-- [ ] **Step 5: Seed deterministic factories** — include users with different timezones, projects in each lifecycle state, top-level tasks, subtasks, labels, status events, deleted tasks, and reopened tasks without introducing any deferred model.
-- [ ] **Step 6: Run `php artisan migrate:fresh --seed` and `php artisan test tests/Feature/Database tests/Unit/Domain/Tasks/TaskStatusTest.php`** — expected: PASS and a reproducible database.
-- [ ] **Step 7: Commit** — `git add app database tests && git commit -m "feat: add PlanOps domain schema and enums"`.
+- [x] **Step 1: Write failing schema tests** — assert the seven tables, unique keys `(user_id,key)`, `(project_id,number)`, `(user_id,normalized_name)`, `(task_id,label_id)`, `(user_id)`, task soft deletes, JSON activity columns, and required indexes exist.
+- [x] **Step 2: Run `php artisan test tests/Feature/Database/SchemaInvariantTest.php`** — expected: FAIL because the migrations and models are absent.
+- [x] **Step 3: Implement migrations and enums** — use UTC-capable timestamps for real timestamps, `date` for `due_on/start_on/target_on`, `jsonb` for activity values/metadata, `next_task_number BIGINT DEFAULT 1`, and foreign keys that preserve task/activity history under normal archive and soft-delete flows.
+- [x] **Step 4: Implement relationships and enum mappings** — add `User` ownership relations, same-project task relations, one-level parent/children relations, label pivot relations, `TaskActivity` immutability intent, and `TaskStatus::category()` returning `PLANNED`, `ACTIVE`, or `TERMINAL`.
+- [x] **Step 5: Seed deterministic factories** — include users with different timezones, projects in each lifecycle state, top-level tasks, subtasks, labels, status events, deleted tasks, and reopened tasks without introducing any deferred model.
+- [x] **Step 6: Run `php artisan migrate:fresh --seed` and `php artisan test tests/Feature/Database tests/Unit/Domain/Tasks/TaskStatusTest.php`** — expected: PASS and a reproducible database.
+- [x] **Step 7: Commit** — `git add app database tests && git commit -m "feat: add PlanOps domain schema and enums"`.
 
 ### Task 4 (DYX-004): Implement the append-only activity recorder and event payload contract
 
