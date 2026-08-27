@@ -123,8 +123,8 @@ test('project updates persist changed optional color and icon metadata', functio
         'icon' => 'rocket',
     ]);
 
-    expect($updated->color)->toBe('#68B8C0')
-        ->and($updated->icon)->toBe('rocket');
+    expect($updated->fresh()->color)->toBe('#68B8C0')
+        ->and($updated->fresh()->icon)->toBe('rocket');
 });
 
 test('a project key cannot change after a task has been soft deleted', function (): void {

@@ -199,13 +199,17 @@ test('project create HTTP flow persists an explicitly submitted initial status',
         'name' => '  Active PlanOps Console  ',
         'key' => 'active',
         'status' => ProjectStatus::ACTIVE->value,
+        'color' => '#68B8C0',
+        'icon' => 'rocket',
     ]);
     $created = $user->projects()->where('key', 'ACTIVE')->firstOrFail();
 
     $response->assertRedirect(route('projects.edit', $created, absolute: false));
     expect($created->name)->toBe('Active PlanOps Console')
         ->and($created->key)->toBe('ACTIVE')
-        ->and($created->status)->toBe(ProjectStatus::ACTIVE);
+        ->and($created->status)->toBe(ProjectStatus::ACTIVE)
+        ->and($created->color)->toBe('#68B8C0')
+        ->and($created->icon)->toBe('rocket');
 });
 
 test('project lifecycle HTTP mutations require authentication and use separate status archive and restore endpoints', function (): void {
