@@ -165,12 +165,12 @@ The repository currently contains only `planops-complete-spec.md`; the following
 - Consumes: `Task`, `Project`, `User`, `TaskActivityType`, and the activity table from DYX-003.
 - Produces: `TaskActivityRecorder::record(Task $task, TaskActivityType $type, ?string $field, mixed $oldValue, mixed $newValue, array $metadata = []): TaskActivity`.
 
-- [ ] **Step 1: Write failing recorder tests** — verify task context is copied to `user_id/project_id/task_id`, status values are stored as stable enum strings, sensitive title/description text is not copied into generic update payloads, and status reopen metadata is preserved.
-- [ ] **Step 2: Run `php artisan test tests/Unit/Domain/Activity tests/Feature/Domain/Activity`** — expected: FAIL because the recorder is absent.
-- [ ] **Step 3: Implement normalized recording** — centralize payload shape for `TASK_CREATED`, `TASK_UPDATED`, `STATUS_CHANGED`, `PRIORITY_CHANGED`, `DUE_DATE_CHANGED`, `LABEL_ADDED`, `LABEL_REMOVED`, `SUBTASK_CREATED`, `TASK_DELETED`, and `TASK_RESTORED`; keep `TASK_MOVED_PROJECT` defined but unreachable in v1 UI.
-- [ ] **Step 4: Enforce append-only application behavior** — expose read relations and queries but no update/delete UI or action; add a model-level test that normal application flows never mutate existing activity rows.
-- [ ] **Step 5: Run the activity tests** — expected: PASS with one consistent JSON shape per event type.
-- [ ] **Step 6: Commit** — `git add app/Domain/Activity tests && git commit -m "feat: add append-only task activity recorder"`.
+- [x] **Step 1: Write failing recorder tests** — verify task context is copied to `user_id/project_id/task_id`, status values are stored as stable enum strings, sensitive title/description text is not copied into generic update payloads, and status reopen metadata is preserved.
+- [x] **Step 2: Run `php artisan test tests/Unit/Domain/Activity tests/Feature/Domain/Activity`** — expected: FAIL because the recorder is absent.
+- [x] **Step 3: Implement normalized recording** — centralize payload shape for `TASK_CREATED`, `TASK_UPDATED`, `STATUS_CHANGED`, `PRIORITY_CHANGED`, `DUE_DATE_CHANGED`, `LABEL_ADDED`, `LABEL_REMOVED`, `SUBTASK_CREATED`, `TASK_DELETED`, and `TASK_RESTORED`; keep `TASK_MOVED_PROJECT` defined but unreachable in v1 UI.
+- [x] **Step 4: Enforce append-only application behavior** — expose read relations and queries but no update/delete UI or action; add a model-level test that normal application flows never mutate existing activity rows.
+- [x] **Step 5: Run the activity tests** — expected: PASS with one consistent JSON shape per event type.
+- [x] **Step 6: Commit** — `git add app/Domain/Activity tests && git commit -m "feat: add append-only task activity recorder"`.
 
 ### Task 5 (DYX-005): Implement project lifecycle, keys, and archive/restore
 
