@@ -61,6 +61,20 @@ test('project creation rejects a target date before its start date', function ()
     ]))->toThrow(ValidationException::class);
 });
 
+test('project creation accepts a target date equal to its start date', function (): void {
+    $user = User::factory()->create();
+
+    $project = (new CreateProject)->handle($user, [
+        'name' => 'Same day project',
+        'key' => 'SAMEDAY',
+        'start_on' => '2026-08-20',
+        'target_on' => '2026-08-20',
+    ]);
+
+    expect($project->start_on?->toDateString())->toBe('2026-08-20')
+        ->and($project->target_on?->toDateString())->toBe('2026-08-20');
+});
+
 test('a project key can change before the project has ever contained a task', function (): void {
     $user = User::factory()->create();
     $project = Project::factory()->for($user)->create(['key' => 'OLD']);
