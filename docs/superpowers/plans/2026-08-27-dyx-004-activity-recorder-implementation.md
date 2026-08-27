@@ -436,7 +436,7 @@ Run:
 php artisan test tests/Feature/Domain/Activity/TaskActivityImmutabilityTest.php tests/Unit/Domain/Activity/TaskActivityRecorderTest.php
 ```
 
-Expected result: PASS with 7 tests and no warnings.
+Expected result: PASS with 8 tests and no warnings.
 
 - [ ] **Step 5: Commit the append-only boundary**
 
