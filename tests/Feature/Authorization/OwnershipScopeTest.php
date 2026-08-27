@@ -31,6 +31,15 @@ test('owned scopes never return another users records', function () {
     expect(TaskActivity::query()->ownedBy($owner)->pluck('id')->all())
         ->toBe([$ownedActivity->id]);
 
+    expect(Project::query()->ownedBy($owner->id)->pluck('id')->all())
+        ->toBe([$ownedProject->id]);
+    expect(Task::query()->ownedBy($owner->id)->pluck('id')->all())
+        ->toBe([$ownedTask->id]);
+    expect(Label::query()->ownedBy($owner->id)->pluck('id')->all())
+        ->toBe([$ownedLabel->id]);
+    expect(TaskActivity::query()->ownedBy($owner->id)->pluck('id')->all())
+        ->toBe([$ownedActivity->id]);
+
     expect($owner->projects()->pluck('id')->all())->toBe([$ownedProject->id]);
     expect($owner->tasks()->pluck('id')->all())->toBe([$ownedTask->id]);
     expect($owner->labels()->pluck('id')->all())->toBe([$ownedLabel->id]);
