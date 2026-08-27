@@ -187,12 +187,14 @@ The repository currently contains only `planops-complete-spec.md`; the following
 - Consumes: DYX-003 models/enums and DYX-004 activity conventions.
 - Produces: `CreateProject::handle(User $user, array $attributes): Project`, explicit lifecycle Actions, `ProjectPolicy`, and project index filtering/sorting by status, archive state, target date, name, progress, and updated date.
 
-- [ ] **Step 1: Write failing project tests** — cover required name, `^[A-Z0-9]{2,10}$` key validation, per-user key uniqueness, target date not before start date, manual status changes, and archive/restore without deleting tasks or activity.
+- [x] **Step 1: Write failing project tests** — cover required name, `^[A-Z0-9]{2,10}$` key validation, per-user key uniqueness, target date not before start date, manual status changes, and archive/restore without deleting tasks or activity.
 - [ ] **Step 2: Run `php artisan test tests/Unit/Domain/Projects tests/Feature/Projects`** — expected: FAIL before Actions, policies, routes, and views exist.
-- [ ] **Step 3: Implement project Actions and requests** — reject key changes once the project has a task, never auto-change project status when tasks become Done, and use policy checks before every action.
-- [ ] **Step 4: Implement project pages** — expose create/edit, lifecycle controls, archive/restore, filters, sort options, and actionable validation errors using canonical terminology `Project`, never `Issue` or `Ticket`.
+- [x] **Step 3: Implement project Actions and requests** — reject key changes once the project has a task, never auto-change project status when tasks become Done, and use policy checks before every action.
+- [x] **Step 4: Implement project pages** — expose create/edit, lifecycle controls, archive/restore, filters, sort options, and actionable validation errors using canonical terminology `Project`, never `Issue` or `Ticket`.
 - [ ] **Step 5: Run the tests and verify `php artisan route:list --path=projects`** — expected: all project feature tests pass and only explicit project routes are exposed.
-- [ ] **Step 6: Commit** — `git add app resources routes tests && git commit -m "feat: add project lifecycle management"`.
+- [x] **Step 6: Commit** — `git add app resources routes tests && git commit -m "feat: add project lifecycle management"`.
+
+> Verification note: Steps 2 and 5 remain pending because this host does not have the required PHP 8.3 executable. The UI asset build and static contract review pass locally; PHP feature tests, route listing, and browser rendering still need a PHP-enabled environment.
 
 ### Task 6 (DYX-006): Implement task capture, stable task keys, and atomic numbering
 
