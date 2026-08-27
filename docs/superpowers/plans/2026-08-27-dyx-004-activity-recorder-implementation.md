@@ -309,7 +309,7 @@ Run:
 php artisan test tests/Unit/Domain/Activity/TaskActivityRecorderTest.php
 ```
 
-Expected result: PASS with 4 tests and no warnings. If a failure occurs, change the recorder rather than weakening the test contract.
+Expected result: PASS with 5 tests and no warnings. If a failure occurs, change the recorder rather than weakening the test contract.
 
 - [ ] **Step 3: Run the existing activity ownership regression tests**
 
