@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use LogicException;
 
 #[UseFactory(TaskActivityFactory::class)]
 class TaskActivity extends Model
@@ -31,6 +32,17 @@ class TaskActivity extends Model
         'metadata',
     ];
 
+    protected static function booted(): void
+    {
+        static::updating(static function (): never {
+            throw new LogicException('Task activity records are append-only.');
+        });
+
+        static::deleting(static function (): never {
+            throw new LogicException('Task activity records are append-only.');
+        });
+    }
+
     protected function casts(): array
     {
         return [
@@ -38,6 +50,7 @@ class TaskActivity extends Model
             'old_value' => 'array',
             'new_value' => 'array',
             'metadata' => 'array',
+            'created_at' => 'immutable_datetime',
         ];
     }
 
