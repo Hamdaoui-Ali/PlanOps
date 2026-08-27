@@ -1,6 +1,7 @@
 
 
 import Alpine from 'alpinejs';
+import '@phosphor-icons/web/regular';
 
 window.Alpine = Alpine;
 
