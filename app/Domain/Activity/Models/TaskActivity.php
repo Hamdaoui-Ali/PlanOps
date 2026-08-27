@@ -6,11 +6,14 @@ use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
+use Database\Factories\TaskActivityFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[UseFactory(TaskActivityFactory::class)]
 class TaskActivity extends Model
 {
     use HasFactory;

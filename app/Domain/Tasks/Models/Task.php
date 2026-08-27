@@ -8,6 +8,8 @@ use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Enums\TaskPriority;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Models\User;
+use Database\Factories\TaskFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[UseFactory(TaskFactory::class)]
 class Task extends Model
 {
     use HasFactory, SoftDeletes;
@@ -75,7 +78,7 @@ class Task extends Model
 
     public function labels(): BelongsToMany
     {
-        return $this->belongsToMany(Label::class, 'task_label')->withTimestamps();
+        return $this->belongsToMany(Label::class, 'task_label')->withPivot('created_at');
     }
 
     public function activities(): HasMany

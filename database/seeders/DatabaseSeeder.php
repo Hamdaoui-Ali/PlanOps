@@ -69,6 +69,14 @@ class DatabaseSeeder extends Seeder
             Task::factory()->forProject($completedProject)->done()->create(['number' => 1, 'title' => 'Close foundation work']);
             Task::factory()->forProject($cancelledProject)->cancelled()->create(['number' => 1, 'title' => 'Record cancellation']);
 
+            foreach ([$activeProject, $plannedProject, $onHoldProject, $completedProject, $cancelledProject] as $project) {
+                $maximumTaskNumber = Task::withTrashed()
+                    ->where('project_id', $project->id)
+                    ->max('number');
+
+                $project->update(['next_task_number' => ((int) $maximumTaskNumber) + 1]);
+            }
+
             $urgent = Label::factory()->forUser($owner)->create(['name' => 'Urgent', 'normalized_name' => 'urgent', 'color' => '#DC2626']);
             $foundation = Label::factory()->forUser($owner)->create(['name' => 'Foundation', 'normalized_name' => 'foundation', 'color' => '#2563EB']);
             $doneTask->labels()->attach([$urgent->id, $foundation->id]);
