@@ -64,4 +64,63 @@ class Project extends Model
 
         return $query->where($query->getModel()->qualifyColumn('user_id'), $ownerId);
     }
+
+    public function hasTasksEver(): bool
+    {
+        return $this->tasks()->withTrashed()->exists();
+    }
+
+    /**
+     * @return array{eligible_task_count: int, completed_task_count: int}
+     */
+    public function progressCounts(): array
+    {
+        if (array_key_exists('eligible_task_count', $this->attributes) && array_key_exists('completed_task_count', $this->attributes)) {
+            return [
+                'eligible_task_count' => (int) $this->attributes['eligible_task_count'],
+                'completed_task_count' => (int) $this->attributes['completed_task_count'],
+            ];
+        }
+
+        $eligibleTasks = $this->tasks()
+            ->whereNull('parent_task_id')
+            ->where('status', '!=', \App\Domain\Tasks\Enums\TaskStatus::CANCELLED->value);
+
+        return [
+            'eligible_task_count' => (clone $eligibleTasks)->count(),
+            'completed_task_count' => (clone $eligibleTasks)->where('status', \App\Domain\Tasks\Enums\TaskStatus::DONE->value)->count(),
+        ];
+    }
+
+    public function progressPercent(): int|float
+    {
+        $counts = $this->progressCounts();
+        if ($counts['eligible_task_count'] === 0) {
+            return 0;
+        }
+
+        $percent = round(($counts['completed_task_count'] / $counts['eligible_task_count']) * 100, 2);
+
+        return $percent === (float) (int) $percent ? (int) $percent : $percent;
+    }
+
+    public function hasActiveScope(): bool
+    {
+        return $this->progressCounts()['eligible_task_count'] > 0;
+    }
+
+    public function getEligibleTaskCountAttribute(): int
+    {
+        return $this->progressCounts()['eligible_task_count'];
+    }
+
+    public function getCompletedTaskCountAttribute(): int
+    {
+        return $this->progressCounts()['completed_task_count'];
+    }
+
+    public function getProgressPercentAttribute(): int|float
+    {
+        return $this->progressPercent();
+    }
 }
