@@ -1,7 +1,7 @@
 <?php
 
-use App\Domain\Activity\Models\TaskActivity;
 use App\Domain\Activity\Enums\TaskActivityType;
+use App\Domain\Activity\Models\TaskActivity;
 use App\Domain\Labels\Models\Label;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
