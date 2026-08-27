@@ -2,6 +2,8 @@
 
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
+use App\Models\User;
+use Database\Factories\UserFactory;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -9,10 +11,22 @@ use Illuminate\Support\Facades\Hash;
 
 function seedPlanOpsFixtures(): void
 {
-    config(['hashing.bcrypt.rounds' => 12]);
-    Hash::forgetDrivers();
+    $previousHashingConfig = config('hashing');
+    $factoryPassword = new ReflectionProperty(UserFactory::class, 'password');
+    $previousFactoryPassword = $factoryPassword->isInitialized()
+        ? $factoryPassword->getValue()
+        : null;
 
-    Artisan::call('db:seed', ['--class' => DatabaseSeeder::class]);
+    try {
+        config(['hashing.bcrypt.rounds' => 12]);
+        Hash::forgetDrivers();
+
+        Artisan::call('db:seed', ['--class' => DatabaseSeeder::class]);
+    } finally {
+        config(['hashing' => $previousHashingConfig]);
+        Hash::forgetDrivers();
+        $factoryPassword->setValue($previousFactoryPassword);
+    }
 }
 
 function resetPlanOpsFixtures(): void
@@ -52,6 +66,15 @@ test('the database seeder produces reproducible persisted fixtures', function ()
     seedPlanOpsFixtures();
 
     expect(seededFixtureSnapshot())->toBe($firstSeed);
+});
+
+test('the database seeder restores hashing state for later user factories', function (): void {
+    $previousHashingConfig = config('hashing');
+
+    seedPlanOpsFixtures();
+
+    expect(config('hashing'))->toBe($previousHashingConfig);
+    expect(User::factory()->make())->toBeInstanceOf(User::class);
 });
 
 test('the database seeder advances every project task counter past soft-deleted tasks', function (): void {
