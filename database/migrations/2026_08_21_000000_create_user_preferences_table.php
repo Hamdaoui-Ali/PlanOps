@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('week_start_day')->default('MONDAY');
             $table->string('theme')->default('SYSTEM');
             $table->string('density')->default('COMFORTABLE');
-            $table->timestamps();
+            $table->timestampsTz();
         });
     }
 

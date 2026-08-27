@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Domain\Activity\Enums;
+
+enum TaskActivityType: string
+{
+    case TASK_CREATED = 'TASK_CREATED';
+    case TASK_UPDATED = 'TASK_UPDATED';
+    case STATUS_CHANGED = 'STATUS_CHANGED';
+    case PRIORITY_CHANGED = 'PRIORITY_CHANGED';
+    case DUE_DATE_CHANGED = 'DUE_DATE_CHANGED';
+    case LABEL_ADDED = 'LABEL_ADDED';
+    case LABEL_REMOVED = 'LABEL_REMOVED';
+    case SUBTASK_CREATED = 'SUBTASK_CREATED';
+    case TASK_MOVED_PROJECT = 'TASK_MOVED_PROJECT';
+    case TASK_DELETED = 'TASK_DELETED';
+    case TASK_RESTORED = 'TASK_RESTORED';
+}
