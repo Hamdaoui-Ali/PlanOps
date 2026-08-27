@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
+use App\Domain\Projects\Models\Project;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,9 +16,22 @@ Route::get('/dashboard', DashboardController::class)
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    foreach (['my-work' => 'My Work', 'projects' => 'Projects', 'analytics' => 'Analytics', 'activity' => 'Activity'] as $path => $title) {
+    foreach (['my-work' => 'My Work', 'analytics' => 'Analytics', 'activity' => 'Activity'] as $path => $title) {
         Route::view('/'.$path, 'pages.coming-soon', ['title' => $title])->name($path);
     }
+
+    Route::bind('project', function (string $value): Project {
+        return Project::query()->ownedBy(request()->user())->findOrFail($value);
+    });
+
+    Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+    Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
+    Route::patch('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+    Route::post('/projects/{project}/status', [ProjectController::class, 'changeStatus'])->name('projects.status');
+    Route::post('/projects/{project}/archive', [ProjectController::class, 'archive'])->name('projects.archive');
+    Route::post('/projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
 });
 
 Route::middleware('auth')->group(function () {
