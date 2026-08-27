@@ -53,6 +53,25 @@ test('redacts title and description values from generic updates', function (): v
     expect($activity->metadata)->toBe(['is_reopen' => true]);
 });
 
+test('redacts title values from generic updates', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
+    $task = Task::factory()->forProject($project)->create(['number' => 1]);
+
+    $activity = (new TaskActivityRecorder)->record(
+        $task,
+        TaskActivityType::TASK_UPDATED,
+        'title',
+        'private old title',
+        'private new title',
+        ['title' => 'private metadata', 'is_reopen' => true],
+    );
+
+    expect($activity->old_value)->toBeNull();
+    expect($activity->new_value)->toBeNull();
+    expect($activity->metadata)->toBe(['is_reopen' => true]);
+});
+
 test('normalizes nested enums and date-times while preserving metadata booleans', function (): void {
     $owner = User::factory()->create();
     $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
