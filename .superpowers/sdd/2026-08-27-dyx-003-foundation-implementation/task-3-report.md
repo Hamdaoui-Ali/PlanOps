@@ -81,3 +81,66 @@ Task 3's supplied plan does not add a model test file. Its specified runnable ta
 
 - PHP and Composer are unavailable on PATH, so autoloading, syntax parsing by PHP, migrations, and the focused Laravel tests remain unverified in this environment.
 - The factory-backed ownership test remains intentionally deferred to Task 4, as directed.
+
+## Fix Round 1: Retain Soft-Deleted Task Relationships
+
+### Review Finding
+
+`TaskActivity::task()` used the default `BelongsTo` relation. Because `Task` uses `SoftDeletes`, that relation excluded a soft-deleted task even though the activity row remained available. The relation now uses the requested `withTrashed()` behavior:
+
+```php
+return $this->belongsTo(Task::class)->withTrashed();
+```
+
+### Regression Test
+
+Added `activity history retains its task relationship after soft deletion` to `tests/Feature/Authorization/OwnershipScopeTest.php`. The test creates a user, project, task, and activity directly using the existing model contracts; soft-deletes the task; reloads the activity; and asserts that its task relationship is present, points to the original task, and remains trashed. No Task 4 factories were added.
+
+### Covering Test Command and Output
+
+The required command was attempted before the model fix (TDD red-phase attempt):
+
+```text
+php artisan test tests/Feature/Authorization/OwnershipScopeTest.php
+```
+
+Exact output:
+
+```text
+php : Le terme «php» n'est pas reconnu comme nom d'applet de commande, fonction, fichier de script ou programme
+exécutable. Vérifiez l'orthographe du nom, ou si un chemin d'accès existe, vérifiez que le chemin d'accès est correct
+et réessayez.
+Au caractère Ligne:2 : 1
++ php artisan test tests/Feature/Authorization/OwnershipScopeTest.php
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (php:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+```
+
+The same required command was attempted after the model fix:
+
+```text
+php artisan test tests/Feature/Authorization/OwnershipScopeTest.php
+```
+
+Exact output:
+
+```text
+php : Le terme «php» n'est pas reconnu comme nom d'applet de commande, fonction, fichier ou programme exécutable. Vérifiez
+l'orthographe du nom, ou si un chemin d'accès existe, vérifiez que le chemin d'accès est correct
+et réessayez.
+Au caractère Ligne:2 : 1
++ php artisan test tests/Feature/Authorization/OwnershipScopeTest.php
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (php:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+```
+
+Neither attempt reached Artisan or the test runner. The regression test therefore could not be observed passing in this environment and is not claimed as passed.
+
+### Fix Verification and Concerns
+
+- Re-read the changed `TaskActivity::task()` relation and the new regression test.
+- Confirmed the fix is limited to `withTrashed()` and the requested test.
+- Confirmed no Task 4 factories or unrelated production behavior were introduced.
+- `git diff --check` remains the available static check; PHP runtime verification is blocked because `php` is unavailable on PATH.

@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\Activity\Models\TaskActivity;
+use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Labels\Models\Label;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
@@ -61,4 +62,32 @@ test('valid activity fixtures retain task and project ownership context', functi
     expect($activity->user_id)->toBe($owner->id);
     expect($activity->project_id)->toBe($project->id);
     expect($activity->task_id)->toBe($task->id);
+});
+
+test('activity history retains its task relationship after soft deletion', function () {
+    $owner = User::factory()->create();
+    $project = Project::create([
+        'user_id' => $owner->id,
+        'name' => 'PlanOps',
+        'key' => 'PLAN',
+    ]);
+    $task = Task::create([
+        'user_id' => $owner->id,
+        'project_id' => $project->id,
+        'number' => 1,
+        'title' => 'Retain task history',
+    ]);
+    $activity = TaskActivity::create([
+        'user_id' => $owner->id,
+        'project_id' => $project->id,
+        'task_id' => $task->id,
+        'event_type' => TaskActivityType::TASK_CREATED,
+    ]);
+
+    $task->delete();
+    $reloadedActivity = TaskActivity::query()->findOrFail($activity->id);
+
+    expect($reloadedActivity->task)->not->toBeNull();
+    expect($reloadedActivity->task->getKey())->toBe($task->getKey());
+    expect($reloadedActivity->task->trashed())->toBeTrue();
 });
