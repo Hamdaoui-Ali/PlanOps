@@ -10,7 +10,7 @@ class ChangeProjectStatusRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('changeStatus', $this->project()) ?? false;
+        return $this->user()?->can('changeStatus', $this->route('project')) ?? false;
     }
 
     public function rules(): array
