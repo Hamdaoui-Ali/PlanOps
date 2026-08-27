@@ -1,4 +1,10 @@
 <x-app-layout>
+    @php
+        $weekStartDay = $preference?->week_start_day?->value ?? 'MONDAY';
+        $theme = $preference?->theme?->value ?? 'SYSTEM';
+        $density = $preference?->density?->value ?? 'COMFORTABLE';
+    @endphp
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Settings') }}</h2>
     </x-slot>
@@ -23,19 +29,19 @@
                 <div>
                     <x-input-label for="week_start_day" :value="__('Week starts on')" />
                     <select id="week_start_day" name="week_start_day" class="mt-1 block w-full border-gray-300 rounded-md">
-                        @foreach (['MONDAY', 'SUNDAY'] as $day)<option value="{{ $day }}" @selected($preference->week_start_day === $day)>{{ $day }}</option>@endforeach
+                        @foreach (['MONDAY', 'SUNDAY'] as $day)<option value="{{ $day }}" @selected($weekStartDay === $day)>{{ $day }}</option>@endforeach
                     </select>
                 </div>
                 <div>
                     <x-input-label for="theme" :value="__('Theme')" />
                     <select id="theme" name="theme" class="mt-1 block w-full border-gray-300 rounded-md">
-                        @foreach (['SYSTEM', 'LIGHT', 'DARK'] as $theme)<option value="{{ $theme }}" @selected($preference->theme === $theme)>{{ $theme }}</option>@endforeach
+                        @foreach (['SYSTEM', 'LIGHT', 'DARK'] as $option)<option value="{{ $option }}" @selected($theme === $option)>{{ $option }}</option>@endforeach
                     </select>
                 </div>
                 <div>
                     <x-input-label for="density" :value="__('Density')" />
                     <select id="density" name="density" class="mt-1 block w-full border-gray-300 rounded-md">
-                        @foreach (['COMFORTABLE', 'COMPACT'] as $density)<option value="{{ $density }}" @selected($preference->density === $density)>{{ $density }}</option>@endforeach
+                        @foreach (['COMFORTABLE', 'COMPACT'] as $option)<option value="{{ $option }}" @selected($density === $option)>{{ $option }}</option>@endforeach
                     </select>
                 </div>
                 <x-primary-button>{{ __('Save preferences') }}</x-primary-button>

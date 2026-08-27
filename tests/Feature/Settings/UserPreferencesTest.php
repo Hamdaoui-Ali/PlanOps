@@ -1,5 +1,8 @@
 <?php
 
+use App\Domain\Identity\Enums\DensityPreference;
+use App\Domain\Identity\Enums\ThemePreference;
+use App\Domain\Identity\Enums\WeekStartDay;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -24,6 +27,25 @@ test('the settings layout applies default theme and density classes at the docum
         ->assertOk()
         ->assertSee('theme-system')
         ->assertSee('density-comfortable');
+});
+
+test('the settings form renders persisted enum values as selected options', function () {
+    $user = User::factory()->create();
+
+    $user->preference()->create([
+        'week_start_day' => WeekStartDay::SUNDAY,
+        'theme' => ThemePreference::DARK,
+        'density' => DensityPreference::COMPACT,
+    ]);
+
+    $this->actingAs($user)
+        ->get('/settings')
+        ->assertOk()
+        ->assertSee('theme-dark')
+        ->assertSee('density-compact')
+        ->assertSee('<option value="SUNDAY" selected', false)
+        ->assertSee('<option value="DARK" selected', false)
+        ->assertSee('<option value="COMPACT" selected', false);
 });
 
 test('an authenticated user can persist valid preferences', function () {

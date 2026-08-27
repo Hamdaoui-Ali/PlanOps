@@ -1,6 +1,10 @@
 <!DOCTYPE html>
-@php($preferences = auth()->user()?->preference)
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="theme-{{ strtolower($preferences?->theme ?? 'SYSTEM') }} density-{{ strtolower($preferences?->density ?? 'COMFORTABLE') }}">
+@php
+    $preferences = auth()->user()?->preference;
+    $theme = $preferences?->theme?->value ?? 'SYSTEM';
+    $density = $preferences?->density?->value ?? 'COMFORTABLE';
+@endphp
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="theme-{{ strtolower($theme) }} density-{{ strtolower($density) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
