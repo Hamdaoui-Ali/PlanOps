@@ -14,7 +14,7 @@ class ProjectPolicy
 
     public function view(User $user, Project $project): bool
     {
-        return (int) $user->getKey() === (int) $project->user_id;
+        return (string) $user->getKey() === (string) $project->user_id;
     }
 
     public function create(User $user): bool
