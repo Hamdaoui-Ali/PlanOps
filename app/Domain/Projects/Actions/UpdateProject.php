@@ -20,6 +20,12 @@ class UpdateProject
             'description' => array_key_exists('description', $attributes)
                 ? $this->nullableTrimmed($attributes['description'])
                 : $project->description,
+            'color' => array_key_exists('color', $attributes)
+                ? $this->nullableTrimmed($attributes['color'])
+                : $project->color,
+            'icon' => array_key_exists('icon', $attributes)
+                ? $this->nullableTrimmed($attributes['icon'])
+                : $project->icon,
             'start_on' => $this->nullableValue($attributes['start_on'] ?? $project->start_on),
             'target_on' => $this->nullableValue($attributes['target_on'] ?? $project->target_on),
         ];
@@ -28,6 +34,8 @@ class UpdateProject
             'name' => ['required', 'string', 'max:80'],
             'key' => ['required', 'string', 'regex:/^[A-Z0-9]{2,10}$/', Rule::unique('projects', 'key')->where('user_id', $user->getKey())->ignore($project->getKey())],
             'description' => ['nullable', 'string'],
+            'color' => ['nullable', 'string', 'max:32'],
+            'icon' => ['nullable', 'string', 'max:64'],
             'start_on' => ['nullable', 'date'],
             'target_on' => ['nullable', 'date', 'after_or_equal:start_on'],
         ]);

@@ -27,6 +27,16 @@
                     <x-input-error class="mt-2" :messages="$errors->get('description')" />
                 </div>
 
+                <div>
+                    <label for="status" class="block font-medium text-sm text-gray-700">Initial status</label>
+                    <select id="status" name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        @foreach ($statuses as $status)
+                            <option value="{{ $status->value }}" @selected(old('status', \App\Domain\Projects\Enums\ProjectStatus::PLANNED->value) === $status->value)>{{ str($status->value)->replace('_', ' ')->title() }}</option>
+                        @endforeach
+                    </select>
+                    <x-input-error class="mt-2" :messages="$errors->get('status')" />
+                </div>
+
                 <div class="grid gap-6 sm:grid-cols-2">
                     <div>
                         <label for="start_on" class="block font-medium text-sm text-gray-700">Start date <span class="text-gray-500">(optional)</span></label>

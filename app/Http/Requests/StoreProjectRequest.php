@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Projects\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -29,6 +30,7 @@ class StoreProjectRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'color' => ['nullable', 'string', 'max:32'],
             'icon' => ['nullable', 'string', 'max:64'],
+            'status' => ['nullable', 'string', Rule::in(array_column(ProjectStatus::cases(), 'value'))],
             'start_on' => ['nullable', 'date'],
             'target_on' => ['nullable', 'date', 'after_or_equal:start_on'],
         ];
@@ -41,6 +43,7 @@ class StoreProjectRequest extends FormRequest
             'key.required' => 'Enter a project key.',
             'key.regex' => 'Project keys use 2 to 10 uppercase letters or numbers only.',
             'key.unique' => 'You already have a project with this key.',
+            'status.in' => 'Choose a valid project status.',
             'target_on.after_or_equal' => 'The target date must be on or after the start date.',
         ];
     }
