@@ -38,4 +38,9 @@ class TaskActivityFactory extends Factory
     {
         return $this->state(fn (): array => ['event_type' => TaskActivityType::STATUS_CHANGED]);
     }
+
+    public function taskDeleted(): static
+    {
+        return $this->state(fn (): array => ['event_type' => TaskActivityType::TASK_DELETED]);
+    }
 }
