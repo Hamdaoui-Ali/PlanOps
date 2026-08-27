@@ -8,12 +8,26 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
+function projectConsoleXPath(string $html): DOMXPath
+{
+    $document = new DOMDocument;
+
+    @$document->loadHTML($html);
+
+    return new DOMXPath($document);
+}
+
 test('the projects index renders the active owner ledger with project details and actions', function (): void {
     $owner = User::factory()->create();
     $other = User::factory()->create();
     $active = Project::factory()->for($owner)->active()->create([
         'name' => 'Website Refresh',
         'key' => 'WEB',
+        'target_on' => now()->addDays(21)->toDateString(),
+    ]);
+    $zeroEligible = Project::factory()->for($owner)->active()->create([
+        'name' => 'Unscoped Initiative',
+        'key' => 'ZERO',
     ]);
     $archived = Project::factory()->for($owner)->create([
         'name' => 'Retired Migration',
@@ -35,12 +49,21 @@ test('the projects index renders the active owner ledger with project details an
         ->assertSee('ACTIVE')
         ->assertSee('1 of 2 done')
         ->assertSee('50%')
+        ->assertSee($active->target_on->format('M j, Y'))
+        ->assertSee($zeroEligible->name)
+        ->assertSee('No active scope')
+        ->assertSee('0%')
         ->assertSee('New project')
         ->assertSee('Find a project')
-        ->assertSee('Open project')
-        ->assertSee(route('projects.edit', $active, absolute: false), false)
         ->assertDontSee($archived->name)
         ->assertDontSee($foreign->name);
+
+    $xpath = projectConsoleXPath($response->getContent());
+
+    expect($xpath->query(sprintf(
+        '//a[@href="%s" and normalize-space()="Open project"]',
+        route('projects.edit', $active, absolute: false),
+    ))->length)->toBe(1);
 });
 
 test('the archived projects filter exposes only the owners archived projects', function (): void {
@@ -54,13 +77,64 @@ test('the archived projects filter exposes only the owners archived projects', f
         'name' => 'Active Delivery',
         'key' => 'LIVE',
     ]);
+    $foreignArchived = Project::factory()->for(User::factory()->create())->create([
+        'name' => 'Foreign Archived Discovery',
+        'key' => 'FARC',
+        'archived_at' => now(),
+    ]);
 
     $response = $this->actingAs($owner)->get(route('projects.index', ['archived' => 'archived']));
 
     $response->assertOk()
         ->assertSee($archived->name)
         ->assertSee('ON HOLD')
-        ->assertDontSee($active->name);
+        ->assertDontSee($active->name)
+        ->assertDontSee($foreignArchived->name);
+});
+
+test('the projects console exposes all projects and preserves the submitted GET controls', function (): void {
+    $owner = User::factory()->create();
+    $active = Project::factory()->for($owner)->active()->create([
+        'name' => 'All Hands Active',
+        'key' => 'AHA',
+    ]);
+    $archived = Project::factory()->for($owner)->active()->create([
+        'name' => 'All Hands Archived',
+        'key' => 'AHR',
+        'archived_at' => now(),
+    ]);
+    $filters = [
+        'search' => 'All Hands',
+        'status' => 'ACTIVE',
+        'archived' => 'all',
+        'target_date' => 'no_target',
+        'sort' => 'name',
+    ];
+
+    $response = $this->actingAs($owner)->get(route('projects.index', $filters));
+
+    $response->assertOk()
+        ->assertSee($active->name)
+        ->assertSee($archived->name);
+
+    $xpath = projectConsoleXPath($response->getContent());
+
+    expect($xpath->query('//form[translate(@method, "GET", "get") = "get"]')->length)->toBeGreaterThan(0);
+    expect($xpath->query('//form[translate(@method, "GET", "get") = "get"]//input[@name="search" and @value="All Hands"]')->length)->toBe(1);
+    expect($xpath->query('//form[translate(@method, "GET", "get") = "get"]//select[@name="status"]//option[@value="ACTIVE" and @selected]')->length)->toBe(1);
+    expect($xpath->query('//form[translate(@method, "GET", "get") = "get"]//select[@name="archived"]//option[@value="all" and @selected]')->length)->toBe(1);
+    expect($xpath->query('//form[translate(@method, "GET", "get") = "get"]//select[@name="target_date"]//option[@value="no_target" and @selected]')->length)->toBe(1);
+    expect($xpath->query('//form[translate(@method, "GET", "get") = "get"]//select[@name="sort"]//option[@value="name" and @selected]')->length)->toBe(1);
+
+    $allProjectsLinks = $xpath->query('//a[contains(@href, "archived=all")]');
+
+    expect($allProjectsLinks->length)->toBeGreaterThan(0);
+
+    foreach ($allProjectsLinks as $link) {
+        parse_str(parse_url($link->getAttribute('href'), PHP_URL_QUERY) ?? '', $query);
+
+        expect($query)->toMatchArray($filters);
+    }
 });
 
 test('filtered projects with no matches explain the result and offer a reset path', function (): void {
@@ -71,8 +145,14 @@ test('filtered projects with no matches explain the result and offer a reset pat
 
     $response->assertOk()
         ->assertSee('No projects match your current filters.')
-        ->assertSee('Reset filters')
-        ->assertSee(route('projects.index', absolute: false), false);
+        ->assertSee('Reset filters');
+
+    $xpath = projectConsoleXPath($response->getContent());
+
+    expect($xpath->query(sprintf(
+        '//a[@href="%s" and normalize-space()="Reset filters"]',
+        route('projects.index', absolute: false),
+    ))->length)->toBe(1);
 });
 
 test('a new account sees the first-project empty state and create action', function (): void {
@@ -93,13 +173,22 @@ test('the projects console exposes labelled navigation and keyboard-relevant con
     $response = $this->actingAs($owner)->get(route('projects.index'));
 
     $response->assertOk()
-        ->assertSee('<nav', false)
-        ->assertSee('aria-expanded', false)
-        ->assertSee('aria-controls', false)
-        ->assertSee('Menu')
         ->assertSee('Projects')
         ->assertSee('PLANNED')
         ->assertSee('New project')
-        ->assertSee('Find a project')
-        ->assertSee('Open project');
+        ->assertSee('Find a project');
+
+    $xpath = projectConsoleXPath($response->getContent());
+    $menuButtons = $xpath->query(
+        '//button[@aria-expanded and @aria-controls and (@aria-label="Menu" or normalize-space()="Menu")]',
+    );
+
+    expect($menuButtons->length)->toBe(1);
+
+    $menuId = $menuButtons->item(0)->getAttribute('aria-controls');
+
+    expect($xpath->query(sprintf(
+        '//nav[@id="%s" and string-length(normalize-space(@aria-label)) > 0]',
+        $menuId,
+    ))->length)->toBe(1);
 });
