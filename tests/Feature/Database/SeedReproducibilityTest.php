@@ -2,8 +2,33 @@
 
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+
+function seedPlanOpsFixtures(): void
+{
+    config(['hashing.bcrypt.rounds' => 12]);
+    Hash::forgetDrivers();
+
+    Artisan::call('db:seed', ['--class' => DatabaseSeeder::class]);
+}
+
+function resetPlanOpsFixtures(): void
+{
+    foreach ([
+        'task_activities',
+        'task_label',
+        'tasks',
+        'labels',
+        'projects',
+        'user_preferences',
+        'users',
+    ] as $table) {
+        DB::table($table)->truncate();
+    }
+}
 
 function seededFixtureSnapshot(): array
 {
@@ -19,17 +44,18 @@ function seededFixtureSnapshot(): array
 }
 
 test('the database seeder produces reproducible persisted fixtures', function () {
-    Artisan::call('migrate:fresh', ['--seed' => true]);
+    seedPlanOpsFixtures();
 
     $firstSeed = seededFixtureSnapshot();
 
-    Artisan::call('migrate:fresh', ['--seed' => true]);
+    resetPlanOpsFixtures();
+    seedPlanOpsFixtures();
 
     expect(seededFixtureSnapshot())->toBe($firstSeed);
 });
 
 test('the database seeder advances every project task counter past soft-deleted tasks', function (): void {
-    Artisan::call('migrate:fresh', ['--seed' => true]);
+    seedPlanOpsFixtures();
 
     Project::query()->each(function (Project $project): void {
         $maximumTaskNumber = Task::withTrashed()
