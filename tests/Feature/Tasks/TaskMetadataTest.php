@@ -218,6 +218,8 @@ test('metadata and label components retain their route-agnostic Blade form contr
         ->toContain('action="{{ $deleteAction }}"')
         ->not->toContain('route(');
 
+    expect($metadataComponent)->toMatch('/@if \(\$deleteAction !== null\)\s*<form\\b[^>]*action="\\{\\{ \$deleteAction \\}\\}"[^>]*>.*?<\\/form>\s*@endif/s');
+
     expect($labelPickerComponent)->toContain('$attachAction')
         ->toContain('$detachAction')
         ->toContain('$createAction')
@@ -239,4 +241,6 @@ test('metadata and label components retain their route-agnostic Blade form contr
         ->toContain('action="{{ $createAction }}"')
         ->not->toContain('route(')
         ->not->toContain('display_key');
+
+    expect($labelPickerComponent)->toMatch('/@if \(\$createAction !== null\)\s*<form\\b[^>]*action="\\{\\{ \$createAction \\}\\}"[^>]*>.*?<\\/form>\s*@endif/s');
 });
