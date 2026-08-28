@@ -258,6 +258,29 @@ test('the task creation route renders the required labels', function (): void {
         ->assertSee('Due date');
 });
 
+test('the task creation route exposes only owner-scoped top-level non-deleted parent options', function (): void {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
+    $otherProject = Project::factory()->for($owner)->create(['key' => 'OTHER']);
+    $visibleParent = Task::factory()->forProject($project)->create(['number' => 2, 'title' => 'Visible parent']);
+    Task::factory()->forProject($otherProject)->create(['number' => 1, 'title' => 'Cross-project parent']);
+    Task::factory()->forProject($project)->create(['user_id' => $other->id, 'number' => 3, 'title' => 'Foreign-owner parent']);
+    Task::factory()->forProject($project)->withParent($visibleParent)->create(['number' => 4, 'title' => 'Nested parent']);
+    Task::factory()->forProject($project)->deleted()->create(['number' => 5, 'title' => 'Deleted parent']);
+
+    $this->actingAs($owner)
+        ->get(route('projects.tasks.create', $project))
+        ->assertOk()
+        ->assertViewHas('parentOptions', function ($parentOptions) use ($visibleParent): bool {
+            return $parentOptions->all() === [[
+                'id' => $visibleParent->getKey(),
+                'display_key' => 'PLAN-2',
+                'title' => 'Visible parent',
+            ]];
+        });
+});
+
 test('a valid task creation post redirects to the named create route with the derived key message', function (): void {
     $owner = User::factory()->create();
     $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
@@ -280,6 +303,26 @@ test('an invalid task creation post preserves the title and returns a field-leve
     $response->assertRedirect(route('projects.tasks.create', $project, absolute: false))
         ->assertSessionHasInput('title', 'Keep this title')
         ->assertSessionHasErrors(['status']);
+});
+
+test('a forged unavailable parent post returns a field error without creating a task or advancing the counter', function (): void {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
+    $foreignProject = Project::factory()->for($other)->create(['key' => 'OTHER']);
+    $foreignParent = Task::factory()->forProject($foreignProject)->create(['number' => 1]);
+
+    $response = $this->actingAs($owner)
+        ->from(route('projects.tasks.create', $project))
+        ->post(route('projects.tasks.store', $project), [
+            'title' => 'Forged parent',
+            'parent_task_id' => $foreignParent->id,
+        ]);
+
+    $response->assertRedirect(route('projects.tasks.create', $project, absolute: false))
+        ->assertSessionHasErrors(['parent_task_id']);
+    expect(Task::query()->count())->toBe(1)
+        ->and($project->fresh()->next_task_number)->toBe(1);
 });
 
 test('a foreign task creation URL returns not found without rendering its project or parent options', function (): void {
