@@ -37,3 +37,15 @@ test('task display keys reject tasks without a valid project identity', function
     expect(fn (): string => (new TaskKeyQuery)->displayKey($task))
         ->toThrow(LogicException::class);
 });
+
+test('task display keys reject a preloaded project owned by another user', function (): void {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
+    $foreignProject = Project::factory()->for($other)->create(['key' => 'OTHER']);
+    $task = Task::factory()->forProject($project)->create(['number' => 1]);
+    $task->setRelation('project', $foreignProject);
+
+    expect(fn (): string => (new TaskKeyQuery)->displayKey($task))
+        ->toThrow(LogicException::class);
+});

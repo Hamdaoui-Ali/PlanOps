@@ -15,9 +15,16 @@ class TaskKeyQuery
 
         $project = $task->relationLoaded('project')
             ? $task->project
-            : $task->load('project')->project;
+            : $task->project()->where('user_id', $task->user_id)->first();
 
-        if ($project === null || blank($project->key) || (int) $task->number < 1) {
+        if (
+            $task->user_id === null
+            || $project === null
+            || $project->user_id === null
+            || (string) $project->user_id !== (string) $task->user_id
+            || blank($project->key)
+            || (int) $task->number < 1
+        ) {
             throw new LogicException('Cannot derive a display key without a valid task identity.');
         }
 
