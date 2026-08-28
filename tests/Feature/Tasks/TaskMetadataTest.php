@@ -2,6 +2,7 @@
 
 use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Activity\Models\TaskActivity;
+use App\Domain\Labels\Models\Label;
 use App\Domain\Tasks\Actions\ChangeTaskDueDate;
 use App\Domain\Tasks\Actions\ChangeTaskPriority;
 use App\Domain\Tasks\Actions\DeleteTask;
@@ -54,9 +55,10 @@ test('ChangeTaskPriority accepts every priority and records no event for an iden
     $owner = User::factory()->create();
     $task = Task::factory()->for($owner)->create(['priority' => TaskPriority::MEDIUM]);
 
-    foreach (TaskPriority::cases() as $priority) {
-        (new ChangeTaskPriority)->handle($owner, $task->fresh(), $priority->value);
-    }
+    (new ChangeTaskPriority)->handle($owner, $task->fresh(), TaskPriority::HIGH);
+    (new ChangeTaskPriority)->handle($owner, $task->fresh(), TaskPriority::LOW->value);
+    (new ChangeTaskPriority)->handle($owner, $task->fresh(), TaskPriority::MEDIUM->value);
+    (new ChangeTaskPriority)->handle($owner, $task->fresh(), TaskPriority::URGENT->value);
 
     $beforeNoOp = TaskActivity::query()->where('event_type', TaskActivityType::PRIORITY_CHANGED)->count();
     (new ChangeTaskPriority)->handle($owner, $task->fresh(), TaskPriority::URGENT);
@@ -70,12 +72,12 @@ test('ChangeTaskDueDate persists date-only values, supports clearing, and ignore
     $owner = User::factory()->create();
     $task = Task::factory()->for($owner)->create(['due_on' => '2026-09-15']);
 
-    (new ChangeTaskDueDate)->handle($owner, $task, CarbonImmutable::parse('2026-09-15 18:30:00'));
-    expect(TaskActivity::query()->where('event_type', TaskActivityType::DUE_DATE_CHANGED)->count())->toBe(0);
-
-    (new ChangeTaskDueDate)->handle($owner, $task->fresh(), '2026-09-16');
+    (new ChangeTaskDueDate)->handle($owner, $task, CarbonImmutable::parse('2026-09-16 18:30:00'));
     expect($task->fresh()->due_on->toDateString())->toBe('2026-09-16')
         ->and(TaskActivity::query()->where('event_type', TaskActivityType::DUE_DATE_CHANGED)->count())->toBe(1);
+
+    (new ChangeTaskDueDate)->handle($owner, $task->fresh(), '2026-09-16');
+    expect(TaskActivity::query()->where('event_type', TaskActivityType::DUE_DATE_CHANGED)->count())->toBe(1);
 
     (new ChangeTaskDueDate)->handle($owner, $task->fresh(), null);
     expect($task->fresh()->due_on)->toBeNull()
@@ -112,8 +114,11 @@ test('DeleteTask soft-deletes a task while retaining its number and activity his
 test('RestoreTask restores only an explicitly trashed task and preserves identity, history, and labels', function (): void {
     $owner = User::factory()->create();
     $task = Task::factory()->for($owner)->create();
-    $label = \App\Domain\Labels\Models\Label::factory()->forUser($owner)->create();
+    $label = Label::factory()->forUser($owner)->create();
     $task->labels()->attach($label);
+    $history = TaskActivity::factory()->forTask($task)->create([
+        'event_type' => TaskActivityType::TASK_UPDATED,
+    ]);
     $task->delete();
 
     $restored = (new RestoreTask)->handle($owner, $task);
@@ -121,6 +126,7 @@ test('RestoreTask restores only an explicitly trashed task and preserves identit
     expect($restored->getKey())->toBe($task->getKey())
         ->and($restored->trashed())->toBeFalse()
         ->and($restored->fresh()->labels->pluck('id')->all())->toBe([$label->id])
+        ->and(TaskActivity::query()->find($history->id))->not->toBeNull()
         ->and(TaskActivity::query()->where('task_id', $task->id)->where('event_type', TaskActivityType::TASK_RESTORED)->count())->toBe(1);
 });
 
@@ -130,8 +136,12 @@ test('deletion and restoration by another user are rejected without mutation', f
     $task = Task::factory()->for($owner)->create();
 
     expect(fn (): Task => (new DeleteTask)->handle($other, $task))->toThrow(AuthorizationException::class)
-        ->and(fn (): Task => (new RestoreTask)->handle($other, $task))->toThrow(AuthorizationException::class);
+        ->and($task->fresh()->trashed())->toBeFalse();
 
-    expect($task->fresh()->trashed())->toBeFalse()
+    $task->delete();
+
+    expect(fn (): Task => (new RestoreTask)->handle($other, $task))->toThrow(AuthorizationException::class);
+
+    expect($task->fresh()->trashed())->toBeTrue()
         ->and(TaskActivity::query()->count())->toBe(0);
 });

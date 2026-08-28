@@ -33,8 +33,8 @@ test('label attach and detach are owner-scoped, idempotent, and record only pivo
     $owner = User::factory()->create();
     $other = User::factory()->create();
     $task = Task::factory()->for($owner)->create();
+    $foreignTask = Task::factory()->for($other)->create();
     $label = Label::factory()->forUser($owner)->create();
-    $foreignLabel = Label::factory()->forUser($other)->create();
 
     (new AttachLabelToTask)->handle($owner, $task, $label);
     (new AttachLabelToTask)->handle($owner, $task->fresh(), $label);
@@ -44,7 +44,12 @@ test('label attach and detach are owner-scoped, idempotent, and record only pivo
     expect($task->fresh()->labels)->toHaveCount(0)
         ->and(TaskActivity::query()->where('event_type', TaskActivityType::LABEL_ADDED)->count())->toBe(1)
         ->and(TaskActivity::query()->where('event_type', TaskActivityType::LABEL_REMOVED)->count())->toBe(1)
-        ->and(fn (): Task => (new AttachLabelToTask)->handle($owner, $task, $foreignLabel))->toThrow(AuthorizationException::class);
+        ->and(fn (): Task => (new AttachLabelToTask)->handle($owner, $foreignTask, $label))->toThrow(AuthorizationException::class)
+        ->and(fn (): Task => (new DetachLabelFromTask)->handle($owner, $foreignTask, $label))->toThrow(AuthorizationException::class);
+
+    expect($foreignTask->fresh()->labels)->toHaveCount(0)
+        ->and(TaskActivity::query()->where('event_type', TaskActivityType::LABEL_ADDED)->count())->toBe(1)
+        ->and(TaskActivity::query()->where('event_type', TaskActivityType::LABEL_REMOVED)->count())->toBe(1);
 });
 
 test('DeleteLabel detaches every owned task, retains tasks, and records each removal', function (): void {
