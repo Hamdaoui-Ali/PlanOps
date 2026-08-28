@@ -29,6 +29,14 @@ test('CreateLabel normalizes names, rejects same-owner duplicates, and allows an
         ->and(fn (): Label => (new CreateLabel)->handle($owner, ['name' => ' frontend platform ']))->toThrow(ValidationException::class);
 });
 
+test('CreateLabel validates the displayed name and optional color', function (): void {
+    $owner = User::factory()->create();
+
+    expect(fn (): Label => (new CreateLabel)->handle($owner, ['name' => " \t "]))->toThrow(ValidationException::class)
+        ->and(fn (): Label => (new CreateLabel)->handle($owner, ['name' => str_repeat('a', 81)]))->toThrow(ValidationException::class)
+        ->and(fn (): Label => (new CreateLabel)->handle($owner, ['name' => 'Platform', 'color' => str_repeat('a', 33)]))->toThrow(ValidationException::class);
+});
+
 test('label attach and detach are owner-scoped, idempotent, and record only pivot changes', function (): void {
     $owner = User::factory()->create();
     $other = User::factory()->create();
@@ -52,6 +60,27 @@ test('label attach and detach are owner-scoped, idempotent, and record only pivo
         ->and(TaskActivity::query()->where('event_type', TaskActivityType::LABEL_REMOVED)->count())->toBe(1);
 });
 
+test('label activities contain only the label identity and reflect the pivot change', function (): void {
+    $owner = User::factory()->create();
+    $task = Task::factory()->for($owner)->create();
+    $label = Label::factory()->forUser($owner)->create(['name' => 'Platform']);
+
+    (new AttachLabelToTask)->handle($owner, $task, $label);
+    (new DetachLabelFromTask)->handle($owner, $task, $label);
+
+    $added = TaskActivity::query()->where('event_type', TaskActivityType::LABEL_ADDED)->sole();
+    $removed = TaskActivity::query()->where('event_type', TaskActivityType::LABEL_REMOVED)->sole();
+
+    expect($added->field)->toBe('label_id')
+        ->and($added->old_value)->toBe(['label_id' => null])
+        ->and($added->new_value)->toBe(['label_id' => $label->id])
+        ->and($added->metadata)->toBe(['label' => ['id' => $label->id, 'name' => 'Platform']])
+        ->and($removed->field)->toBe('label_id')
+        ->and($removed->old_value)->toBe(['label_id' => $label->id])
+        ->and($removed->new_value)->toBe(['label_id' => null])
+        ->and($removed->metadata)->toBe(['label' => ['id' => $label->id, 'name' => 'Platform']]);
+});
+
 test('DeleteLabel detaches every owned task, retains tasks, and records each removal', function (): void {
     $owner = User::factory()->create();
     $label = Label::factory()->forUser($owner)->create();
@@ -68,6 +97,10 @@ test('DeleteLabel detaches every owned task, retains tasks, and records each rem
         ->and($first->fresh()->labels)->toHaveCount(0)
         ->and($second->fresh()->labels)->toHaveCount(0)
         ->and(TaskActivity::query()->where('event_type', TaskActivityType::LABEL_REMOVED)->count())->toBe(2);
+
+    (new DeleteLabel)->handle($owner, $label);
+
+    expect(TaskActivity::query()->where('event_type', TaskActivityType::LABEL_REMOVED)->count())->toBe(2);
 });
 
 test('label deletion by another user is rejected without detaching the label', function (): void {
