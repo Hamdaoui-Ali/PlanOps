@@ -1459,6 +1459,7 @@ html.density-compact .projects-ledger td {
     }
 
     .task-metadata-inline-form .planops-button,
+    .task-metadata-form > .planops-button-primary,
     .label-picker-form .planops-button,
     .task-metadata-delete .planops-button {
         width: 100%;
