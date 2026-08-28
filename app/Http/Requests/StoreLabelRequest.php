@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Domain\Labels\Models\Label;
 use App\Domain\Labels\Rules\NormalizedLabelName;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreLabelRequest extends FormRequest
 {
@@ -21,7 +21,6 @@ class StoreLabelRequest extends FormRequest
 
         $this->merge([
             'name' => is_string($name) ? $names->displayName($name) : $name,
-            'normalized_name' => is_string($name) ? $names->normalize($name) : $name,
         ]);
     }
 
@@ -30,12 +29,29 @@ class StoreLabelRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:80'],
             'color' => ['nullable', 'string', 'max:32'],
-            'normalized_name' => [
-                'required',
-                Rule::unique('labels', 'normalized_name')->where(
-                    fn ($query) => $query->where('user_id', $this->user()?->getKey()),
-                ),
-            ],
+        ];
+    }
+
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                $name = $this->input('name');
+
+                if (! is_string($name) || $validator->errors()->has('name')) {
+                    return;
+                }
+
+                $normalizedName = (new NormalizedLabelName)->normalize($name);
+                $exists = Label::query()
+                    ->where('user_id', $this->user()?->getKey())
+                    ->where('normalized_name', $normalizedName)
+                    ->exists();
+
+                if ($exists) {
+                    $validator->errors()->add('name', 'The name has already been taken.');
+                }
+            },
         ];
     }
 }

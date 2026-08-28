@@ -18,7 +18,7 @@ class ChangeTaskDueDateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'due_on' => ['nullable', 'date'],
+            'due_on' => ['nullable', 'date_format:Y-m-d'],
         ];
     }
 }

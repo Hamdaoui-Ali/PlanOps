@@ -33,8 +33,8 @@ class CreateLabel
 
         $normalizedName = $names->normalize($values['name']);
 
-        Validator::make(['normalized_name' => $normalizedName], [
-            'normalized_name' => [
+        Validator::make(['name' => $normalizedName], [
+            'name' => [
                 'required',
                 Rule::unique('labels', 'normalized_name')->where(
                     fn ($query) => $query->where('user_id', $user->getKey()),

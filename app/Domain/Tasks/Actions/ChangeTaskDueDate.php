@@ -62,8 +62,14 @@ class ChangeTaskDueDate
             return CarbonImmutable::createFromFormat('!Y-m-d', $dueOn->toDateString());
         }
 
-        $date = CarbonImmutable::createFromFormat('!Y-m-d', $dueOn);
-        $errors = CarbonImmutable::getLastErrors();
+        try {
+            $date = CarbonImmutable::createFromFormat('!Y-m-d', $dueOn);
+            $errors = CarbonImmutable::getLastErrors();
+        } catch (\Throwable) {
+            throw ValidationException::withMessages([
+                'due_on' => 'Enter a valid due date.',
+            ]);
+        }
 
         if ($date === false || ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))) {
             throw ValidationException::withMessages([

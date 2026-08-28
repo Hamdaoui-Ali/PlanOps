@@ -37,6 +37,27 @@ test('CreateLabel validates the displayed name and optional color', function ():
         ->and(fn (): Label => (new CreateLabel)->handle($owner, ['name' => 'Platform', 'color' => str_repeat('a', 33)]))->toThrow(ValidationException::class);
 });
 
+test('normalized duplicate label failures use the visible name error contract', function (): void {
+    $owner = User::factory()->create();
+    (new CreateLabel)->handle($owner, ['name' => 'Platform']);
+
+    try {
+        (new CreateLabel)->handle($owner, ['name' => ' platform ']);
+        fail('Expected duplicate normalized label to be rejected.');
+    } catch (ValidationException $exception) {
+        expect($exception->errors())->toHaveKey('name')
+            ->not->toHaveKey('normalized_name');
+    }
+
+    $request = file_get_contents(app_path('Http/Requests/StoreLabelRequest.php'));
+    $picker = file_get_contents(resource_path('views/components/labels/label-picker.blade.php'));
+
+    expect($request)->toContain("->errors()->add('name'")
+        ->not->toMatch("/'normalized_name' => \[/")
+        ->and($picker)->toContain('name="name"')
+        ->toContain(':messages="$errors->get(\'name\')"');
+});
+
 test('label attach and detach are owner-scoped, idempotent, and record only pivot changes', function (): void {
     $owner = User::factory()->create();
     $other = User::factory()->create();
@@ -101,6 +122,60 @@ test('DeleteLabel detaches every owned task, retains tasks, and records each rem
     (new DeleteLabel)->handle($owner, $label);
 
     expect(TaskActivity::query()->where('event_type', TaskActivityType::LABEL_REMOVED)->count())->toBe(2);
+});
+
+test('DeleteLabel detaches a soft-deleted owned task and records its retained history', function (): void {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $label = Label::factory()->forUser($owner)->create();
+    $deletedTask = Task::factory()->for($owner)->create();
+    $otherTask = Task::factory()->for($other)->create();
+    $deletedTask->labels()->attach($label);
+    $deletedTask->delete();
+
+    (new DeleteLabel)->handle($owner, $label);
+
+    $restoredTask = Task::query()->withTrashed()->findOrFail($deletedTask->id);
+    $restoredTask->restore();
+
+    expect($restoredTask->fresh()->labels)->toHaveCount(0)
+        ->and($otherTask->fresh()->labels)->toHaveCount(0)
+        ->and(TaskActivity::query()
+            ->where('task_id', $deletedTask->id)
+            ->where('event_type', TaskActivityType::LABEL_REMOVED)
+            ->count())->toBe(1)
+        ->and(TaskActivity::query()
+            ->where('task_id', $otherTask->id)
+            ->where('event_type', TaskActivityType::LABEL_REMOVED)
+            ->count())->toBe(0);
+});
+
+test('DeleteLabel removes only its pivot when owner tasks share another label', function (): void {
+    $owner = User::factory()->create();
+    $removedLabel = Label::factory()->forUser($owner)->create(['name' => 'Removed']);
+    $retainedLabel = Label::factory()->forUser($owner)->create(['name' => 'Retained']);
+    $first = Task::factory()->for($owner)->create();
+    $second = Task::factory()->for($owner)->create();
+    $first->labels()->attach([$removedLabel->id, $retainedLabel->id]);
+    $second->labels()->attach([$retainedLabel->id, $removedLabel->id]);
+
+    (new DeleteLabel)->handle($owner, $removedLabel);
+
+    $removals = TaskActivity::query()->where('event_type', TaskActivityType::LABEL_REMOVED)->get();
+
+    expect($first->fresh()->labels->pluck('id')->all())->toBe([$retainedLabel->id])
+        ->and($second->fresh()->labels->pluck('id')->all())->toBe([$retainedLabel->id])
+        ->and($removals)->toHaveCount(2)
+        ->and($removals->every(
+            fn (TaskActivity $activity): bool => $activity->old_value === ['label_id' => $removedLabel->id]
+                && $activity->new_value === ['label_id' => null],
+        ))->toBeTrue();
+});
+
+test('DeleteLabel orders its owner-scoped task locks by primary key before locking', function (): void {
+    $source = file_get_contents(app_path('Domain/Labels/Actions/DeleteLabel.php'));
+
+    expect($source)->toMatch('/tasks\(\)\s*->withTrashed\(\)\s*->ownedBy\(\$user\)\s*->orderBy\(\(new Task\)->qualifyColumn\(\(new Task\)->getKeyName\(\)\)\)\s*->lockForUpdate\(\)\s*->get\(\)/s');
 });
 
 test('label deletion by another user is rejected without detaching the label', function (): void {

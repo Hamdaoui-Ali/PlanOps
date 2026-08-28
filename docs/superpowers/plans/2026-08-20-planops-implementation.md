@@ -226,7 +226,7 @@ The repository currently contains only `planops-complete-spec.md`; the following
 - Create: `app/Domain/Tasks/Rules/OverdueTask.php`
 - Create: `app/Domain/Labels/Actions/{CreateLabel,AttachLabelToTask,DetachLabelFromTask,DeleteLabel}.php`
 - Create: `app/Domain/Labels/Rules/NormalizedLabelName.php`, `app/Policies/LabelPolicy.php`
-- Create: `app/Http/Requests/{ChangeTaskPriorityRequest,ChangeTaskDueDateRequest,StoreLabelRequest}.php`
+- Create: `app/Http/Requests/{UpdateTaskRequest,ChangeTaskPriorityRequest,ChangeTaskDueDateRequest,StoreLabelRequest}.php`
 - Create: `resources/views/components/tasks/metadata-form.blade.php`, `resources/views/components/labels/label-picker.blade.php`
 - Test: `tests/Unit/Domain/Tasks/OverdueTaskTest.php`, `tests/Unit/Domain/Labels/LabelNormalizationTest.php`, `tests/Feature/Tasks/TaskMetadataTest.php`, `tests/Feature/Labels/LabelManagementTest.php`
 

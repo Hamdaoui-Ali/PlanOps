@@ -5,6 +5,7 @@ namespace App\Domain\Labels\Actions;
 use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Activity\Services\TaskActivityRecorder;
 use App\Domain\Labels\Models\Label;
+use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -22,7 +23,12 @@ class DeleteLabel
                 return;
             }
 
-            $tasks = $ownedLabel->tasks()->ownedBy($user)->lockForUpdate()->get();
+            $tasks = $ownedLabel->tasks()
+                ->withTrashed()
+                ->ownedBy($user)
+                ->orderBy((new Task)->qualifyColumn((new Task)->getKeyName()))
+                ->lockForUpdate()
+                ->get();
 
             foreach ($tasks as $task) {
                 $task->labels()->detach($ownedLabel->getKey());

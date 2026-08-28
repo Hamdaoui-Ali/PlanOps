@@ -10,12 +10,14 @@ use App\Domain\Tasks\Actions\RestoreTask;
 use App\Domain\Tasks\Actions\UpdateTask;
 use App\Domain\Tasks\Enums\TaskPriority;
 use App\Domain\Tasks\Models\Task;
+use App\Http\Requests\ChangeTaskDueDateRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use LogicException;
 
 uses(RefreshDatabase::class);
@@ -111,6 +113,32 @@ test('ChangeTaskDueDate persists date-only values, supports clearing, and ignore
     expect($task->fresh()->due_on)->toBeNull()
         ->and(TaskActivity::query()->where('event_type', TaskActivityType::DUE_DATE_CHANGED)->count())->toBe(2);
 });
+
+test('ChangeTaskDueDateRequest accepts only nullable Y-m-d due dates', function (): void {
+    $request = new ChangeTaskDueDateRequest;
+
+    expect($request->rules()['due_on'])->toBe(['nullable', 'date_format:Y-m-d']);
+});
+
+test('ChangeTaskDueDate turns malformed due-date strings into due_on validation errors', function (string $dueOn): void {
+    $owner = User::factory()->create();
+    $task = Task::factory()->for($owner)->create(['due_on' => '2026-09-15']);
+
+    try {
+        (new ChangeTaskDueDate)->handle($owner, $task, $dueOn);
+        fail('Expected malformed due date to be rejected.');
+    } catch (ValidationException $exception) {
+        expect($exception->errors())->toHaveKey('due_on')
+            ->and($exception->errors()['due_on'])->toContain('Enter a valid due date.');
+    }
+
+    expect($task->fresh()->due_on?->toDateString())->toBe('2026-09-15')
+        ->and(TaskActivity::query()->where('event_type', TaskActivityType::DUE_DATE_CHANGED)->count())->toBe(0);
+})->with([
+    'calendar-invalid date' => ['2026-02-29'],
+    'date-time input' => ['2026-09-16 18:30:00'],
+    'non-date input' => ['next Tuesday'],
+]);
 
 test('metadata actions reject a task owned by another user without mutation or activity', function (): void {
     $owner = User::factory()->create();
