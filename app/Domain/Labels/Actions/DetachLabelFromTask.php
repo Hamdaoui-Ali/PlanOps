@@ -17,8 +17,8 @@ class DetachLabelFromTask
         Gate::forUser($user)->authorize('detach', [$label, $task]);
 
         $updatedTask = DB::transaction(function () use ($user, $task, $label): Task {
-            $ownedTask = Task::query()->ownedBy($user)->whereKey($task->getKey())->lockForUpdate()->firstOrFail();
             $ownedLabel = Label::query()->ownedBy($user)->whereKey($label->getKey())->lockForUpdate()->firstOrFail();
+            $ownedTask = Task::query()->ownedBy($user)->whereKey($task->getKey())->lockForUpdate()->firstOrFail();
 
             if ($ownedTask->labels()->whereKey($ownedLabel->getKey())->exists()) {
                 $ownedTask->labels()->detach($ownedLabel->getKey());
