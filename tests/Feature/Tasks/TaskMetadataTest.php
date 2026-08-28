@@ -10,10 +10,12 @@ use App\Domain\Tasks\Actions\RestoreTask;
 use App\Domain\Tasks\Actions\UpdateTask;
 use App\Domain\Tasks\Enums\TaskPriority;
 use App\Domain\Tasks\Models\Task;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Validator;
 
 uses(RefreshDatabase::class);
 
@@ -49,6 +51,31 @@ test('UpdateTask records only changed fields', function (): void {
 
     expect(TaskActivity::query()->where('event_type', TaskActivityType::TASK_UPDATED)->count())->toBe(1)
         ->and(TaskActivity::query()->where('event_type', TaskActivityType::TASK_UPDATED)->sole()->field)->toBe('description');
+});
+
+test('UpdateTaskRequest leaves an omitted description out of title-only validated updates', function (): void {
+    $owner = User::factory()->create();
+    $task = Task::factory()->for($owner)->create([
+        'title' => 'Old title',
+        'description' => 'Keep this description',
+    ]);
+    $request = new class extends UpdateTaskRequest
+    {
+        public function prepareForTest(): void
+        {
+            $this->prepareForValidation();
+        }
+    };
+    $request->replace(['title' => '  New title  ']);
+    $request->prepareForTest();
+
+    $validated = Validator::make($request->all(), $request->rules())->validate();
+    $updated = (new UpdateTask)->handle($owner, $task, $validated);
+
+    expect($validated)->not->toHaveKey('description')
+        ->and($updated->description)->toBe('Keep this description')
+        ->and(TaskActivity::query()->where('event_type', TaskActivityType::TASK_UPDATED)->count())->toBe(1)
+        ->and(TaskActivity::query()->where('event_type', TaskActivityType::TASK_UPDATED)->sole()->field)->toBe('title');
 });
 
 test('ChangeTaskPriority accepts every priority and records no event for an identical value', function (): void {

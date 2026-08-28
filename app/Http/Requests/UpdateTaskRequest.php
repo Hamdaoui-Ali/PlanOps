@@ -17,10 +17,15 @@ class UpdateTaskRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
+        $values = [
             'title' => is_string($this->input('title')) ? trim($this->input('title')) : $this->input('title'),
-            'description' => is_string($this->input('description')) ? trim($this->input('description')) : $this->input('description'),
-        ]);
+        ];
+
+        if ($this->exists('description')) {
+            $values['description'] = is_string($this->input('description')) ? trim($this->input('description')) : $this->input('description');
+        }
+
+        $this->merge($values);
     }
 
     public function rules(): array
