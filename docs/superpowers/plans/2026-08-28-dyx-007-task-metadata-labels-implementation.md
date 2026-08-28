@@ -266,11 +266,7 @@
 
   Authorize `restore`, require the supplied task to be trashed, call `restore()`, and record `TASK_RESTORED` in one transaction. The Action must not issue a broad `withTrashed()` query; callers that need to find a deleted row must opt into `Task::withTrashed()` before calling it. Preserve the task’s project, number, labels, due date, priority, and prior activity.
 
-- [ ] **Step 3: Add the UI confirmation contract to the reusable metadata form’s optional delete slot.**
-
-  The delete control must be a text-labelled `DELETE` form supplied with an action URL, include CSRF/method spoofing, and use a native confirmation step such as `onsubmit="return window.confirm('Delete this task?')"`; the server Action remains the authorization and transaction boundary. No destructive action may be triggered by page load, hover, or a client-side state change.
-
-- [ ] **Step 4: Run deletion coverage.**
+- [ ] **Step 3: Run deletion coverage.**
 
   ```powershell
   php artisan test tests/Feature/Tasks/TaskMetadataTest.php --filter='delete|restore|soft'
@@ -278,7 +274,7 @@
 
   Expected on a PHP-enabled host: PASS with active-query exclusion, identity preservation, append-only events, label preservation, and cross-user rejection. Record the missing-`php` result on this host.
 
-- [ ] **Step 5: Commit the deletion boundary.**
+- [ ] **Step 4: Commit the deletion boundary.**
 
   ```powershell
   git add -- app/Domain/Tasks/Actions/DeleteTask.php app/Domain/Tasks/Actions/RestoreTask.php tests/Feature/Tasks/TaskMetadataTest.php
@@ -301,7 +297,7 @@
 
 - [ ] **Step 1: Define the metadata component props and fields.**
 
-  `metadata-form.blade.php` must accept `$task`, `$priorities`, `$updateAction`, `$priorityAction`, `$dueDateAction`, and an optional `$deleteAction`. Render associated labels and controls for Title, Description, Priority, and Due date; use `old()` values, adjacent `x-input-error` messages, `@csrf`, and method spoofing. Render a delete form only when `$deleteAction` is non-null and include a visible confirmation label.
+  `metadata-form.blade.php` must accept `$task`, `$priorities`, `$updateAction`, `$priorityAction`, `$dueDateAction`, and an optional `$deleteAction`. Render associated labels and controls for Title, Description, Priority, and Due date; use `old()` values, adjacent `x-input-error` messages, `@csrf`, and method spoofing. Render a delete form only when `$deleteAction` is non-null, include a visible confirmation label, and require a native confirmation step such as `onsubmit="return window.confirm('Delete this task?')"`; the server Action remains the authorization and transaction boundary.
 
 - [ ] **Step 2: Define the label picker props and controls.**
 
