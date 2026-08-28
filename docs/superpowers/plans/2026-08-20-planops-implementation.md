@@ -234,12 +234,14 @@ The repository currently contains only `planops-complete-spec.md`; the following
 - Consumes: `Task`, `Label`, activity recorder, and policies from DYX-003–006.
 - Produces: metadata Actions, `Task::isOverdueOn(CarbonImmutable $userLocalDate): bool`, normalized per-user labels, and soft-delete/restore flows.
 
-- [ ] **Step 1: Write failing tests** — cover title/description edits, `LOW|MEDIUM|HIGH|URGENT`, date-only due dates, overdue only when local date is after `due_on` and status is not `DONE|CANCELLED`, label normalization/uniqueness, detach-on-label-delete, and active-view exclusion after soft delete.
+- [x] **Step 1: Write failing tests** — cover title/description edits, `LOW|MEDIUM|HIGH|URGENT`, date-only due dates, overdue only when local date is after `due_on` and status is not `DONE|CANCELLED`, label normalization/uniqueness, detach-on-label-delete, and active-view exclusion after soft delete.
 - [ ] **Step 2: Run the focused tests** — expected: FAIL because the Actions and rule classes are absent.
-- [ ] **Step 3: Implement metadata Actions** — emit one meaningful activity event per domain mutation, avoid copying full descriptions into old/new JSON, and reject cross-user label attachment.
-- [ ] **Step 4: Implement soft deletion** — require confirmation in the UI, emit `TASK_DELETED`/`TASK_RESTORED`, retain identifiers/history, and ensure normal queries use `withTrashed` only for explicit restoration/history contexts.
+- [x] **Step 3: Implement metadata Actions** — emit one meaningful activity event per domain mutation, avoid copying full descriptions into old/new JSON, and reject cross-user label attachment.
+- [x] **Step 4: Implement soft deletion** — require confirmation in the UI, emit `TASK_DELETED`/`TASK_RESTORED`, retain identifiers/history, and ensure normal queries use `withTrashed` only for explicit restoration/history contexts.
 - [ ] **Step 5: Run `php artisan test tests/Unit/Domain/Tasks tests/Unit/Domain/Labels tests/Feature/Tasks tests/Feature/Labels`** — expected: PASS.
-- [ ] **Step 6: Commit** — `git add app resources tests && git commit -m "feat: add task metadata labels and soft deletion"`.
+- [x] **Step 6: Commit** — `git add app resources tests && git commit -m "feat: add task metadata labels and soft deletion"`.
+
+> Verification (2026-08-28): DYX-007 implementation, source UI contracts, `npm run build`, and `git diff --check origin/main..HEAD` were verified; PHP/Pest and browser runtime checks remain blocked because `php` and Browser/Playwright/IAB are unavailable. No task-detail route integration is claimed.
 
 ### Task 8 (DYX-008): Implement one-level subtasks and derived progress
 
