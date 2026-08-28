@@ -895,6 +895,12 @@ body {
     text-decoration: none;
 }
 
+.task-capture-cancel {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+}
+
 .task-capture-cancel:hover,
 .task-create-link:hover {
     color: var(--planops-focus);
