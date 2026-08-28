@@ -83,7 +83,8 @@ class CreateTask
             ]);
 
             $lockedProject->forceFill(['next_task_number' => $number + 1])->save();
-            $key = (new TaskKeyQuery)->displayKey($task->load('project'));
+            $task->setRelation('project', $lockedProject);
+            $key = (new TaskKeyQuery)->displayKey($task);
             app(TaskActivityRecorder::class)->record(
                 $task,
                 TaskActivityType::TASK_CREATED,
@@ -96,7 +97,7 @@ class CreateTask
                 ],
             );
 
-            return $task->load('project');
+            return $task;
         });
     }
 
