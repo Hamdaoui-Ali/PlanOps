@@ -181,3 +181,38 @@ test('deletion and restoration by another user are rejected without mutation', f
     expect($task->fresh()->trashed())->toBeTrue()
         ->and(TaskActivity::query()->count())->toBe(0);
 });
+
+test('metadata and label components retain their route-agnostic Blade form contracts', function (): void {
+    $metadataComponent = file_get_contents(resource_path('views/components/tasks/metadata-form.blade.php'));
+    $labelPickerComponent = file_get_contents(resource_path('views/components/labels/label-picker.blade.php'));
+
+    expect($metadataComponent)->toContain('$updateAction')
+        ->toContain('$priorityAction')
+        ->toContain('$dueDateAction')
+        ->toContain('$deleteAction')
+        ->toContain('>Title<')
+        ->toContain('>Description<')
+        ->toContain('>Priority<')
+        ->toContain('>Due date<')
+        ->toContain('@csrf')
+        ->toContain("@method('PATCH')")
+        ->toContain("@method('DELETE')")
+        ->toContain('<x-input-error')
+        ->toContain('aria-hidden="true"')
+        ->toContain('Confirm task deletion')
+        ->toContain("window.confirm('Delete this task?')")
+        ->not->toContain('route(');
+
+    expect($labelPickerComponent)->toContain('$attachAction')
+        ->toContain('$detachAction')
+        ->toContain('$createAction')
+        ->toContain('>Add label<')
+        ->toContain('>Attached labels<')
+        ->toContain('No labels attached.')
+        ->toContain('@csrf')
+        ->toContain("@method('DELETE')")
+        ->toContain('<x-input-error')
+        ->toContain('aria-hidden="true"')
+        ->not->toContain('route(')
+        ->not->toContain('display_key');
+});

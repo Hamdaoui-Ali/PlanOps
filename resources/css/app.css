@@ -905,6 +905,181 @@ body {
     text-decoration: none;
 }
 
+.task-metadata,
+.label-picker {
+    display: grid;
+    gap: 1.25rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 8px;
+    background: var(--planops-surface);
+    padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.task-metadata-heading,
+.label-picker-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.task-metadata-heading i,
+.label-picker-heading i {
+    color: var(--planops-accent);
+    font-size: 1.2rem;
+}
+
+.task-metadata-heading h2,
+.label-picker-heading h2,
+.label-picker-attached h3 {
+    margin: 0;
+    color: var(--planops-text);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.task-metadata-form,
+.label-picker-form,
+.task-metadata-controls,
+.label-picker-attached,
+.task-metadata-delete {
+    display: grid;
+    gap: 1rem;
+}
+
+.task-metadata-field,
+.label-picker-field {
+    display: grid;
+    min-width: 0;
+    gap: 0.45rem;
+}
+
+.task-metadata-field label,
+.label-picker-field label,
+.task-metadata-delete > label {
+    color: var(--planops-muted);
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.task-metadata-field input,
+.task-metadata-field textarea,
+.task-metadata-field select,
+.label-picker-field input,
+.label-picker-field select {
+    width: 100%;
+    min-width: 0;
+    min-height: 2.75rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 6px;
+    background: var(--planops-canvas);
+    color: var(--planops-text);
+    padding: 0.65rem 0.8rem;
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.task-metadata-field textarea {
+    min-height: 7rem;
+    resize: vertical;
+}
+
+.task-metadata-field select,
+.label-picker-field select {
+    cursor: pointer;
+}
+
+.task-metadata-inline-form,
+.label-picker-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+}
+
+.task-metadata-delete {
+    border-top: 1px solid var(--planops-border);
+    padding-top: 1rem;
+}
+
+.planops-button-danger {
+    width: fit-content;
+    border-color: rgba(240, 140, 132, 0.7);
+    background: transparent;
+    color: var(--planops-danger);
+}
+
+.planops-button-danger:hover {
+    border-color: var(--planops-danger);
+    background: rgba(240, 140, 132, 0.08);
+    color: var(--planops-danger);
+}
+
+.task-metadata .text-sm.text-red-600,
+.label-picker .text-sm.text-red-600 {
+    color: var(--planops-danger) !important;
+}
+
+.label-picker-list {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.label-picker-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 6px;
+    background: var(--planops-canvas);
+    padding: 0.55rem 0.7rem;
+}
+
+.label-picker-name {
+    color: var(--planops-text);
+    font-size: 0.88rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.label-picker-remove-form {
+    margin: 0;
+}
+
+.label-picker-remove {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    gap: 0.35rem;
+    border: 0;
+    background: transparent;
+    color: var(--planops-danger);
+    cursor: pointer;
+    padding: 0.55rem;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.label-picker-remove i {
+    font-size: 1rem;
+}
+
+.label-picker-empty {
+    margin: 0;
+    color: var(--planops-muted);
+    font-size: 0.85rem;
+}
+
+.task-metadata :focus-visible,
+.label-picker :focus-visible {
+    outline: 2px solid var(--planops-focus);
+    outline-offset: 3px;
+}
+
 .task-capture-cancel:hover,
 .task-create-link:hover {
     color: var(--planops-focus);
@@ -1275,6 +1450,34 @@ html.density-compact .projects-ledger td {
     .project-edit-actions > a {
         width: 100%;
         min-height: 2.75rem;
+    }
+
+    .task-metadata-inline-form,
+    .label-picker-form {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .task-metadata-inline-form .planops-button,
+    .label-picker-form .planops-button,
+    .task-metadata-delete .planops-button {
+        width: 100%;
+    }
+
+    .label-picker-item {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .label-picker-remove-form,
+    .label-picker-remove {
+        width: 100%;
+    }
+
+    .label-picker-remove {
+        justify-content: center;
+        border: 1px solid rgba(240, 140, 132, 0.7);
+        border-radius: 6px;
     }
 }
 
