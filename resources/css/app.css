@@ -773,6 +773,133 @@ body {
     font-size: 0.85rem;
 }
 
+.task-capture-page {
+    width: min(100%, 720px);
+    margin: 0 auto;
+    padding: 2.75rem clamp(1.25rem, 4vw, 3rem) 4rem;
+}
+
+.task-capture-header {
+    padding-bottom: 1.5rem;
+}
+
+.task-capture-header h1 {
+    margin: 0;
+    color: var(--planops-text);
+    font-size: clamp(2rem, 3.2vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+}
+
+.task-capture-header > p:last-child {
+    margin: 0.8rem 0 0;
+    color: var(--planops-muted);
+    font-size: 0.95rem;
+}
+
+.task-capture-form {
+    display: grid;
+    gap: 1.25rem;
+    border: 1px solid var(--planops-border);
+    background: var(--planops-surface);
+    padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.task-capture-field,
+.task-capture-field-grid {
+    display: grid;
+    min-width: 0;
+    gap: 0.45rem;
+}
+
+.task-capture-field label {
+    color: var(--planops-muted);
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.task-capture-field input,
+.task-capture-field textarea,
+.task-capture-field select {
+    width: 100%;
+    min-width: 0;
+    min-height: 2.75rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 6px;
+    background: var(--planops-canvas);
+    color: var(--planops-text);
+    padding: 0.65rem 0.8rem;
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.task-capture-field textarea {
+    min-height: 6.5rem;
+    resize: vertical;
+}
+
+.task-capture-field input[readonly] {
+    color: var(--planops-muted);
+}
+
+.task-capture-field select {
+    cursor: pointer;
+}
+
+.task-capture-field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.task-capture-details {
+    border-top: 1px solid var(--planops-border);
+    border-bottom: 1px solid var(--planops-border);
+}
+
+.task-capture-details summary {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--planops-accent);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.task-capture-details summary::marker {
+    color: var(--planops-muted);
+}
+
+.task-capture-details-content {
+    display: grid;
+    gap: 1rem;
+    border-top: 1px solid var(--planops-border);
+    padding: 1rem 0 1.25rem;
+}
+
+.task-capture-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.task-capture-cancel,
+.task-create-link {
+    color: var(--planops-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.task-capture-cancel:hover,
+.task-create-link:hover {
+    color: var(--planops-focus);
+}
+
 button,
 a,
 input,
@@ -1100,6 +1227,31 @@ html.density-compact .projects-ledger td {
 
     .project-open {
         font-size: 0.75rem;
+    }
+
+    .task-capture-page {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    .task-capture-field-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .task-capture-actions {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+
+    .task-capture-actions .planops-button {
+        width: 100%;
+    }
+
+    .task-capture-cancel {
+        min-height: 2.75rem;
+        display: inline-flex;
+        align-items: center;
     }
 }
 

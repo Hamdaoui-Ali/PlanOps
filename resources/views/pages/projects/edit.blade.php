@@ -52,6 +52,7 @@
 
                 <div class="flex items-center gap-4">
                     <button type="submit" class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white">Save project details</button>
+                    <a href="{{ route('projects.tasks.create', $project) }}" class="task-create-link">Create task</a>
                     <a href="{{ route('projects.index') }}" class="text-sm text-gray-700 underline">Back to projects</a>
                 </div>
             </form>
