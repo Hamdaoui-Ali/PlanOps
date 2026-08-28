@@ -7,7 +7,9 @@ use App\Domain\Labels\Models\Label;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Enums\TaskPriority;
 use App\Domain\Tasks\Enums\TaskStatus;
+use App\Domain\Tasks\Rules\OverdueTask;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -84,6 +86,11 @@ class Task extends Model
     public function activities(): HasMany
     {
         return $this->hasMany(TaskActivity::class);
+    }
+
+    public function isOverdueOn(CarbonImmutable $userLocalDate): bool
+    {
+        return (new OverdueTask)->passes($this, $userLocalDate);
     }
 
     public function scopeOwnedBy(Builder $query, User|int $owner): Builder
