@@ -200,7 +200,7 @@ The repository currently contains only `planops-complete-spec.md`; the following
 
 **Files:**
 - Create: `app/Domain/Tasks/Actions/CreateTask.php`, `app/Domain/Tasks/Queries/TaskKeyQuery.php`
-- Create: `app/Http/Controllers/TaskController.php`, `app/Http/Requests/{StoreTaskRequest,UpdateTaskRequest}.php`
+- Create: `app/Http/Controllers/TaskController.php`, `app/Http/Requests/StoreTaskRequest.php`
 - Create: `app/Policies/TaskPolicy.php`
 - Create: `resources/views/pages/tasks/create.blade.php`, `resources/views/components/tasks/quick-create.blade.php`
 - Modify: `routes/web.php`, `app/Domain/Tasks/Models/Task.php`
@@ -210,12 +210,14 @@ The repository currently contains only `planops-complete-spec.md`; the following
 - Consumes: owned `Project`, `TaskActivityRecorder`, `TaskStatus`, and `TaskPriority` from DYX-003–005.
 - Produces: `CreateTask::handle(User $user, Project $project, array $attributes): Task`, a derived display key `{project.key}-{task.number}`, and a quick-create form with required `Project` and `Title` only.
 
-- [ ] **Step 1: Write failing task tests** — assert defaults `NOT_STARTED` and `MEDIUM`, project-local keys such as `PLAN-1`, `TASK_CREATED` activity, no number reuse after soft delete, and rejection of a parent from another user/project.
+- [x] **Step 1: Write failing task tests** — assert defaults `NOT_STARTED` and `MEDIUM`, project-local keys such as `PLAN-1`, `TASK_CREATED` activity, no number reuse after soft delete, and rejection of a parent from another user/project.
 - [ ] **Step 2: Run `php artisan test tests/Feature/Tasks/CreateTaskTest.php tests/Feature/Tasks/TaskNumberConcurrencyTest.php`** — expected: FAIL because `CreateTask` and number allocation are absent.
-- [ ] **Step 3: Implement the transaction** — lock the project row for update, read `next_task_number`, create the task, increment the counter, record `TASK_CREATED`, and commit as one transaction; set `status_changed_at` at creation.
-- [ ] **Step 4: Implement the quick-create UI** — keep `Project` and `Title` visible, apply documented defaults, and reveal description/status/priority/due date/labels/parent as optional controls.
+- [x] **Step 3: Implement the transaction** — lock the project row for update, read `next_task_number`, create the task, increment the counter, record `TASK_CREATED`, and commit as one transaction; set `status_changed_at` at creation.
+- [x] **Step 4: Implement the quick-create UI** — keep `Project` and `Title` visible, apply documented defaults, and reveal description/status/priority/due date/parent as optional controls.
 - [ ] **Step 5: Run the task tests and `php artisan test --parallel`** — expected: PASS, including concurrent allocation without duplicate `(project_id, number)` values.
-- [ ] **Step 6: Commit** — `git add app resources routes tests && git commit -m "feat: add atomic task creation"`.
+- [x] **Step 6: Commit** — `git add app resources routes tests && git commit -m "feat: add atomic task creation"`.
+
+> Verification note: Steps 2 and 5 remain pending because this host does not have the required PHP executable. PHP tests, route listing, and browser rendering still require a PHP-enabled environment.
 
 ### Task 7 (DYX-007): Add task metadata, computed due state, labels, and soft deletion
 
