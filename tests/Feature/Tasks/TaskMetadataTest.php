@@ -16,6 +16,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Validator;
+use LogicException;
 
 uses(RefreshDatabase::class);
 
@@ -136,6 +137,10 @@ test('DeleteTask soft-deletes a task while retaining its number and activity his
         ->and(Task::query()->find($task->id))->toBeNull()
         ->and(Task::query()->withTrashed()->findOrFail($task->id)->number)->toBe(7)
         ->and(TaskActivity::query()->where('task_id', $task->id)->where('event_type', TaskActivityType::TASK_DELETED)->count())->toBe(1);
+
+    (new DeleteTask)->handle($owner, $deleted);
+
+    expect(TaskActivity::query()->where('task_id', $task->id)->where('event_type', TaskActivityType::TASK_DELETED)->count())->toBe(1);
 });
 
 test('RestoreTask restores only an explicitly trashed task and preserves identity, history, and labels', function (): void {
@@ -155,6 +160,10 @@ test('RestoreTask restores only an explicitly trashed task and preserves identit
         ->and($restored->fresh()->labels->pluck('id')->all())->toBe([$label->id])
         ->and(TaskActivity::query()->find($history->id))->not->toBeNull()
         ->and(TaskActivity::query()->where('task_id', $task->id)->where('event_type', TaskActivityType::TASK_RESTORED)->count())->toBe(1);
+
+    expect(fn (): Task => (new RestoreTask)->handle($owner, $restored))->toThrow(LogicException::class);
+
+    expect(TaskActivity::query()->where('task_id', $task->id)->where('event_type', TaskActivityType::TASK_RESTORED)->count())->toBe(1);
 });
 
 test('deletion and restoration by another user are rejected without mutation', function (): void {
