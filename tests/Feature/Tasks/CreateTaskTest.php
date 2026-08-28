@@ -10,7 +10,9 @@ use App\Domain\Tasks\Queries\TaskKeyQuery;
 use App\Domain\Projects\Models\Project;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
@@ -103,13 +105,69 @@ test('a soft-deleted task number is not reused', function (): void {
     $first->delete();
 
     $second = (new CreateTask)->handle($owner, $project, ['title' => 'Replacement task']);
+    $deletedFirst = Task::query()->withTrashed()->findOrFail($first->id);
 
-    expect($first->fresh()->user_id)->toBe($owner->id)
-        ->and($first->fresh()->project_id)->toBe($project->id)
-        ->and($first->fresh()->deleted_at)->not->toBeNull()
+    expect($deletedFirst->user_id)->toBe($owner->id)
+        ->and($deletedFirst->project_id)->toBe($project->id)
+        ->and($deletedFirst->deleted_at)->not->toBeNull()
         ->and($second->user_id)->toBe($owner->id)
         ->and($second->project_id)->toBe($project->id)
         ->and($second->number)->toBe(2);
+});
+
+test('task creation rolls back the task counter and activity when the activity write fails', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create(['key' => 'PLAN', 'next_task_number' => 1]);
+    $connection = DB::connection($project->getConnectionName());
+    $driver = $connection->getDriverName();
+
+    if ($driver === 'sqlite') {
+        $connection->unprepared(<<<'SQL'
+            CREATE TRIGGER fail_task_created_activity
+            BEFORE INSERT ON task_activities
+            WHEN NEW.event_type = 'TASK_CREATED'
+            BEGIN
+                SELECT RAISE(ABORT, 'task activity write failed');
+            END;
+        SQL);
+    } elseif ($driver === 'pgsql') {
+        $connection->unprepared(<<<'SQL'
+            CREATE FUNCTION fail_task_created_activity() RETURNS trigger AS $$
+            BEGIN
+                IF NEW.event_type = 'TASK_CREATED' THEN
+                    RAISE EXCEPTION 'task activity write failed';
+                END IF;
+
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+
+            CREATE TRIGGER fail_task_created_activity
+            BEFORE INSERT ON task_activities
+            FOR EACH ROW EXECUTE FUNCTION fail_task_created_activity();
+        SQL);
+    } else {
+        $this->markTestSkipped("Activity-write rollback contract requires SQLite or PostgreSQL; {$driver} is configured.");
+    }
+
+    try {
+        expect(fn (): Task => (new CreateTask)->handle($owner, $project, ['title' => 'Must roll back']))
+            ->toThrow(QueryException::class);
+    } finally {
+        if ($driver === 'sqlite') {
+            $connection->unprepared('DROP TRIGGER IF EXISTS fail_task_created_activity');
+        }
+
+        if ($driver === 'pgsql') {
+            $connection->unprepared('DROP TRIGGER IF EXISTS fail_task_created_activity ON task_activities');
+            $connection->unprepared('DROP FUNCTION IF EXISTS fail_task_created_activity()');
+        }
+    }
+
+    expect(Task::query()->count())->toBe(0)
+        ->and(TaskActivity::query()->count())->toBe(0)
+        ->and($project->fresh()->user_id)->toBe($owner->id)
+        ->and($project->fresh()->next_task_number)->toBe(1);
 });
 
 test('task creation rejects a foreign project without creating a task', function (): void {
