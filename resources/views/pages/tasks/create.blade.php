@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h1 class="font-semibold text-xl text-gray-800 leading-tight">Create task</h1>
+        <p class="font-semibold text-xl text-gray-800 leading-tight">Task capture</p>
     </x-slot>
 
     <div class="planops-console">

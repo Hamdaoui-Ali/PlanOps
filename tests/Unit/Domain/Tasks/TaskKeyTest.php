@@ -49,3 +49,14 @@ test('task display keys reject a preloaded project owned by another user', funct
     expect(fn (): string => (new TaskKeyQuery)->displayKey($task))
         ->toThrow(LogicException::class);
 });
+
+test('task display keys reject a stale preloaded project from another project owned by the task owner', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
+    $staleProject = Project::factory()->for($owner)->create(['key' => 'OTHER']);
+    $task = Task::factory()->forProject($project)->create(['number' => 1]);
+    $task->setRelation('project', $staleProject);
+
+    expect(fn (): string => (new TaskKeyQuery)->displayKey($task))
+        ->toThrow(LogicException::class);
+});

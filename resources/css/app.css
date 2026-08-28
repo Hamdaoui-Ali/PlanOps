@@ -887,18 +887,22 @@ body {
     gap: 1rem;
 }
 
+.project-edit-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
 .task-capture-cancel,
 .task-create-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     color: var(--planops-accent);
     font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none;
-}
-
-.task-capture-cancel {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
 }
 
 .task-capture-cancel:hover,
@@ -918,7 +922,8 @@ a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+.task-capture-details summary:focus-visible {
     outline: 2px solid var(--planops-focus);
     outline-offset: 3px;
 }
@@ -1258,6 +1263,18 @@ html.density-compact .projects-ledger td {
         min-height: 2.75rem;
         display: inline-flex;
         align-items: center;
+    }
+
+    .project-edit-actions {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.85rem;
+    }
+
+    .project-edit-actions > button,
+    .project-edit-actions > a {
+        width: 100%;
+        min-height: 2.75rem;
     }
 }
 

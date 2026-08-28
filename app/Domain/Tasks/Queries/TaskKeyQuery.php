@@ -19,7 +19,9 @@ class TaskKeyQuery
 
         if (
             $task->user_id === null
+            || $task->project_id === null
             || $project === null
+            || (string) $project->getKey() !== (string) $task->project_id
             || $project->user_id === null
             || (string) $project->user_id !== (string) $task->user_id
             || blank($project->key)
