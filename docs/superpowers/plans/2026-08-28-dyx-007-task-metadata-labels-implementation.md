@@ -350,7 +350,7 @@
   php artisan test tests/Unit/Domain/Tasks tests/Unit/Domain/Labels tests/Feature/Tasks tests/Feature/Labels
   php artisan test --parallel
   npm run build
-  git diff --check HEAD~6..HEAD
+  git diff --check origin/main..HEAD
   ```
 
   Record exact outcomes. PHP-dependent commands may remain blocked by the missing executable; never report them as passing. The Vite build and diff check must pass before synchronization.
