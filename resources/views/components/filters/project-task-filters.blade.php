@@ -1,0 +1,12 @@
+@props(['filters', 'labels', 'statuses', 'priorities'])
+
+<form method="GET" action="{{ route('projects.tasks.index', $project) }}" class="my-work-filters project-task-filters" role="search">
+    <div class="my-work-filter-grid">
+        <div class="my-work-filter-field"><label for="project-task-status">Status</label><select id="project-task-status" name="status"><option value="">All statuses</option>@foreach ($statuses as $status)<option value="{{ $status->value }}" @selected(($filters['status'] ?? '') === $status->value)>{{ str($status->value)->replace('_', ' ')->title() }}</option>@endforeach</select></div>
+        <div class="my-work-filter-field"><label for="project-task-priority">Priority</label><select id="project-task-priority" name="priority"><option value="">All priorities</option>@foreach ($priorities as $priority)<option value="{{ $priority->value }}" @selected(($filters['priority'] ?? '') === $priority->value)>{{ str($priority->value)->replace('_', ' ')->title() }}</option>@endforeach</select></div>
+        <div class="my-work-filter-field"><label for="project-task-label">Label</label><select id="project-task-label" name="label"><option value="">All labels</option>@foreach ($labels as $label)<option value="{{ $label->id }}" @selected((string) ($filters['label'] ?? '') === (string) $label->id)>{{ $label->name }}</option>@endforeach</select></div>
+        <div class="my-work-filter-field"><label for="project-task-due">Due</label><select id="project-task-due" name="due"><option value="">Any due date</option>@foreach (['overdue' => 'Overdue', 'today' => 'Due today', 'this_week' => 'Due this week', 'no_due_date' => 'No due date'] as $value => $label)<option value="{{ $value }}" @selected(($filters['due'] ?? '') === $value)>{{ $label }}</option>@endforeach</select></div>
+        <div class="my-work-filter-field"><label for="project-task-sort">Sort</label><select id="project-task-sort" name="sort">@foreach (['updated' => 'Recently updated', 'created' => 'Recently created', 'priority' => 'Priority', 'due' => 'Due date', 'task_key' => 'Task key'] as $value => $label)<option value="{{ $value }}" @selected(($filters['sort'] ?? 'updated') === $value)>{{ $label }}</option>@endforeach</select></div>
+    </div>
+    <div class="my-work-filter-actions"><button type="submit" class="planops-button planops-button-primary">Apply filters</button>@if (count($filters) > 0)<a href="{{ route('projects.tasks.index', $project) }}" class="planops-button planops-button-secondary">Reset filters</a>@endif</div>
+</form>

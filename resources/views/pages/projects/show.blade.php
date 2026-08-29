@@ -23,6 +23,7 @@
                     <p>{{ $project->description ?: 'Track the work that moves this project forward.' }}</p>
                 </div>
                 <div class="project-overview-actions">
+                    <a href="{{ route('projects.tasks.index', $project) }}" class="planops-button planops-button-secondary">View tasks</a>
                     <a href="{{ route('projects.board', $project) }}" class="planops-button planops-button-secondary">Open board</a>
                     <a href="{{ route('projects.edit', $project) }}" class="planops-button planops-button-secondary">Edit project</a>
                     <a href="{{ route('projects.tasks.create', $project) }}" class="planops-button planops-button-primary">

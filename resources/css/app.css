@@ -1972,6 +1972,11 @@ html.density-compact .projects-ledger td {
 .my-work-quick-form .planops-button { padding: 0.45rem 0.65rem; }
 .my-work-pagination { display: flex; justify-content: center; }
 .my-work-empty { margin-top: 0.25rem; }
+.project-task-list-page { max-width: 1500px; }
+.project-task-table-wrap { box-shadow: 0 18px 40px rgb(15 23 42 / 0.05); }
+.project-task-identity { display: grid; gap: 0.15rem; }
+.project-task-parent { color: var(--planops-muted); font-size: 0.7rem; font-weight: 500; }
+.project-task-subtask th { padding-left: 1.7rem; border-left: 3px solid var(--planops-accent); }
 @media (max-width: 900px) { .my-work-filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .my-work-header { align-items: stretch; flex-direction: column; } .my-work-header .planops-button { width: 100%; } .my-work-filter-grid, .my-work-date-grid { grid-template-columns: 1fr; } .my-work-table { min-width: 0; } .my-work-table thead { display: none; } .my-work-table, .my-work-table tbody, .my-work-table tr, .my-work-table th, .my-work-table td { display: block; width: 100%; } .my-work-table tr { padding: 0.7rem; border-bottom: 1px solid var(--planops-border); } .my-work-table tbody tr:last-child { border-bottom: 0; } .my-work-table th, .my-work-table td { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 0.75rem; padding: 0.35rem 0; border: 0; } .my-work-table td::before { content: attr(data-label); color: var(--planops-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; } .my-work-table th { display: block; } }
 

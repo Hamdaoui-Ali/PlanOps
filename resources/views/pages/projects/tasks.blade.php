@@ -1,0 +1,9 @@
+<x-app-layout>
+    <div class="planops-console"><section class="my-work-page project-task-list-page" aria-labelledby="project-task-list-heading">
+        <header class="my-work-header"><div><p class="planops-eyebrow">Project / execution</p><h1 id="project-task-list-heading">{{ $project->name }} tasks</h1><p>{{ $project->key }} · Track top-level work and direct subtasks in one focused list.</p></div><div class="project-overview-actions"><a href="{{ route('projects.show', $project) }}" class="planops-button planops-button-secondary">Project overview</a><a href="{{ route('projects.tasks.create', $project) }}" class="planops-button planops-button-primary">New task</a></div></header>
+        @if (session('status'))<div class="planops-flash" role="status"><i class="ph ph-check-circle" aria-hidden="true"></i><span>{{ session('status') }}</span></div>@endif
+        <x-filters.project-task-filters :project="$project" :filters="$filters" :labels="$labels" :statuses="$statuses" :priorities="$priorities" />
+        @if ($tasks->total() === 0)<div class="projects-empty-state my-work-empty" role="status"><i class="ph ph-list-checks" aria-hidden="true"></i>@if ($hasAnyTasks && count($filters) > 0)<h2>No tasks match these filters.</h2><p>Clear the filters to return to all project work.</p><a href="{{ route('projects.tasks.index', $project) }}" class="planops-button planops-button-primary">Reset filters</a>@else<h2>This project has no tracked work yet.</h2><p>Add the first task to start tracking progress.</p><a href="{{ route('projects.tasks.create', $project) }}" class="planops-button planops-button-primary">New task</a>@endif</div>@else<x-tasks.project-task-table :project="$project" :tasks="$tasks" :filters="$filters" :keys="$keys" :statuses="$statuses" :priorities="$priorities" />@endif
+        @if ($tasks->hasPages())<nav class="my-work-pagination" aria-label="Project task pages">{{ $tasks->links() }}</nav>@endif
+    </section></div>
+</x-app-layout>
