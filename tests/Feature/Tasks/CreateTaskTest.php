@@ -281,13 +281,13 @@ test('the task creation route exposes only owner-scoped top-level non-deleted pa
         });
 });
 
-test('a valid task creation post redirects to the project overview with the derived key message', function (): void {
+test('a valid task creation post redirects to the projects interface with the derived key message', function (): void {
     $owner = User::factory()->create();
     $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
 
     $response = $this->actingAs($owner)->post(route('projects.tasks.store', $project), ['title' => 'Create from the form']);
 
-    $response->assertRedirect(route('projects.show', $project, absolute: false))
+    $response->assertRedirect(route('projects.index', absolute: false))
         ->assertSessionHas('status', 'PLAN-1 created.');
 });
 

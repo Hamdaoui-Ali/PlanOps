@@ -1403,6 +1403,21 @@ body {
     align-items: end;
 }
 
+.task-metadata-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    border-top: 1px solid var(--planops-border);
+    padding-top: 1rem;
+}
+
+.task-metadata-actions .task-metadata-delete {
+    display: block;
+    border-top: 0;
+    padding-top: 0;
+}
+
 .task-metadata-delete {
     border-top: 1px solid var(--planops-border);
     padding-top: 1rem;

@@ -12,7 +12,7 @@
         <h2 id="task-metadata-heading">Task metadata</h2>
     </div>
 
-    <form method="POST" action="{{ $saveAction }}" class="task-metadata-form">
+    <form id="task-details-form" method="POST" action="{{ $saveAction }}" class="task-metadata-form">
         @csrf
         @method('PATCH')
 
@@ -56,22 +56,25 @@
             </div>
         </div>
 
-        <button type="submit" class="planops-button planops-button-primary">
+    </form>
+
+    <div class="task-metadata-actions">
+        <button type="submit" form="task-details-form" class="planops-button planops-button-primary">
             <i class="ph ph-floppy-disk" aria-hidden="true"></i>
             <span>Save changes</span>
         </button>
-    </form>
 
-    @if ($deleteAction !== null)
-        <form method="POST" action="{{ $deleteAction }}" class="task-metadata-delete" onsubmit="return window.confirm('Delete this task?')">
-            @csrf
-            @method('DELETE')
+        @if ($deleteAction !== null)
+            <form method="POST" action="{{ $deleteAction }}" class="task-metadata-delete" onsubmit="return window.confirm('Delete this task?')">
+                @csrf
+                @method('DELETE')
 
-            <label for="task-delete-confirmation">Confirm task deletion</label>
-            <button id="task-delete-confirmation" type="submit" class="planops-button planops-button-danger">
-                <i class="ph ph-trash" aria-hidden="true"></i>
-                <span>Delete task</span>
-            </button>
-        </form>
-    @endif
+                <label class="sr-only" for="task-delete-confirmation">Confirm task deletion</label>
+                <button id="task-delete-confirmation" type="submit" class="planops-button planops-button-danger">
+                    <i class="ph ph-trash" aria-hidden="true"></i>
+                    <span>Delete task</span>
+                </button>
+            </form>
+        @endif
+    </div>
 </section>

@@ -322,6 +322,7 @@ test('metadata and label components retain their route-agnostic Blade form contr
         ->toContain('Confirm task deletion')
         ->toContain("window.confirm('Delete this task?')")
         ->toContain('Save changes')
+        ->toContain('task-metadata-actions')
         ->not->toContain('Update priority')
         ->not->toContain('Update due date')
         ->toContain('@if ($deleteAction !== null)')
