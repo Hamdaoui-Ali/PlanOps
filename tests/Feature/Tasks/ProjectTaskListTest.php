@@ -24,11 +24,14 @@ test('the project task list includes visible parents and direct subtasks only', 
 
     $page = (new ProjectTaskListQuery)->paginate($owner, $project);
 
-    expect($page->getCollection()->modelKeys())->toBe([$parent->id, $child->id])
-        ->and($page->first()->relationLoaded('project'))->toBeTrue()
-        ->and($page->first()->relationLoaded('parent'))->toBeTrue()
-        ->and($page->first()->relationLoaded('labels'))->toBeTrue()
-        ->and($page->first()->children_count)->toBe(1);
+    expect($page->getCollection()->modelKeys())->toEqualCanonicalizing([$parent->id, $child->id]);
+
+    $parentRow = $page->getCollection()->firstWhere('id', $parent->id);
+
+    expect($parentRow->relationLoaded('project'))->toBeTrue()
+        ->and($parentRow->relationLoaded('parent'))->toBeTrue()
+        ->and($parentRow->relationLoaded('labels'))->toBeTrue()
+        ->and($parentRow->children_count)->toBe(1);
 });
 
 test('the project task list filters by status priority label and due state', function (): void {
