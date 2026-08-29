@@ -767,7 +767,7 @@ body {
 }
 
 .task-detail-page {
-    width: min(100%, 1180px);
+    width: min(100%, 1380px);
     margin: 0 auto;
     padding: 2.75rem clamp(1.25rem, 4vw, 3rem) 4rem;
 }
@@ -813,9 +813,9 @@ body {
 
 .task-detail-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.8fr);
+    grid-template-columns: minmax(0, 1.8fr) minmax(18rem, 0.65fr);
     align-items: start;
-    gap: 1rem;
+    gap: 1.25rem;
 }
 
 .task-detail-aside {
