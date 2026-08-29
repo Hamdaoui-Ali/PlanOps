@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectBoardController;
 use App\Http\Controllers\ProjectTaskListController;
@@ -21,9 +22,8 @@ Route::get('/dashboard', DashboardController::class)
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    foreach (['analytics' => 'Analytics', 'activity' => 'Activity'] as $path => $title) {
-        Route::view('/'.$path, 'pages.coming-soon', ['title' => $title])->name($path);
-    }
+    Route::view('/analytics', 'pages.coming-soon', ['title' => 'Analytics'])->name('analytics');
+    Route::get('/activity', [ActivityController::class, 'index'])->name('activity');
 
     Route::bind('project', function (string $value): Project {
         return Project::query()->ownedBy(request()->user())->findOrFail($value);
