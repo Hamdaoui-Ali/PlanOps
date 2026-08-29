@@ -20,6 +20,7 @@ test('an owner can view a board with readable task metadata and accessible statu
         'priority' => TaskPriority::HIGH,
         'due_on' => '2026-09-20',
     ]);
+    Task::factory()->forProject($project)->active()->create(['number' => 2, 'title' => 'Prepare notes']);
 
     $this->actingAs($owner)->get(route('projects.board', $project))
         ->assertOk()
@@ -30,7 +31,7 @@ test('an owner can view a board with readable task metadata and accessible statu
         ->assertSee('Sep 20, 2026')
         ->assertSee('Move to')
         ->assertSee('Back to overview')
-        ->assertSee('Move up');
+        ->assertSee('Move down');
 });
 
 test('a foreign project board is unavailable', function (): void {

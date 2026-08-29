@@ -1938,3 +1938,249 @@ html.density-compact .projects-ledger td {
         animation-iteration-count: 1 !important;
     }
 }
+
+.project-board-page {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.project-board-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.project-board-header h1 {
+    margin: 0.35rem 0 0;
+    color: var(--planops-text);
+    font-size: clamp(1.7rem, 3vw, 2.6rem);
+    letter-spacing: -0.04em;
+}
+
+.project-board-header p:last-child {
+    max-width: 42rem;
+    margin: 0.6rem 0 0;
+    color: var(--planops-muted);
+}
+
+.board-back-link,
+.board-task-key {
+    color: var(--planops-accent);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.board-back-link:focus-visible,
+.board-task-key:focus-visible,
+.board-task-card h3 a:focus-visible,
+.board-order-button:focus-visible {
+    outline: 3px solid var(--planops-focus);
+    outline-offset: 3px;
+}
+
+.board-filter-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 0.75rem;
+    background: var(--planops-surface-raised);
+}
+
+.board-filter-form label,
+.board-status-form label {
+    color: var(--planops-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.board-filter-form input {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--planops-focus);
+}
+
+.project-board-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(15rem, 1fr));
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.board-column {
+    min-width: 15rem;
+    padding: 0.75rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 0.9rem;
+    background: var(--planops-surface-raised);
+}
+
+.board-column-header {
+    padding: 0.25rem 0.25rem 0.8rem;
+    border-bottom: 1px solid var(--planops-border);
+}
+
+.board-column-header h2 {
+    margin: 0.2rem 0 0;
+    color: var(--planops-text);
+    font-size: 1rem;
+}
+
+.board-column-cards {
+    display: grid;
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+}
+
+.board-task-card {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 0.75rem;
+    background: var(--planops-surface);
+    box-shadow: 0 0.3rem 0.8rem rgba(20, 37, 31, 0.06);
+}
+
+.board-task-card-heading,
+.board-status-controls,
+.board-reorder-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.board-task-status {
+    color: var(--planops-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.board-task-card h3 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.35;
+}
+
+.board-task-card h3 a {
+    color: var(--planops-text);
+    text-decoration: none;
+}
+
+.board-task-meta {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+}
+
+.board-task-meta div {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.board-task-meta dt,
+.board-task-meta dd {
+    margin: 0;
+    font-size: 0.78rem;
+}
+
+.board-task-meta dt {
+    color: var(--planops-muted);
+}
+
+.board-task-meta dd {
+    color: var(--planops-text);
+    font-weight: 700;
+    text-align: right;
+}
+
+.board-task-labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.board-task-labels span {
+    padding: 0.2rem 0.45rem;
+    border-radius: 999px;
+    background: var(--planops-surface-raised);
+    color: var(--planops-muted);
+    font-size: 0.7rem;
+}
+
+.board-status-form {
+    display: grid;
+    gap: 0.4rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--planops-border);
+}
+
+.board-status-form select {
+    min-width: 0;
+    flex: 1;
+}
+
+.board-reorder-controls {
+    justify-content: flex-start;
+}
+
+.board-reorder-form {
+    margin: 0;
+}
+
+.board-order-button {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--planops-accent);
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
+.board-column-empty {
+    margin: 1rem 0 0.25rem;
+    color: var(--planops-muted);
+    font-size: 0.82rem;
+}
+
+@media (max-width: 1100px) {
+    .project-board-grid {
+        grid-template-columns: repeat(6, minmax(14rem, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .project-board-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .project-board-header .planops-button {
+        width: 100%;
+    }
+
+    .board-filter-form {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .project-board-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        overflow: visible;
+    }
+
+    .board-column {
+        min-width: 0;
+    }
+}
