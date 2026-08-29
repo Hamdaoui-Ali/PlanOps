@@ -45,6 +45,10 @@ class TaskController extends Controller
     {
         $changeStatus->handle($request->user(), $task, $request->validated('status'));
 
+        if ($request->query('return_context') === 'my-work') {
+            return to_route('my-work', $this->safeMyWorkQuery($request))->with('status', 'Task status updated.');
+        }
+
         return to_route('tasks.show', $task)->with('status', 'Task status updated.');
     }
 
@@ -66,7 +70,46 @@ class TaskController extends Controller
     {
         $changePriority->handle($request->user(), $task, $request->validated('priority'));
 
+        if ($request->query('return_context') === 'my-work') {
+            return to_route('my-work', $this->safeMyWorkQuery($request))->with('status', 'Task priority updated.');
+        }
+
         return to_route('tasks.show', $task)->with('status', 'Task priority updated.');
+    }
+
+    /** @return array<string, string> */
+    private function safeMyWorkQuery(Request $request): array
+    {
+        $safe = [];
+        $allowed = [
+            'status' => array_column(TaskStatus::cases(), 'value'),
+            'priority' => array_column(TaskPriority::cases(), 'value'),
+            'due' => ['overdue', 'today', 'this_week', 'no_due_date'],
+            'sort' => ['updated', 'created', 'priority', 'due', 'task_key', 'project'],
+        ];
+
+        foreach (['project', 'label'] as $key) {
+            $value = $request->query($key);
+            if (is_scalar($value) && ctype_digit((string) $value)) {
+                $safe[$key] = (string) $value;
+            }
+        }
+
+        foreach ($allowed as $key => $values) {
+            $value = $request->query($key);
+            if (is_scalar($value) && in_array((string) $value, $values, true)) {
+                $safe[$key] = (string) $value;
+            }
+        }
+
+        foreach (['created_from', 'created_until', 'updated_from', 'updated_until'] as $key) {
+            $value = $request->query($key);
+            if (is_scalar($value) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $value) === 1) {
+                $safe[$key] = (string) $value;
+            }
+        }
+
+        return $safe;
     }
 
     public function changeDueDate(ChangeTaskDueDateRequest $request, Task $task, ChangeTaskDueDate $changeDueDate): RedirectResponse
