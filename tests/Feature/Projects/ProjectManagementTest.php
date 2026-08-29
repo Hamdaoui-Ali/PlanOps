@@ -177,7 +177,7 @@ test('project create and edit HTTP flows authenticate and return actionable vali
     ]);
     $created = $user->projects()->where('key', 'PLAN')->firstOrFail();
 
-    $createResponse->assertRedirect(route('projects.edit', $created, absolute: false));
+    $createResponse->assertRedirect(route('projects.index', absolute: false));
     expect($created->name)->toBe('PlanOps Console')
         ->and($created->key)->toBe('PLAN')
         ->and($created->status)->toBe(ProjectStatus::PLANNED)
@@ -204,7 +204,7 @@ test('project create HTTP flow persists an explicitly submitted initial status',
     ]);
     $created = $user->projects()->where('key', 'ACTIVE')->firstOrFail();
 
-    $response->assertRedirect(route('projects.edit', $created, absolute: false));
+    $response->assertRedirect(route('projects.index', absolute: false));
     expect($created->name)->toBe('Active PlanOps Console')
         ->and($created->key)->toBe('ACTIVE')
         ->and($created->status)->toBe(ProjectStatus::ACTIVE)

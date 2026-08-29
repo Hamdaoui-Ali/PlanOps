@@ -35,7 +35,7 @@ class ProjectController extends Controller
     {
         $project = $create->handle($request->user(), $request->validated());
 
-        return to_route('projects.edit', $project)->with('status', 'Project created.');
+        return to_route('projects.index')->with('status', 'Project created.');
     }
 
     public function edit(Project $project): View
