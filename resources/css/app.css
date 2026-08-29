@@ -1418,6 +1418,16 @@ body {
     padding-top: 0;
 }
 
+.task-metadata-actions > .planops-button,
+.task-metadata-actions > .task-metadata-delete {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.task-metadata-actions > .task-metadata-delete .planops-button {
+    width: 100%;
+}
+
 .task-metadata-delete {
     border-top: 1px solid var(--planops-border);
     padding-top: 1rem;
@@ -1610,6 +1620,16 @@ html.density-compact .projects-ledger td {
 }
 
 @media (max-width: 820px) {
+    .task-metadata-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .task-metadata-actions > .planops-button,
+    .task-metadata-actions > .task-metadata-delete {
+        width: 100%;
+    }
+
     .task-metadata-form > .task-metadata-controls {
         grid-template-columns: 1fr;
     }

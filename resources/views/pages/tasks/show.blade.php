@@ -43,6 +43,7 @@
                 </div>
 
                 <aside class="task-detail-aside">
+                    @if ($task->parent === null)
                     <section class="task-detail-panel" aria-labelledby="task-subtasks-heading">
                         <p class="planops-eyebrow">Breakdown</p>
                         <h2 id="task-subtasks-heading">Subtasks</h2>
@@ -59,6 +60,7 @@
                             </ul>
                         @endif
                     </section>
+                    @endif
                 </aside>
             </div>
 
