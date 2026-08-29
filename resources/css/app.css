@@ -799,6 +799,18 @@ body {
     font-size: 0.9rem;
 }
 
+.task-detail-parent {
+    margin: 0.7rem 0 0;
+    color: var(--planops-muted);
+    font-size: 0.82rem;
+}
+
+.task-detail-parent a {
+    color: var(--planops-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
 .task-detail-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.8fr);

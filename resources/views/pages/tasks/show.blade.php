@@ -1,8 +1,9 @@
 <x-app-layout>
     @php
-        $formatValue = static function (mixed $value): string {
+        $formatValue = null;
+        $formatValue = static function (mixed $value) use (&$formatValue): string {
             if (is_array($value)) {
-                return collect($value)->map(fn (mixed $item, string|int $key): string => str($key)->replace('_', ' ')->title().' '.(is_array($item) ? json_encode($item) : $item))->implode(', ');
+                return collect($value)->map(fn (mixed $item, string|int $key): string => str($key)->replace('_', ' ')->title().' '.$formatValue($item))->implode(', ');
             }
 
             return $value === null || $value === '' ? '—' : (string) $value;
@@ -23,6 +24,9 @@
                     <a href="{{ route('projects.show', $task->project) }}" class="task-detail-back">← Back to {{ $task->project->name }}</a>
                     <p class="planops-eyebrow">{{ $displayKey }}</p>
                     <h1 id="task-detail-heading">{{ $task->title }}</h1>
+                    @if ($task->parent)
+                        <p class="task-detail-parent">Subtask of <a href="{{ route('tasks.show', $task->parent) }}">{{ $task->project->key }}-{{ $task->parent->number }} · {{ $task->parent->title }}</a></p>
+                    @endif
                     <p>Task details and recorded changes for this work item.</p>
                 </div>
             </header>

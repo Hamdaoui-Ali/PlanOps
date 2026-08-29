@@ -35,3 +35,15 @@ test('a foreign task detail URL is not available', function (): void {
 
     $this->actingAs($owner)->get(route('tasks.show', $task))->assertNotFound();
 });
+
+test('a subtask detail page identifies its parent task', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
+    $parent = Task::factory()->forProject($project)->create(['number' => 1, 'title' => 'Ship release']);
+    $child = Task::factory()->forProject($project)->withParent($parent)->create(['number' => 2, 'title' => 'Prepare checklist']);
+
+    $this->actingAs($owner)->get(route('tasks.show', $child))
+        ->assertOk()
+        ->assertSee('Subtask of')
+        ->assertSee('PLAN-1 · Ship release');
+});

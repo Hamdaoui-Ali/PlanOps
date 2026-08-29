@@ -64,3 +64,31 @@ test('the project overview exposes collapsed direct subtasks with independent me
         ->assertSee('aria-expanded="false"', false)
         ->assertSee('aria-controls="subtasks-'.$parent->id.'"', false);
 });
+
+test('deleted children are hidden and parents without children have no expand control', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    $plain = Task::factory()->forProject($project)->create(['title' => 'Standalone task']);
+    $parent = Task::factory()->forProject($project)->create(['title' => 'Parent task']);
+    $deleted = Task::factory()->forProject($project)->withParent($parent)->create(['title' => 'Removed child']);
+    $deleted->delete();
+
+    $this->actingAs($owner)->get(route('projects.show', $project))
+        ->assertOk()
+        ->assertSee('Standalone task')
+        ->assertSee('Parent task')
+        ->assertDontSee('Removed child')
+        ->assertDontSee('Show subtasks');
+});
+
+test('a parent with only cancelled children reports no active subtasks', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    $parent = Task::factory()->forProject($project)->create(['title' => 'Parent task']);
+    Task::factory()->forProject($project)->withParent($parent)->cancelled()->create();
+
+    $this->actingAs($owner)->get(route('projects.show', $project))
+        ->assertOk()
+        ->assertSee('No active subtasks')
+        ->assertSee('Show subtasks');
+});

@@ -45,6 +45,32 @@ test('task metadata HTTP actions save and return to task detail', function (): v
         ->and($task->fresh()->due_on?->toDateString())->toBe('2026-10-01');
 });
 
+test('editing a subtask changes only the subtask metadata', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    $parent = Task::factory()->forProject($project)->create([
+        'title' => 'Parent task',
+        'priority' => TaskPriority::LOW,
+        'due_on' => '2026-09-10',
+    ]);
+    $child = Task::factory()->forProject($project)->withParent($parent)->create([
+        'title' => 'Child task',
+        'priority' => TaskPriority::MEDIUM,
+        'due_on' => '2026-09-11',
+    ]);
+
+    (new UpdateTask)->handle($owner, $child, ['title' => 'Updated child']);
+    (new ChangeTaskPriority)->handle($owner, $child->fresh(), TaskPriority::URGENT);
+    (new ChangeTaskDueDate)->handle($owner, $child->fresh(), '2026-09-12');
+
+    expect($child->fresh()->title)->toBe('Updated child')
+        ->and($child->fresh()->priority)->toBe(TaskPriority::URGENT)
+        ->and($child->fresh()->due_on?->toDateString())->toBe('2026-09-12')
+        ->and($parent->fresh()->title)->toBe('Parent task')
+        ->and($parent->fresh()->priority)->toBe(TaskPriority::LOW)
+        ->and($parent->fresh()->due_on?->toDateString())->toBe('2026-09-10');
+});
+
 test('task delete HTTP action soft deletes and returns to the project', function (): void {
     $owner = User::factory()->create();
     $project = Project::factory()->for($owner)->create();
