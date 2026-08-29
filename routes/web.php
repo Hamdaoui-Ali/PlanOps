@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectBoardController;
+use App\Http\Controllers\MyWorkController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
@@ -19,7 +20,7 @@ Route::get('/dashboard', DashboardController::class)
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    foreach (['my-work' => 'My Work', 'analytics' => 'Analytics', 'activity' => 'Activity'] as $path => $title) {
+    foreach (['analytics' => 'Analytics', 'activity' => 'Activity'] as $path => $title) {
         Route::view('/'.$path, 'pages.coming-soon', ['title' => $title])->name($path);
     }
 
@@ -32,6 +33,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+    Route::get('/my-work', [MyWorkController::class, 'index'])->name('my-work');
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     Route::get('/projects/{project}/tasks/create', [TaskController::class, 'create'])
