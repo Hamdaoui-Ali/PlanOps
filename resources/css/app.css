@@ -692,6 +692,80 @@ body {
     font-size: 0.75rem;
 }
 
+.task-parent-identity {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.task-parent-identity .project-key {
+    margin-top: 0;
+}
+
+.task-subtasks-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: 0.35rem;
+    border: 0;
+    background: transparent;
+    color: var(--planops-accent);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0;
+}
+
+.task-subtasks-toggle i {
+    transition: transform 120ms ease;
+}
+
+.task-subtasks-toggle .rotate-90 {
+    transform: rotate(90deg);
+}
+
+.task-subtasks-row > td {
+    background: var(--planops-surface-raised);
+    padding: 0.75rem 0.95rem 0.9rem 2.5rem;
+}
+
+.task-subtasks-panel {
+    display: grid;
+    gap: 0.55rem;
+    border-left: 2px solid var(--planops-accent);
+    padding-left: 0.9rem;
+}
+
+.task-subtask-row {
+    display: grid;
+    grid-template-columns: 5rem minmax(12rem, 1fr) repeat(3, minmax(6rem, auto)) auto;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--planops-muted);
+    font-size: 0.78rem;
+    text-decoration: none;
+}
+
+.task-subtask-row:hover,
+.task-subtask-row:focus-visible {
+    color: var(--planops-text);
+}
+
+.task-subtask-row .project-key {
+    display: inline;
+    margin: 0;
+}
+
+.task-subtask-title {
+    color: var(--planops-text);
+    font-weight: 600;
+}
+
+.task-subtask-edit {
+    color: var(--planops-accent);
+    font-weight: 700;
+}
+
 .task-detail-page {
     width: min(100%, 1180px);
     margin: 0 auto;

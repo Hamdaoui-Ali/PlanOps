@@ -1,6 +1,8 @@
 <?php
 
 use App\Domain\Projects\Models\Project;
+use App\Domain\Tasks\Enums\TaskPriority;
+use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,4 +40,27 @@ test('a project overview excludes soft deleted tasks and foreign projects', func
 
     $this->actingAs($owner)->get(route('projects.show', $foreignProject))
         ->assertNotFound();
+});
+
+test('the project overview exposes collapsed direct subtasks with independent metadata', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
+    $parent = Task::factory()->forProject($project)->create(['number' => 1, 'title' => 'Ship release']);
+    $child = Task::factory()->forProject($project)->withParent($parent)->create([
+        'number' => 2,
+        'title' => 'Prepare checklist',
+        'status' => TaskStatus::IN_PROGRESS,
+        'priority' => TaskPriority::HIGH,
+        'due_on' => '2026-09-20',
+    ]);
+    Task::factory()->forProject($project)->withParent($parent)->done()->create(['number' => 3]);
+
+    $this->actingAs($owner)->get(route('projects.show', $project))
+        ->assertOk()
+        ->assertSee('Show subtasks')
+        ->assertSee('1 of 2 subtasks done')
+        ->assertSee('Prepare checklist')
+        ->assertSee(route('tasks.show', $child), false)
+        ->assertSee('aria-expanded="false"', false)
+        ->assertSee('aria-controls="subtasks-'.$parent->id.'"', false);
 });

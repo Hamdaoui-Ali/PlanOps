@@ -79,17 +79,33 @@
                                     <th scope="col"><span class="sr-only">Save status</span></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ($project->tasks as $task)
+                            @foreach ($project->tasks as $task)
+                                <tbody x-data="{ open: false }">
                                     <tr>
                                         <th scope="row" class="project-identity">
-                                            <span class="project-key">{{ $project->key }}-{{ $task->number }}</span>
-                                            <span class="project-name">{{ $task->title }}</span>
+                                            <div class="task-parent-identity">
+                                                @if ($task->children_count > 0)
+                                                    <button type="button" class="task-subtasks-toggle" aria-expanded="false" aria-controls="subtasks-{{ $task->id }}" data-subtasks-toggle="subtasks-{{ $task->id }}" @click="open = ! open" :aria-expanded="open.toString()">
+                                                        <i class="ph ph-caret-right" aria-hidden="true" :class="{ 'rotate-90': open }"></i>
+                                                        <span x-text="open ? 'Hide subtasks' : 'Show subtasks'">Show subtasks</span>
+                                                    </button>
+                                                @endif
+                                                <a href="{{ route('tasks.show', $task) }}" class="project-name">{{ $task->title }}</a>
+                                                <span class="project-key">{{ $project->key }}-{{ $task->number }}</span>
+                                            </div>
                                         </th>
                                         <td>{{ str($task->status->value)->replace('_', ' ')->title() }}</td>
                                         <td>{{ str($task->priority->value)->replace('_', ' ')->title() }}</td>
                                         <td>{{ $task->due_on?->format('M j, Y') ?? 'No due date' }}</td>
-                                        <td>{{ $task->children_count }}</td>
+                                        <td>
+                                            @if ($task->eligible_children_count > 0)
+                                                {{ $task->completed_children_count }} of {{ $task->eligible_children_count }} done
+                                            @elseif ($task->children_count > 0)
+                                                <span class="project-no-scope">No active subtasks</span>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
                                         <td>
                                             <form method="POST" action="{{ route('tasks.status', $task) }}" class="task-status-form">
                                                 @csrf
@@ -103,8 +119,26 @@
                                             </form>
                                         </td>
                                     </tr>
-                                @endforeach
-                            </tbody>
+                                    @if ($task->children_count > 0)
+                                        <tr id="subtasks-{{ $task->id }}" class="task-subtasks-row" hidden x-bind:hidden="! open">
+                                            <td colspan="6">
+                                                <div class="task-subtasks-panel">
+                                                    @foreach ($task->children as $subtask)
+                                                        <a href="{{ route('tasks.show', $subtask) }}" class="task-subtask-row">
+                                                            <span class="project-key">{{ $project->key }}-{{ $subtask->number }}</span>
+                                                            <span class="task-subtask-title">{{ $subtask->title }}</span>
+                                                            <span>{{ str($subtask->status->value)->replace('_', ' ')->title() }}</span>
+                                                            <span>{{ str($subtask->priority->value)->replace('_', ' ')->title() }}</span>
+                                                            <span>{{ $subtask->due_on?->format('M j, Y') ?? 'No due date' }}</span>
+                                                            <span class="task-subtask-edit">Edit</span>
+                                                        </a>
+                                                    @endforeach
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            @endforeach
                         </table>
                     </div>
                 @endif

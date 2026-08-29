@@ -21,7 +21,13 @@ class ProjectOverviewQuery
                 'tasks' => fn (HasMany $tasks): HasMany => $tasks
                     ->whereNull('parent_task_id')
                     ->with('children')
-                    ->withCount('children')
+                    ->withCount([
+                        'children',
+                        'children as eligible_children_count' => fn (Builder $children): Builder => $children
+                            ->where('status', '!=', TaskStatus::CANCELLED->value),
+                        'children as completed_children_count' => fn (Builder $children): Builder => $children
+                            ->where('status', TaskStatus::DONE->value),
+                    ])
                     ->orderBy('position')
                     ->orderBy('number'),
             ])
