@@ -692,6 +692,128 @@ body {
     font-size: 0.75rem;
 }
 
+.task-detail-page {
+    width: min(100%, 1180px);
+    margin: 0 auto;
+    padding: 2.75rem clamp(1.25rem, 4vw, 3rem) 4rem;
+}
+
+.task-detail-header {
+    padding-bottom: 1.8rem;
+}
+
+.task-detail-back {
+    display: inline-flex;
+    margin-bottom: 1.2rem;
+    color: var(--planops-accent);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.task-detail-header h1 {
+    margin: 0;
+    color: var(--planops-text);
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+}
+
+.task-detail-header p:last-child {
+    margin: 0.7rem 0 0;
+    color: var(--planops-muted);
+    font-size: 0.9rem;
+}
+
+.task-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.8fr);
+    align-items: start;
+    gap: 1rem;
+}
+
+.task-detail-aside {
+    display: grid;
+    gap: 1rem;
+}
+
+.task-detail-panel {
+    border: 1px solid var(--planops-border);
+    background: var(--planops-surface);
+    padding: 1.3rem;
+}
+
+.task-detail-panel h2 {
+    margin: 0;
+    color: var(--planops-text);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.task-detail-status-form {
+    display: grid;
+    gap: 0.55rem;
+    margin-top: 1rem;
+}
+
+.task-detail-status-form label,
+.task-detail-status-form select {
+    color: var(--planops-muted);
+    font-size: 0.8rem;
+}
+
+.task-detail-status-form select {
+    min-height: 2.7rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 6px;
+    background: var(--planops-surface);
+    color: var(--planops-text);
+    font: inherit;
+    padding: 0.6rem 0.7rem;
+}
+
+.task-detail-subtasks,
+.task-detail-timeline {
+    display: grid;
+    gap: 0.8rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.task-detail-subtasks li,
+.task-detail-timeline li {
+    display: grid;
+    gap: 0.25rem;
+    border-top: 1px solid var(--planops-border);
+    padding-top: 0.8rem;
+}
+
+.task-detail-subtasks a {
+    color: var(--planops-accent);
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.task-detail-subtasks span,
+.task-detail-timeline span,
+.task-detail-timeline time,
+.task-detail-muted {
+    color: var(--planops-muted);
+    font-size: 0.78rem;
+}
+
+.task-detail-activity {
+    margin-top: 1rem;
+}
+
+@media (max-width: 900px) {
+    .task-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 720px) {
     .project-overview-header,
     .project-overview-section-heading {
