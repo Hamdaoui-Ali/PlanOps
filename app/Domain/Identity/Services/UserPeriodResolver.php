@@ -11,6 +11,17 @@ use InvalidArgumentException;
 
 final class UserPeriodResolver
 {
+    public function resolve(User $user, array $selection, ?CarbonImmutable $now = null): ReportPeriod
+    {
+        return match ($selection['period'] ?? 'today') {
+            'week' => $this->week($user, $now),
+            'month' => $this->month($user, $now),
+            'year' => $this->year($user, $now),
+            'custom' => $this->custom($user, (string) ($selection['from'] ?? ''), (string) ($selection['until'] ?? '')),
+            default => $this->today($user, $now),
+        };
+    }
+
     public function today(User $user, ?CarbonImmutable $now = null): ReportPeriod
     {
         $localNow = $this->localNow($user, $now);
