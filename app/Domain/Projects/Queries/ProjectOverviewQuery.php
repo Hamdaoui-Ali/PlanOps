@@ -18,7 +18,7 @@ class ProjectOverviewQuery
             ->ownedBy($ownerId)
             ->whereKey($project->getKey())
             ->with([
-                'tasks' => fn (HasMany $tasks): Builder => $tasks
+                'tasks' => fn (HasMany $tasks): HasMany => $tasks
                     ->whereNull('parent_task_id')
                     ->with('children')
                     ->withCount('children')
