@@ -3,6 +3,7 @@
 use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Activity\Models\TaskActivity;
 use App\Domain\Labels\Models\Label;
+use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Actions\ChangeTaskDueDate;
 use App\Domain\Tasks\Actions\ChangeTaskPriority;
 use App\Domain\Tasks\Actions\DeleteTask;
@@ -21,6 +22,39 @@ use Illuminate\Validation\ValidationException;
 use LogicException;
 
 uses(RefreshDatabase::class);
+
+test('task metadata HTTP actions save and return to task detail', function (): void {
+    $owner = User::factory()->create();
+    $task = Task::factory()->for($owner)->create();
+
+    $this->actingAs($owner)->patch(route('tasks.update', $task), [
+        'title' => 'Updated title',
+        'description' => 'Updated description',
+    ])->assertRedirect(route('tasks.show', $task, absolute: false));
+
+    $this->actingAs($owner)->patch(route('tasks.priority', $task), [
+        'priority' => TaskPriority::URGENT->value,
+    ])->assertRedirect(route('tasks.show', $task, absolute: false));
+
+    $this->actingAs($owner)->patch(route('tasks.due-date', $task), [
+        'due_on' => '2026-10-01',
+    ])->assertRedirect(route('tasks.show', $task, absolute: false));
+
+    expect($task->fresh()->title)->toBe('Updated title')
+        ->and($task->fresh()->priority)->toBe(TaskPriority::URGENT)
+        ->and($task->fresh()->due_on?->toDateString())->toBe('2026-10-01');
+});
+
+test('task delete HTTP action soft deletes and returns to the project', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    $task = Task::factory()->forProject($project)->create();
+
+    $this->actingAs($owner)->delete(route('tasks.destroy', $task))
+        ->assertRedirect(route('projects.show', $project, absolute: false));
+
+    expect(Task::query()->find($task->id))->toBeNull();
+});
 
 test('UpdateTask trims fields, persists nullable description, and redacts title and description values', function (): void {
     $owner = User::factory()->create();

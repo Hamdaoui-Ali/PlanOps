@@ -19,7 +19,7 @@ test('changing a top-level task to done updates project progress', function (): 
         'status' => TaskStatus::DONE->value,
     ]);
 
-    $response->assertRedirect(route('projects.show', $project, absolute: false));
+    $response->assertRedirect(route('tasks.show', $task, absolute: false));
     expect($task->fresh()->status)->toBe(TaskStatus::DONE)
         ->and($task->fresh()->completed_at)->not->toBeNull()
         ->and($project->fresh()->progress_percent)->toBe(100)
@@ -33,7 +33,7 @@ test('reopening a completed task clears its current completion timestamp', funct
 
     $this->actingAs($owner)->post(route('tasks.status', $task), [
         'status' => TaskStatus::IN_PROGRESS->value,
-    ])->assertRedirect(route('projects.show', $project, absolute: false));
+    ])->assertRedirect(route('tasks.show', $task, absolute: false));
 
     expect($task->fresh()->status)->toBe(TaskStatus::IN_PROGRESS)
         ->and($task->fresh()->completed_at)->toBeNull()
