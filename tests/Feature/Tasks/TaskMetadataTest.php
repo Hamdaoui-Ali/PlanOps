@@ -10,6 +10,7 @@ use App\Domain\Tasks\Actions\DeleteTask;
 use App\Domain\Tasks\Actions\RestoreTask;
 use App\Domain\Tasks\Actions\UpdateTask;
 use App\Domain\Tasks\Enums\TaskPriority;
+use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
 use App\Http\Requests\ChangeTaskDueDateRequest;
 use App\Http\Requests\UpdateTaskRequest;
@@ -22,6 +23,25 @@ use Illuminate\Validation\ValidationException;
 use LogicException;
 
 uses(RefreshDatabase::class);
+
+test('one task details form saves all editable attributes together', function (): void {
+    $owner = User::factory()->create();
+    $task = Task::factory()->for($owner)->create();
+
+    $this->actingAs($owner)->patch(route('tasks.details.update', $task), [
+        'title' => 'Updated title',
+        'description' => 'Updated description',
+        'status' => TaskStatus::IN_PROGRESS->value,
+        'priority' => TaskPriority::URGENT->value,
+        'due_on' => '2026-10-01',
+    ])->assertRedirect(route('tasks.show', $task, absolute: false));
+
+    expect($task->fresh()->title)->toBe('Updated title')
+        ->and($task->fresh()->description)->toBe('Updated description')
+        ->and($task->fresh()->status)->toBe(TaskStatus::IN_PROGRESS)
+        ->and($task->fresh()->priority)->toBe(TaskPriority::URGENT)
+        ->and($task->fresh()->due_on?->toDateString())->toBe('2026-10-01');
+});
 
 test('task metadata HTTP actions save and return to task detail', function (): void {
     $owner = User::factory()->create();
@@ -274,11 +294,10 @@ test('metadata and label components retain their route-agnostic Blade form contr
     $metadataComponent = file_get_contents(resource_path('views/components/tasks/metadata-form.blade.php'));
     $labelPickerComponent = file_get_contents(resource_path('views/components/labels/label-picker.blade.php'));
 
-    expect($metadataComponent)->toContain('$updateAction')
-        ->toContain('$priorityAction')
-        ->toContain('$dueDateAction')
+    expect($metadataComponent)->toContain('$saveAction')
         ->toContain('$deleteAction')
         ->toContain("'task'")
+        ->toContain("'statuses'")
         ->toContain("'priorities'")
         ->toContain('>Title<')
         ->toContain('>Description<')
@@ -302,6 +321,9 @@ test('metadata and label components retain their route-agnostic Blade form contr
         ->toContain('aria-hidden="true"')
         ->toContain('Confirm task deletion')
         ->toContain("window.confirm('Delete this task?')")
+        ->toContain('Save changes')
+        ->not->toContain('Update priority')
+        ->not->toContain('Update due date')
         ->toContain('@if ($deleteAction !== null)')
         ->toContain('action="{{ $deleteAction }}"')
         ->not->toContain('route(');

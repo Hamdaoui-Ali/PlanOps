@@ -10,6 +10,7 @@ use App\Domain\Tasks\Actions\ChangeTaskStatus;
 use App\Domain\Tasks\Actions\CreateTask;
 use App\Domain\Tasks\Actions\DeleteTask;
 use App\Domain\Tasks\Actions\UpdateTask;
+use App\Domain\Tasks\Actions\UpdateTaskDetails;
 use App\Domain\Tasks\Enums\TaskPriority;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
@@ -18,6 +19,7 @@ use App\Domain\Tasks\Queries\TaskKeyQuery;
 use App\Http\Requests\ChangeTaskDueDateRequest;
 use App\Http\Requests\ChangeTaskPriorityRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Requests\UpdateTaskDetailsRequest;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\ChangeTaskStatusRequest;
 use Illuminate\Http\Request;
@@ -51,6 +53,13 @@ class TaskController extends Controller
         $update->handle($request->user(), $task, $request->validated());
 
         return to_route('tasks.show', $task)->with('status', 'Task details updated.');
+    }
+
+    public function updateDetails(UpdateTaskDetailsRequest $request, Task $task, UpdateTaskDetails $update): RedirectResponse
+    {
+        $update->handle($request->user(), $task, $request->validated());
+
+        return to_route('tasks.show', $task)->with('status', 'Task changes saved.');
     }
 
     public function changePriority(ChangeTaskPriorityRequest $request, Task $task, ChangeTaskPriority $changePriority): RedirectResponse

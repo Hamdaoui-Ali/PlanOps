@@ -1,9 +1,8 @@
 @props([
     'task',
+    'statuses',
     'priorities',
-    'updateAction',
-    'priorityAction',
-    'dueDateAction',
+    'saveAction',
     'deleteAction' => null,
 ])
 
@@ -13,7 +12,7 @@
         <h2 id="task-metadata-heading">Task metadata</h2>
     </div>
 
-    <form method="POST" action="{{ $updateAction }}" class="task-metadata-form">
+    <form method="POST" action="{{ $saveAction }}" class="task-metadata-form">
         @csrf
         @method('PATCH')
 
@@ -29,16 +28,16 @@
             <x-input-error :messages="$errors->get('description')" />
         </div>
 
-        <button type="submit" class="planops-button planops-button-primary">
-            <i class="ph ph-floppy-disk" aria-hidden="true"></i>
-            <span>Save details</span>
-        </button>
-    </form>
-
-    <div class="task-metadata-controls">
-        <form method="POST" action="{{ $priorityAction }}" class="task-metadata-form task-metadata-inline-form">
-            @csrf
-            @method('PATCH')
+        <div class="task-metadata-controls">
+            <div class="task-metadata-field">
+                <label for="task-status">Status</label>
+                <select id="task-status" name="status">
+                    @foreach ($statuses as $status)
+                        <option value="{{ $status->value }}" @selected(old('status', $task->status->value) === $status->value)>{{ str($status->value)->replace('_', ' ')->title() }}</option>
+                    @endforeach
+                </select>
+                <x-input-error :messages="$errors->get('status')" />
+            </div>
 
             <div class="task-metadata-field">
                 <label for="task-priority">Priority</label>
@@ -50,28 +49,18 @@
                 <x-input-error :messages="$errors->get('priority')" />
             </div>
 
-            <button type="submit" class="planops-button planops-button-secondary">
-                <i class="ph ph-flag" aria-hidden="true"></i>
-                <span>Update priority</span>
-            </button>
-        </form>
-
-        <form method="POST" action="{{ $dueDateAction }}" class="task-metadata-form task-metadata-inline-form">
-            @csrf
-            @method('PATCH')
-
             <div class="task-metadata-field">
                 <label for="task-due-on">Due date</label>
                 <input id="task-due-on" name="due_on" type="date" value="{{ old('due_on', $task->due_on?->format('Y-m-d')) }}">
                 <x-input-error :messages="$errors->get('due_on')" />
             </div>
+        </div>
 
-            <button type="submit" class="planops-button planops-button-secondary">
-                <i class="ph ph-calendar-check" aria-hidden="true"></i>
-                <span>Update due date</span>
-            </button>
-        </form>
-    </div>
+        <button type="submit" class="planops-button planops-button-primary">
+            <i class="ph ph-floppy-disk" aria-hidden="true"></i>
+            <span>Save changes</span>
+        </button>
+    </form>
 
     @if ($deleteAction !== null)
         <form method="POST" action="{{ $deleteAction }}" class="task-metadata-delete" onsubmit="return window.confirm('Delete this task?')">

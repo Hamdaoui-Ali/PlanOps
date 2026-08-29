@@ -35,30 +35,14 @@
                 <div>
                     <x-tasks.metadata-form
                         :task="$task"
+                        :statuses="$statuses"
                         :priorities="$priorities"
-                        :update-action="route('tasks.update', $task)"
-                        :priority-action="route('tasks.priority', $task)"
-                        :due-date-action="route('tasks.due-date', $task)"
+                        :save-action="route('tasks.details.update', $task)"
                         :delete-action="route('tasks.destroy', $task)"
                     />
                 </div>
 
                 <aside class="task-detail-aside">
-                    <section class="task-detail-panel" aria-labelledby="task-status-heading">
-                        <p class="planops-eyebrow">Workflow</p>
-                        <h2 id="task-status-heading">Status</h2>
-                        <form method="POST" action="{{ route('tasks.status', $task) }}" class="task-detail-status-form">
-                            @csrf
-                            <label for="task-detail-status">Task status</label>
-                            <select id="task-detail-status" name="status">
-                                @foreach ($statuses as $status)
-                                    <option value="{{ $status->value }}" @selected($task->status === $status)>{{ str($status->value)->replace('_', ' ')->title() }}</option>
-                                @endforeach
-                            </select>
-                            <button type="submit" class="planops-button planops-button-secondary">Save status</button>
-                        </form>
-                    </section>
-
                     <section class="task-detail-panel" aria-labelledby="task-subtasks-heading">
                         <p class="planops-eyebrow">Breakdown</p>
                         <h2 id="task-subtasks-heading">Subtasks</h2>

@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks/{task}/status', [TaskController::class, 'changeStatus'])
         ->name('tasks.status');
     Route::patch('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::patch('/tasks/{task}/details', [TaskController::class, 'updateDetails'])->name('tasks.details.update');
     Route::patch('/tasks/{task}/priority', [TaskController::class, 'changePriority'])->name('tasks.priority');
     Route::patch('/tasks/{task}/due-date', [TaskController::class, 'changeDueDate'])->name('tasks.due-date');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
