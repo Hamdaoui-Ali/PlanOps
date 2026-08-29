@@ -90,3 +90,32 @@ test('a foreign project task list is unavailable', function (): void {
 
     $this->actingAs($owner)->get(route('projects.tasks.index', $foreignProject))->assertNotFound();
 });
+
+test('project task quick actions preserve the project list context safely', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    $task = Task::factory()->forProject($project)->create();
+    $query = http_build_query([
+        'return_context' => 'project-tasks',
+        'project' => '999999',
+        'sort' => 'priority',
+        'status' => TaskStatus::IN_PROGRESS->value,
+        'unsafe_column' => 'secret',
+    ]);
+
+    $this->actingAs($owner)->post(route('tasks.status', $task).'?'.$query, [
+        'status' => TaskStatus::IN_PROGRESS->value,
+    ])->assertRedirect(route('projects.tasks.index', [
+        'project' => $project->id,
+        'sort' => 'priority',
+        'status' => TaskStatus::IN_PROGRESS->value,
+    ], absolute: false));
+
+    $this->actingAs($owner)->patch(route('tasks.priority', $task).'?'.$query, [
+        'priority' => TaskPriority::HIGH->value,
+    ])->assertRedirect(route('projects.tasks.index', [
+        'project' => $project->id,
+        'sort' => 'priority',
+        'status' => TaskStatus::IN_PROGRESS->value,
+    ], absolute: false));
+});
