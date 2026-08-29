@@ -78,6 +78,13 @@ test('the My Work route exposes only owned filter options and a useful empty sta
 
     $this->actingAs($owner)->get('/my-work')
         ->assertOk()
+        ->assertSee('In Progress')
+        ->assertSee('In Review')
+        ->assertSee('Blocked')
+        ->assertSee('Not Started')
+        ->assertSee('Project')
+        ->assertSee('Due')
+        ->assertSee('Recently updated')
         ->assertSee('No tracked work yet.')
         ->assertSee('Owned project')
         ->assertSee('Owned label')

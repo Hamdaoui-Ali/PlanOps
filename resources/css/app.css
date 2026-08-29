@@ -1939,6 +1939,42 @@ html.density-compact .projects-ledger td {
     }
 }
 
+.my-work-page { display: grid; gap: 1.5rem; max-width: 1500px; margin: 0 auto; }
+.my-work-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; }
+.my-work-header h1 { margin: 0.35rem 0 0; color: var(--planops-text); font-size: clamp(1.8rem, 3vw, 2.7rem); letter-spacing: -0.04em; }
+.my-work-header p:last-child { max-width: 42rem; margin: 0.6rem 0 0; color: var(--planops-muted); }
+.my-work-filters { display: grid; gap: 1rem; padding: 1rem; border: 1px solid var(--planops-border); border-radius: 0.85rem; background: var(--planops-surface-raised); }
+.my-work-filter-grid, .my-work-date-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0.8rem; }
+.my-work-filter-field { display: grid; gap: 0.35rem; }
+.my-work-filter-field label, .my-work-quick-form label { color: var(--planops-muted); font-size: 0.75rem; font-weight: 700; }
+.my-work-date-filters { color: var(--planops-muted); }
+.my-work-date-filters summary { cursor: pointer; font-size: 0.8rem; font-weight: 700; }
+.my-work-date-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 0.8rem; }
+.my-work-filter-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.my-work-sections { display: grid; gap: 1.25rem; }
+.my-work-section { display: grid; gap: 0.75rem; }
+.my-work-section-heading { display: flex; align-items: center; justify-content: space-between; }
+.my-work-section-heading h2 { margin: 0.2rem 0 0; color: var(--planops-text); font-size: 1.2rem; }
+.my-work-section-empty { margin: 0; padding: 1.25rem; border: 1px dashed var(--planops-border); border-radius: 0.75rem; color: var(--planops-muted); }
+.my-work-table-wrap { overflow-x: auto; border: 1px solid var(--planops-border); border-radius: 0.85rem; background: var(--planops-surface); }
+.my-work-table { width: 100%; min-width: 1050px; border-collapse: collapse; }
+.my-work-table th, .my-work-table td { padding: 0.9rem 0.8rem; border-bottom: 1px solid var(--planops-border); color: var(--planops-text); font-size: 0.8rem; text-align: left; vertical-align: top; }
+.my-work-table thead th { color: var(--planops-muted); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.my-work-table tbody tr:last-child th, .my-work-table tbody tr:last-child td { border-bottom: 0; }
+.my-work-task-key, .my-work-table td a { color: var(--planops-accent); font-weight: 700; text-decoration: none; }
+.my-work-task-title { display: block; margin-top: 0.25rem; color: var(--planops-text); font-weight: 600; text-decoration: none; }
+.my-work-label { display: inline-block; margin: 0 0.25rem 0.25rem 0; padding: 0.2rem 0.45rem; border-radius: 999px; background: var(--planops-surface-raised); color: var(--planops-muted); font-size: 0.7rem; }
+.my-work-muted { color: var(--planops-muted); }
+.my-work-actions { display: grid; gap: 0.6rem; min-width: 15rem; }
+.my-work-quick-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.4rem; }
+.my-work-quick-form label { grid-column: 1 / -1; }
+.my-work-quick-form select { min-width: 0; }
+.my-work-quick-form .planops-button { padding: 0.45rem 0.65rem; }
+.my-work-pagination { display: flex; justify-content: center; }
+.my-work-empty { margin-top: 0.25rem; }
+@media (max-width: 900px) { .my-work-filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .my-work-header { align-items: stretch; flex-direction: column; } .my-work-header .planops-button { width: 100%; } .my-work-filter-grid, .my-work-date-grid { grid-template-columns: 1fr; } .my-work-table { min-width: 0; } .my-work-table thead { display: none; } .my-work-table, .my-work-table tbody, .my-work-table tr, .my-work-table th, .my-work-table td { display: block; width: 100%; } .my-work-table tr { padding: 0.7rem; border-bottom: 1px solid var(--planops-border); } .my-work-table tbody tr:last-child { border-bottom: 0; } .my-work-table th, .my-work-table td { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 0.75rem; padding: 0.35rem 0; border: 0; } .my-work-table td::before { content: attr(data-label); color: var(--planops-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; } .my-work-table th { display: block; } }
+
 .project-board-page {
     display: grid;
     gap: 1.5rem;
