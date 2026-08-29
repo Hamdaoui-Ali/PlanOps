@@ -49,6 +49,10 @@ class TaskController extends Controller
             return to_route('my-work', $this->safeMyWorkQuery($request))->with('status', 'Task status updated.');
         }
 
+        if ($request->query('return_context') === 'project-tasks') {
+            return to_route('projects.tasks.index', ['project' => $task->project_id, ...$this->safeProjectTaskListQuery($request)])->with('status', 'Task status updated.');
+        }
+
         return to_route('tasks.show', $task)->with('status', 'Task status updated.');
     }
 
@@ -72,6 +76,10 @@ class TaskController extends Controller
 
         if ($request->query('return_context') === 'my-work') {
             return to_route('my-work', $this->safeMyWorkQuery($request))->with('status', 'Task priority updated.');
+        }
+
+        if ($request->query('return_context') === 'project-tasks') {
+            return to_route('projects.tasks.index', ['project' => $task->project_id, ...$this->safeProjectTaskListQuery($request)])->with('status', 'Task priority updated.');
         }
 
         return to_route('tasks.show', $task)->with('status', 'Task priority updated.');
@@ -107,6 +115,32 @@ class TaskController extends Controller
             if (is_scalar($value) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $value) === 1) {
                 $safe[$key] = (string) $value;
             }
+        }
+
+        return $safe;
+    }
+
+    /** @return array<string, string> */
+    private function safeProjectTaskListQuery(Request $request): array
+    {
+        $safe = [];
+        $allowed = [
+            'status' => array_column(TaskStatus::cases(), 'value'),
+            'priority' => array_column(TaskPriority::cases(), 'value'),
+            'due' => ['overdue', 'today', 'this_week', 'no_due_date'],
+            'sort' => ['updated', 'created', 'priority', 'due', 'task_key'],
+        ];
+
+        foreach ($allowed as $key => $values) {
+            $value = $request->query($key);
+            if (is_scalar($value) && in_array((string) $value, $values, true)) {
+                $safe[$key] = (string) $value;
+            }
+        }
+
+        $label = $request->query('label');
+        if (is_scalar($label) && ctype_digit((string) $label)) {
+            $safe['label'] = (string) $label;
         }
 
         return $safe;

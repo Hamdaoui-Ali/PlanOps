@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectBoardController;
+use App\Http\Controllers\ProjectTaskListController;
 use App\Http\Controllers\MyWorkController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
@@ -35,6 +36,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('/my-work', [MyWorkController::class, 'index'])->name('my-work');
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+    Route::get('/projects/{project}/tasks', [ProjectTaskListController::class, 'index'])
+        ->name('projects.tasks.index');
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     Route::get('/projects/{project}/tasks/create', [TaskController::class, 'create'])
         ->name('projects.tasks.create');
