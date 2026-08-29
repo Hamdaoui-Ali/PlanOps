@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ProjectAnalyticsController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectBoardController;
@@ -23,7 +25,7 @@ Route::get('/dashboard', DashboardController::class)
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::view('/analytics', 'pages.coming-soon', ['title' => 'Analytics'])->name('analytics');
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('/activity', [ActivityController::class, 'index'])->name('activity');
     Route::get('/search', [SearchController::class, 'index'])->name('search');
 
@@ -41,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}/tasks', [ProjectTaskListController::class, 'index'])
         ->name('projects.tasks.index');
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::get('/projects/{project}/analytics', [ProjectAnalyticsController::class, 'index'])->name('projects.analytics');
     Route::get('/projects/{project}/tasks/create', [TaskController::class, 'create'])
         ->name('projects.tasks.create');
     Route::post('/projects/{project}/board/reorder', [ProjectBoardController::class, 'reorder'])
