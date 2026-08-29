@@ -28,6 +28,22 @@ test('an owner can view a task detail page with its direct subtasks', function (
         ->assertSee('Sep 20, 2026');
 });
 
+test('a subtask detail page does not show a nested subtasks section', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
+    $parent = Task::factory()->forProject($project)->create(['number' => 1, 'title' => 'Ship release']);
+    $child = Task::factory()->forProject($project)->withParent($parent)->create([
+        'number' => 2,
+        'title' => 'Prepare checklist',
+    ]);
+
+    $this->actingAs($owner)->get(route('tasks.show', $child))
+        ->assertOk()
+        ->assertSee('Subtask of')
+        ->assertDontSee('id="task-subtasks-heading"', false)
+        ->assertDontSee('No subtasks yet.');
+});
+
 test('a foreign task detail URL is not available', function (): void {
     $owner = User::factory()->create();
     $other = User::factory()->create();

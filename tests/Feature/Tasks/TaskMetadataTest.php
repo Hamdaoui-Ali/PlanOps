@@ -330,6 +330,14 @@ test('metadata and label components retain their route-agnostic Blade form contr
         ->not->toContain('route(');
 
     expect($metadataComponent)->toMatch('/@if \(\$deleteAction !== null\)\s*<form\\b[^>]*action="\\{\\{ \$deleteAction \\}\\}"[^>]*>.*?<\\/form>\s*@endif/s');
+    expect($metadataComponent)->toMatch('/<div class="task-metadata-actions">.*Save changes.*task-metadata-delete.*Delete task/s');
+
+    $styles = file_get_contents(resource_path('css/app.css'));
+
+    expect($styles)
+        ->toContain('.task-metadata-actions > .planops-button')
+        ->toContain('flex: 1 1 0')
+        ->toContain('.task-metadata-actions > .task-metadata-delete .planops-button');
 
     expect($labelPickerComponent)->toContain('$attachAction')
         ->toContain('$detachAction')
