@@ -5,10 +5,10 @@
             type="button"
             class="planops-menu-button"
             aria-label="Open navigation menu"
-            aria-expanded="false"
             aria-controls="primary-navigation"
+            :aria-expanded="mobileOpen ? 'true' : 'false'"
             :aria-label="mobileOpen ? 'Close navigation menu' : 'Open navigation menu'"
-            @click="mobileOpen = ! mobileOpen; $event.currentTarget.setAttribute('aria-expanded', mobileOpen ? 'true' : 'false')"
+            @click="mobileOpen = ! mobileOpen"
         >
             <i class="ph ph-list" aria-hidden="true"></i>
             <span>Menu</span>
@@ -47,6 +47,8 @@
             type="button"
             class="planops-collapse-button"
             aria-label="Collapse navigation rail"
+            aria-controls="primary-navigation"
+            :aria-expanded="railCollapsed ? 'false' : 'true'"
             :aria-label="railCollapsed ? 'Expand navigation rail' : 'Collapse navigation rail'"
             @click="railCollapsed = ! railCollapsed"
         >

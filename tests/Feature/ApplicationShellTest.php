@@ -17,3 +17,12 @@ test('the authenticated application shell exposes the primary navigation', funct
         ->assertSee('Activity')
         ->assertSee('Settings');
 });
+
+test('the application shell exposes disclosure state for navigation controls', function () {
+    $this->actingAs(User::factory()->create())
+        ->get('/dashboard')
+        ->assertOk()
+        ->assertSee('aria-controls="primary-navigation"', false)
+        ->assertSee(':aria-expanded="mobileOpen ? \'true\' : \'false\'"', false)
+        ->assertSee(':aria-expanded="railCollapsed ? \'false\' : \'true\'"', false);
+});
