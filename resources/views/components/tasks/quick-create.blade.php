@@ -74,6 +74,6 @@
             <i class="ph ph-plus" aria-hidden="true"></i>
             <span>Create task</span>
         </button>
-        <a href="{{ route('projects.edit', $project) }}" class="task-capture-cancel">Cancel</a>
+        <a href="{{ route('projects.show', $project) }}" class="task-capture-cancel">Cancel</a>
     </div>
 </form>

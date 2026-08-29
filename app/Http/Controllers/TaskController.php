@@ -39,7 +39,7 @@ class TaskController extends Controller
     {
         $task = $create->handle($request->user(), $project, $request->validated());
 
-        return to_route('projects.tasks.create', $project)
+        return to_route('projects.show', $project)
             ->with('status', $keys->displayKey($task).' created.');
     }
 }
