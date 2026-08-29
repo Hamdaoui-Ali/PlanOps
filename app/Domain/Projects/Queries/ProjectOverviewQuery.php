@@ -6,6 +6,7 @@ use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProjectOverviewQuery
 {
@@ -17,7 +18,7 @@ class ProjectOverviewQuery
             ->ownedBy($ownerId)
             ->whereKey($project->getKey())
             ->with([
-                'tasks' => fn (Builder $tasks): Builder => $tasks
+                'tasks' => fn (HasMany $tasks): Builder => $tasks
                     ->whereNull('parent_task_id')
                     ->with('children')
                     ->withCount('children')
