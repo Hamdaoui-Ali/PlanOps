@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectBoardController;
 use App\Http\Controllers\ProjectTaskListController;
@@ -24,6 +25,7 @@ Route::get('/dashboard', DashboardController::class)
 Route::middleware('auth')->group(function () {
     Route::view('/analytics', 'pages.coming-soon', ['title' => 'Analytics'])->name('analytics');
     Route::get('/activity', [ActivityController::class, 'index'])->name('activity');
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
 
     Route::bind('project', function (string $value): Project {
         return Project::query()->ownedBy(request()->user())->findOrFail($value);

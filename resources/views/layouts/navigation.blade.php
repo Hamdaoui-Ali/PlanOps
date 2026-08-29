@@ -18,6 +18,11 @@
     <nav id="primary-navigation" aria-label="Primary navigation" class="planops-rail" :class="{ 'is-open': mobileOpen }">
         <a href="{{ route('dashboard') }}" class="planops-brand">PLANOPS</a>
 
+        <form method="GET" action="{{ route('search') }}" class="nav-search" role="search">
+            <label class="sr-only" for="nav-search-query">Search projects and tasks</label>
+            <div><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input id="nav-search-query" name="q" type="search" placeholder="Search…" aria-keyshortcuts="/" autocomplete="off"></div>
+        </form>
+
         @include('components.navigation.sidebar')
 
         <div class="planops-account">

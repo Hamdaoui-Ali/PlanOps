@@ -1989,6 +1989,26 @@ html.density-compact .projects-ledger td {
 .activity-timeline-content p { margin: 0.45rem 0 0; }
 .activity-timeline-content a { color: var(--planops-accent); font-weight: 700; text-decoration: none; }
 .activity-timeline-change span:first-child { font-weight: 700; color: var(--planops-text); }
+.nav-search { margin: 0.8rem 0 1rem; }
+.nav-search > div { display: flex; align-items: center; gap: 0.45rem; padding: 0.55rem 0.7rem; border: 1px solid var(--planops-border); border-radius: 0.6rem; background: var(--planops-surface); color: var(--planops-muted); }
+.nav-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--planops-text); font-size: 0.8rem; }
+.search-page { display: grid; gap: 1.5rem; max-width: 980px; margin: 0 auto; }
+.global-search-form { display: grid; gap: 0.45rem; padding: 1rem; border: 1px solid var(--planops-border); border-radius: 0.85rem; background: var(--planops-surface-raised); }
+.global-search-form > label { color: var(--planops-text); font-size: 0.8rem; font-weight: 700; }
+.global-search-control { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; }
+.search-help { margin: 0; color: var(--planops-muted); font-size: 0.75rem; }
+kbd { padding: 0.1rem 0.35rem; border: 1px solid var(--planops-border); border-radius: 0.25rem; background: var(--planops-surface); font-family: inherit; }
+.search-results { display: grid; gap: 1rem; }
+.search-result-group { display: grid; gap: 0.55rem; }
+.search-result-group h2 { display: flex; justify-content: space-between; margin: 0; color: var(--planops-text); font-size: 1.1rem; }
+.search-result-group h2 span { color: var(--planops-muted); font-size: 0.8rem; }
+.search-result-list { display: grid; gap: 0.55rem; margin: 0; padding: 0; list-style: none; }
+.search-result-link { display: grid; grid-template-columns: 6rem minmax(0, 1fr) auto; gap: 0.75rem; align-items: center; padding: 0.85rem 1rem; border: 1px solid var(--planops-border); border-radius: 0.7rem; background: var(--planops-surface); color: var(--planops-text); text-decoration: none; }
+.search-result-link:hover, .search-result-link:focus-visible { border-color: var(--planops-accent); }
+.search-result-key { color: var(--planops-accent); font-size: 0.75rem; font-weight: 800; }
+.search-result-title { font-weight: 700; }
+.search-result-meta { color: var(--planops-muted); font-size: 0.75rem; }
+@media (max-width: 640px) { .global-search-control, .search-result-link { grid-template-columns: 1fr; } .search-result-link { gap: 0.25rem; } }
 @media (max-width: 900px) { .my-work-filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .my-work-header { align-items: stretch; flex-direction: column; } .my-work-header .planops-button { width: 100%; } .my-work-filter-grid, .my-work-date-grid { grid-template-columns: 1fr; } .my-work-table { min-width: 0; } .my-work-table thead { display: none; } .my-work-table, .my-work-table tbody, .my-work-table tr, .my-work-table th, .my-work-table td { display: block; width: 100%; } .my-work-table tr { padding: 0.7rem; border-bottom: 1px solid var(--planops-border); } .my-work-table tbody tr:last-child { border-bottom: 0; } .my-work-table th, .my-work-table td { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 0.75rem; padding: 0.35rem 0; border: 0; } .my-work-table td::before { content: attr(data-label); color: var(--planops-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; } .my-work-table th { display: block; } }
 

@@ -7,6 +7,13 @@ window.Alpine = Alpine;
 
 Alpine.start();
 
+document.addEventListener('keydown', (event) => {
+    if (event.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+        event.preventDefault();
+        document.querySelector('#nav-search-query')?.focus();
+    }
+});
+
 const root = document.documentElement;
 
 document.querySelectorAll('select[name="theme"], select[name="density"]').forEach((select) => {
