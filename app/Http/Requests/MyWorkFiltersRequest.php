@@ -16,10 +16,16 @@ final class MyWorkFiltersRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge(collect($this->only([
+        $filters = $this->only([
             'project', 'status', 'priority', 'label', 'due', 'sort',
             'created_from', 'created_until', 'updated_from', 'updated_until',
-        ]))->map(fn (mixed $value): mixed => $value === '' ? null : $value)->all());
+        ]);
+
+        if (is_string($filters['status'] ?? null)) {
+            $filters['status'] = strtoupper($filters['status']);
+        }
+
+        $this->merge(collect($filters)->map(fn (mixed $value): mixed => $value === '' ? null : $value)->all());
     }
 
     public function rules(): array

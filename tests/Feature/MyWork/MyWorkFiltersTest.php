@@ -91,3 +91,18 @@ test('the My Work route exposes only owned filter options and a useful empty sta
         ->assertDontSee('Foreign project')
         ->assertDontSee('Foreign label');
 });
+
+test('the cancelled status filter keeps its empty result instead of redirecting to the previous filter', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    Task::factory()->forProject($project)->inReview()->create();
+
+    $this->actingAs($owner)
+        ->from('/my-work?status=IN_REVIEW')
+        ->get('/my-work?status=cancelled')
+        ->assertOk()
+        ->assertSee('No tasks match these filters.')
+        ->assertSee('Reset filters')
+        ->assertSee('value="CANCELLED" selected', false)
+        ->assertDontSee('value="IN_REVIEW" selected', false);
+});
