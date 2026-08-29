@@ -1977,6 +1977,18 @@ html.density-compact .projects-ledger td {
 .project-task-identity { display: grid; gap: 0.15rem; }
 .project-task-parent { color: var(--planops-muted); font-size: 0.7rem; font-weight: 500; }
 .project-task-subtask th { padding-left: 1.7rem; border-left: 3px solid var(--planops-accent); }
+.activity-page { display: grid; gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+.activity-timeline { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.activity-timeline-item { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: 0.9rem; position: relative; padding-bottom: 1.1rem; }
+.activity-timeline-marker { display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border: 1px solid var(--planops-border); border-radius: 999px; background: var(--planops-surface-raised); color: var(--planops-accent); }
+.activity-timeline-item:not(:last-child)::before { content: ''; position: absolute; top: 2.2rem; bottom: 0; left: 1.1rem; border-left: 1px solid var(--planops-border); }
+.activity-timeline-content { padding: 1rem; border: 1px solid var(--planops-border); border-radius: 0.8rem; background: var(--planops-surface); }
+.activity-timeline-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.activity-timeline-heading strong { color: var(--planops-text); }
+.activity-timeline-heading time, .activity-timeline-content p { color: var(--planops-muted); font-size: 0.8rem; }
+.activity-timeline-content p { margin: 0.45rem 0 0; }
+.activity-timeline-content a { color: var(--planops-accent); font-weight: 700; text-decoration: none; }
+.activity-timeline-change span:first-child { font-weight: 700; color: var(--planops-text); }
 @media (max-width: 900px) { .my-work-filter-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .my-work-header { align-items: stretch; flex-direction: column; } .my-work-header .planops-button { width: 100%; } .my-work-filter-grid, .my-work-date-grid { grid-template-columns: 1fr; } .my-work-table { min-width: 0; } .my-work-table thead { display: none; } .my-work-table, .my-work-table tbody, .my-work-table tr, .my-work-table th, .my-work-table td { display: block; width: 100%; } .my-work-table tr { padding: 0.7rem; border-bottom: 1px solid var(--planops-border); } .my-work-table tbody tr:last-child { border-bottom: 0; } .my-work-table th, .my-work-table td { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 0.75rem; padding: 0.35rem 0; border: 0; } .my-work-table td::before { content: attr(data-label); color: var(--planops-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; } .my-work-table th { display: block; } }
 
