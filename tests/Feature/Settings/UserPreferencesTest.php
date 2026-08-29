@@ -29,6 +29,19 @@ test('the settings layout applies default theme and density classes at the docum
         ->assertSee('density-comfortable');
 });
 
+test('the settings surface exposes readable labels and associated guidance', function () {
+    $this->actingAs(User::factory()->create())
+        ->get('/settings')
+        ->assertOk()
+        ->assertSee('class="settings-page"', false)
+        ->assertSee('id="settings-heading"', false)
+        ->assertSee('id="timezone-help"', false)
+        ->assertSee('aria-describedby="timezone-help"', false)
+        ->assertSee('Monday')
+        ->assertSee('System')
+        ->assertSee('Comfortable');
+});
+
 test('the settings form renders persisted enum values as selected options', function () {
     $user = User::factory()->create();
 
