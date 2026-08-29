@@ -185,9 +185,10 @@ test('project create and edit HTTP flows authenticate and return actionable vali
 
     $project = Project::factory()->for($user)->create(['key' => 'EDIT']);
     $this->actingAs($user)->get("/projects/{$project->id}/edit")->assertOk();
-    $this->actingAs($user)->patch("/projects/{$project->id}", [
+    $updateResponse = $this->actingAs($user)->patch("/projects/{$project->id}", [
         'name' => '  Updated project  ', 'key' => 'updated',
-    ])->assertRedirect();
+    ]);
+    $updateResponse->assertRedirect(route('projects.index', absolute: false));
     expect($project->fresh()->name)->toBe('Updated project')
         ->and($project->fresh()->key)->toBe('UPDATED');
 });

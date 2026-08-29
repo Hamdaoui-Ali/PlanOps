@@ -47,7 +47,7 @@ class ProjectController extends Controller
     {
         $update->handle($request->user(), $project, $request->validated());
 
-        return to_route('projects.edit', $project)->with('status', 'Project details updated.');
+        return to_route('projects.index')->with('status', 'Project details updated.');
     }
 
     public function changeStatus(ChangeProjectStatusRequest $request, Project $project, ChangeProjectStatus $changeStatus): RedirectResponse
