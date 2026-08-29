@@ -18,6 +18,19 @@ use Illuminate\Support\Carbon;
 
 uses(RefreshDatabase::class);
 
+test('the projects index explains task based progress without duplicate progress columns', function (): void {
+    $user = User::factory()->create();
+    Project::factory()->for($user)->create(['name' => 'Progress project']);
+
+    $this->actingAs($user)
+        ->get(route('projects.index'))
+        ->assertOk()
+        ->assertSee('Tasks')
+        ->assertSee('Progress')
+        ->assertSee('Progress is calculated from completed top-level tasks.')
+        ->assertDontSee('Scope progress');
+});
+
 test('project status changes only through the explicit status action', function (): void {
     $user = User::factory()->create();
     $project = Project::factory()->for($user)->planned()->create();

@@ -107,6 +107,10 @@
                 </a>
             </div>
 
+            <p class="projects-progress-note">
+                Progress is calculated from completed top-level tasks. Cancelled tasks and subtasks are excluded.
+            </p>
+
             @if ($projects->isNotEmpty())
                 <div class="projects-ledger-wrap">
                     <table class="projects-ledger">
@@ -115,7 +119,7 @@
                             <tr>
                                 <th scope="col">Project name</th>
                                 <th scope="col">Status</th>
-                                <th scope="col">Scope progress</th>
+                                <th scope="col">Tasks</th>
                                 <th scope="col">Progress</th>
                                 <th scope="col">Target date</th>
                                 <th scope="col"><span class="sr-only">Actions</span></th>
@@ -130,7 +134,7 @@
                                 @endphp
                                 <tr class="project-row" data-status="{{ strtolower($statusLabel) }}">
                                     <th scope="row" class="project-identity">
-                                        <a href="{{ route('projects.edit', $project) }}" class="project-name">
+                                        <a href="{{ route('projects.show', $project) }}" class="project-name">
                                             {{ $project->name }}
                                         </a>
                                         <span class="project-key">{{ $project->key }}</span>
@@ -144,24 +148,23 @@
                                     <td class="project-scope">
                                         @if ($project->eligible_task_count > 0)
                                             <span>{{ $project->completed_task_count }} of {{ $project->eligible_task_count }} done</span>
-                                            <span
-                                                class="project-progress-track"
-                                                role="progressbar"
-                                                aria-label="{{ $project->name }} progress"
-                                                aria-valuemin="0"
-                                                aria-valuemax="100"
-                                                aria-valuenow="{{ $progress }}"
-                                            >
-                                                <span class="project-progress-fill" style="width: {{ min(max($progress, 0), 100) }}%"></span>
-                                            </span>
                                         @else
                                             <span class="project-no-scope">No active scope</span>
-                                            <span class="project-progress-track" aria-hidden="true">
-                                                <span class="project-progress-fill" style="width: 0%"></span>
-                                            </span>
                                         @endif
                                     </td>
-                                    <td class="project-percent">{{ $progressLabel }}%</td>
+                                    <td class="project-percent">
+                                        <span>{{ $progressLabel }}%</span>
+                                        <span
+                                            class="project-progress-track"
+                                            role="progressbar"
+                                            aria-label="{{ $project->name }} progress"
+                                            aria-valuemin="0"
+                                            aria-valuemax="100"
+                                            aria-valuenow="{{ $progress }}"
+                                        >
+                                            <span class="project-progress-fill" style="width: {{ min(max($progress, 0), 100) }}%"></span>
+                                        </span>
+                                    </td>
                                     <td class="project-target">
                                         @if ($project->target_on)
                                             <span class="project-target-value">
@@ -176,7 +179,7 @@
                                         @endif
                                     </td>
                                     <td class="project-action">
-                                        <a href="{{ route('projects.edit', $project) }}" class="project-open">
+                                        <a href="{{ route('projects.show', $project) }}" class="project-open">
                                             <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
                                             <span>Open project</span>
                                         </a>

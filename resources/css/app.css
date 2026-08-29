@@ -525,6 +525,200 @@ body {
     color: var(--planops-focus);
 }
 
+.projects-progress-note {
+    margin: 0 0 1rem;
+    color: var(--planops-muted);
+    font-size: 0.78rem;
+}
+
+.project-overview-page {
+    width: min(100%, 1320px);
+    margin: 0 auto;
+    padding: 2.75rem clamp(1.25rem, 4vw, 3rem) 4rem;
+}
+
+.project-overview-header,
+.project-overview-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.project-overview-header {
+    padding-bottom: 2rem;
+}
+
+.project-overview-header h1,
+.project-overview-section-heading h2,
+.project-overview-summary h2 {
+    margin: 0;
+    color: var(--planops-text);
+    letter-spacing: -0.035em;
+}
+
+.project-overview-header h1 {
+    font-size: clamp(2rem, 3.2vw, 2.6rem);
+    font-weight: 600;
+}
+
+.project-overview-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+}
+
+.project-overview-title-row .project-key {
+    display: inline;
+    margin-top: 0;
+}
+
+.project-overview-header p:last-child,
+.project-overview-summary p,
+.project-progress-help {
+    color: var(--planops-muted);
+    font-size: 0.9rem;
+}
+
+.project-overview-header p:last-child {
+    max-width: 44rem;
+    margin: 0.75rem 0 0;
+}
+
+.project-overview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.project-overview-summary {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--planops-border);
+    background: var(--planops-surface);
+    padding: 1.5rem;
+}
+
+.project-overview-summary h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+}
+
+.project-overview-summary p {
+    margin: 0.45rem 0 0;
+}
+
+.project-progress-help {
+    max-width: 42rem;
+    margin-top: 0.9rem !important;
+    font-size: 0.78rem !important;
+}
+
+.project-overview-progress-value {
+    display: grid;
+    align-content: center;
+    justify-items: end;
+    color: var(--planops-muted);
+    font-size: 0.75rem;
+}
+
+.project-overview-progress-value strong {
+    color: var(--planops-focus);
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.project-overview-progress-value span {
+    margin-top: 0.4rem;
+}
+
+.project-overview-summary > .project-progress-track {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 0.7rem;
+}
+
+.project-overview-tasks {
+    border-top: 1px solid var(--planops-border);
+    padding-top: 1.35rem;
+}
+
+.project-overview-section-heading {
+    margin-bottom: 1rem;
+}
+
+.project-overview-section-heading h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+}
+
+.project-overview-section-heading > span {
+    color: var(--planops-muted);
+    font-size: 0.8rem;
+}
+
+.project-tasks-table {
+    min-width: 980px;
+}
+
+.project-tasks-table .project-name {
+    margin-top: 0.35rem;
+}
+
+.task-status-form {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.task-status-form select {
+    min-height: 2.4rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 6px;
+    background: var(--planops-surface);
+    color: var(--planops-text);
+    font: inherit;
+    font-size: 0.78rem;
+    padding: 0.45rem 0.6rem;
+}
+
+.task-status-form .planops-button {
+    min-height: 2.4rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.75rem;
+}
+
+@media (max-width: 720px) {
+    .project-overview-header,
+    .project-overview-section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .project-overview-title-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .project-overview-actions,
+    .project-overview-actions .planops-button {
+        width: 100%;
+    }
+
+    .project-overview-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .project-overview-progress-value {
+        justify-items: start;
+    }
+}
+
 .projects-ledger-wrap {
     overflow-x: auto;
     border-top: 1px solid var(--planops-border);
