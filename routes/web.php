@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectBoardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
@@ -35,6 +36,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     Route::get('/projects/{project}/tasks/create', [TaskController::class, 'create'])
         ->name('projects.tasks.create');
+    Route::post('/projects/{project}/board/reorder', [ProjectBoardController::class, 'reorder'])
+        ->name('projects.board.reorder');
+    Route::post('/projects/{project}/board/tasks/{task}/status', [ProjectBoardController::class, 'changeStatus'])
+        ->name('projects.board.tasks.status');
+    Route::get('/projects/{project}/board', [ProjectBoardController::class, 'show'])
+        ->name('projects.board');
     Route::post('/projects/{project}/tasks', [TaskController::class, 'store'])
         ->name('projects.tasks.store');
     Route::post('/tasks/{task}/status', [TaskController::class, 'changeStatus'])
