@@ -10,6 +10,8 @@ use App\Domain\Projects\Actions\UpdateProject;
 use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Projects\Queries\ProjectIndexQuery;
+use App\Domain\Projects\Queries\ProjectOverviewQuery;
+use App\Domain\Tasks\Enums\TaskStatus;
 use App\Http\Requests\ChangeProjectStatusRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
@@ -29,6 +31,14 @@ class ProjectController extends Controller
     public function create(): View
     {
         return view('pages.projects.create', ['statuses' => ProjectStatus::cases()]);
+    }
+
+    public function show(Request $request, Project $project, ProjectOverviewQuery $overview): View
+    {
+        return view('pages.projects.show', [
+            'project' => $overview->for($request->user(), $project),
+            'statuses' => TaskStatus::cases(),
+        ]);
     }
 
     public function store(StoreProjectRequest $request, CreateProject $create): RedirectResponse

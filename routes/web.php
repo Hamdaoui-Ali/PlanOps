@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Domain\Projects\Models\Project;
+use App\Domain\Tasks\Models\Task;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,8 +26,13 @@ Route::middleware('auth')->group(function () {
         return Project::query()->ownedBy(request()->user())->findOrFail($value);
     });
 
+    Route::bind('task', function (string $value): Task {
+        return Task::query()->ownedBy(request()->user())->findOrFail($value);
+    });
+
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+    Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     Route::get('/projects/{project}/tasks/create', [TaskController::class, 'create'])
         ->name('projects.tasks.create');
     Route::post('/projects/{project}/tasks', [TaskController::class, 'store'])
