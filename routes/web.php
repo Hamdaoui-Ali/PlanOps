@@ -12,6 +12,7 @@ use App\Http\Controllers\MyWorkController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\ExportController;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('/activity', [ActivityController::class, 'index'])->name('activity');
     Route::get('/search', [SearchController::class, 'index'])->name('search');
+    Route::get('/exports/projects.csv', [ExportController::class, 'projects'])->name('exports.projects');
+    Route::get('/exports/tasks.csv', [ExportController::class, 'tasks'])->name('exports.tasks');
+    Route::get('/exports/activity.{format?}', [ExportController::class, 'activity'])->whereIn('format', ['csv', 'json'])->name('exports.activity');
 
     Route::bind('project', function (string $value): Project {
         return Project::query()->ownedBy(request()->user())->findOrFail($value);
