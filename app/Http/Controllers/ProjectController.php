@@ -11,6 +11,7 @@ use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Projects\Queries\ProjectIndexQuery;
 use App\Domain\Projects\Queries\ProjectOverviewQuery;
+use App\Domain\Attention\Queries\AttentionQuery;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Http\Requests\ChangeProjectStatusRequest;
 use App\Http\Requests\StoreProjectRequest;
@@ -33,11 +34,14 @@ class ProjectController extends Controller
         return view('pages.projects.create', ['statuses' => ProjectStatus::cases()]);
     }
 
-    public function show(Request $request, Project $project, ProjectOverviewQuery $overview): View
+    public function show(Request $request, Project $project, ProjectOverviewQuery $overview, AttentionQuery $attention): View
     {
+        $project = $overview->for($request->user(), $project);
+
         return view('pages.projects.show', [
-            'project' => $overview->for($request->user(), $project),
+            'project' => $project,
             'statuses' => TaskStatus::cases(),
+            'attentionTasks' => $attention->for($request->user(), $project),
         ]);
     }
 

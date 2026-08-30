@@ -2040,6 +2040,37 @@ html.density-compact .projects-ledger td {
     }
 }
 
+.project-attention-list {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.project-attention-row {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 0.75rem;
+}
+
+.project-attention-row > a {
+    font-weight: 700;
+}
+
+.task-attention-indicator {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    color: #92400e;
+    font-size: 0.8rem;
+}
+
+html.theme-dark .task-attention-indicator,
+html.theme-system .task-attention-indicator {
+    color: #fcd34d;
+}
+
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

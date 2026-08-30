@@ -145,6 +145,15 @@
                     </div>
                 @endif
             </section>
+            @if ($attentionTasks->isNotEmpty())
+                <section class="dashboard-panel project-attention-panel" aria-labelledby="attention-heading">
+                    <p class="planops-eyebrow">Suggestions</p><h2 id="attention-heading">Needs a look</h2>
+                    <p class="dashboard-note">These reminders use recorded task state. Nothing changes automatically.</p>
+                    @foreach ($attentionTasks as $task)
+                        <div class="project-attention-row"><a href="{{ route('tasks.show', $task) }}">{{ $task->project->key }}-{{ $task->number }} · {{ $task->title }}</a><x-attention.stale-task-indicator :task="$task" /></div>
+                    @endforeach
+                </section>
+            @endif
         </section>
     </div>
 </x-app-layout>

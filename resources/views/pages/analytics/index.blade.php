@@ -1,5 +1,6 @@
 <x-app-layout>
     <div class="planops-console"><section class="analytics-page" aria-labelledby="analytics-heading">
+        <section class="dashboard-panel" aria-labelledby="export-heading"><p class="planops-eyebrow">Portability</p><h2 id="export-heading">Export your facts</h2><p class="dashboard-note">Download recorded work data.</p><div class="project-overview-actions"><a class="planops-button planops-button-secondary" href="{{ route('exports.projects') }}">Projects CSV</a><a class="planops-button planops-button-secondary" href="{{ route('exports.tasks') }}">Tasks CSV</a><a class="planops-button planops-button-secondary" href="{{ route('exports.activity', ['format' => 'csv']) }}">Activity CSV</a><a class="planops-button planops-button-secondary" href="{{ route('exports.activity', ['format' => 'json']) }}">Activity JSON</a></div></section>
         <header class="dashboard-header"><div><p class="planops-eyebrow">Workspace / measurement</p><h1 id="analytics-heading">Analytics</h1><p>Understand throughput and flow from recorded work facts.</p></div></header>
         <x-dashboard.period-selector :selection="$selection" />
         <section class="dashboard-period-banner"><span class="planops-eyebrow">Selected period</span><strong>{{ $snapshot->reportPeriod->label }}</strong><span>Lead and cycle time use median elapsed calendar hours.</span></section>
