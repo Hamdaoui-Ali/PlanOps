@@ -16,6 +16,7 @@ it('renders a PlanOps landing page without Laravel starter content', function ()
         ->assertSee('dashboard-preview-board', escape: false)
         ->assertSee('BLOCKED')
         ->assertSee('OVERALL PROGRESS')
+        ->assertSee('RECENT ACTIVITY')
         ->assertDontSee('Laravel')
         ->assertDontSee('Documentation')
         ->assertDontSee('Laracasts');
