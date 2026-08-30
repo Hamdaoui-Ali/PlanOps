@@ -12,6 +12,8 @@ it('renders a PlanOps landing page without Laravel starter content', function ()
         ->assertSee('Get Started')
         ->assertSee('Log In')
         ->assertSee('Operational clarity')
+        ->assertSee('preview-body', escape: false)
+        ->assertSee('preview-columns', escape: false)
         ->assertDontSee('Laravel')
         ->assertDontSee('Documentation')
         ->assertDontSee('Laracasts');
