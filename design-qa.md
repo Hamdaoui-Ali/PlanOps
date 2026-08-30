@@ -4,7 +4,7 @@
 - implementation screenshot: unavailable; the in-app browser could not connect and no local browser executable or Playwright dependency is installed
 - viewport: intended desktop 1536 x 1024; responsive rules also reviewed for <=700px
 - state: public landing page, dark theme, hero preview visible
-- source and implementation dimensions: source 1536 x 1024; implementation capture unavailable; CSS preview is 16:10 with `width: 100%` and `overflow: hidden`
+- source and implementation dimensions: source 1536 x 1024; implementation capture unavailable; CSS preview is 16:11 on desktop and 16:12 on mobile with `width: 100%` and `overflow: hidden`
 - density normalization: not applicable; no implementation pixels captured
 
 ## Full-view comparison
@@ -18,12 +18,13 @@ The hero product-preview region is the only changed region. The previous dense b
 ## Findings and fixes
 
 - [P1 fixed] Dense production-like board collapsed inside the hero. Replaced with `resources/views/components/dashboard-preview.blade.php`.
-- [P1 fixed] Preview had incompatible class contracts and inner overflow. New preview owns its layout, uses a fixed 16:10 aspect ratio, and hides overflow at the outer frame.
+- [P1 fixed] Preview had incompatible class contracts and inner overflow. New preview owns its fixed aspect ratio, hides overflow at the outer frame, and scales the whole mockup as one unit.
+- [P2 fixed] The mockup was visually too short and lacked useful product density. Added a Blocked column, additional task states, and KPI coverage for blocked work.
 - [P2 blocked] Browser-rendered visual comparison and console check could not run because no browser connection or local browser executable was available.
 
 ## Verification
 
 - `npm.cmd run build` passed.
-- `php artisan test tests/Feature/PublicSurfaceTest.php --no-ansi` passed: 3 tests, 33 assertions.
+- `php artisan test tests/Feature/PublicSurfaceTest.php --no-ansi` passed: 3 tests, 35 assertions.
 - `git diff --check` passed.
 - final result: blocked
