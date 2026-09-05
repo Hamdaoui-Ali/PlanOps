@@ -13,12 +13,12 @@ uses(RefreshDatabase::class);
 test('My Work supports deterministic safe sort options', function (string $sort, array $expectedTitles): void {
     $owner = User::factory()->create();
     $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
-    Task::factory()->forProject($project)->active()->create(['title' => 'Alpha', 'priority' => TaskPriority::LOW, 'position' => 2]);
-    Task::factory()->forProject($project)->active()->create(['title' => 'Zulu', 'priority' => TaskPriority::URGENT, 'position' => 1]);
+    Task::factory()->forProject($project)->active()->create(['title' => 'Alpha', 'number' => 1, 'created_at' => '2026-08-29 11:00:00', 'priority' => TaskPriority::LOW, 'position' => 2]);
+    Task::factory()->forProject($project)->active()->create(['title' => 'Zulu', 'number' => 2, 'created_at' => '2026-08-29 12:00:00', 'priority' => TaskPriority::URGENT, 'position' => 1]);
 
     expect((new MyWorkQuery)->paginate($owner, ['sort' => $sort])->getCollection()->pluck('title')->all())->toBe($expectedTitles);
 })->with([
-    'created' => ['created', ['Alpha', 'Zulu']],
+    'created' => ['created', ['Zulu', 'Alpha']],
     'priority' => ['priority', ['Zulu', 'Alpha']],
     'task key' => ['task_key', ['Alpha', 'Zulu']],
     'project' => ['project', ['Alpha', 'Zulu']],

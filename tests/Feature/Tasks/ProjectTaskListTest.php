@@ -61,12 +61,12 @@ test('the project task list filters by status priority label and due state', fun
 test('the project task list supports safe deterministic sorts', function (string $sort, array $expected): void {
     $owner = User::factory()->create();
     $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
-    Task::factory()->forProject($project)->create(['title' => 'Zulu', 'number' => 2, 'position' => 1, 'priority' => TaskPriority::URGENT]);
-    Task::factory()->forProject($project)->create(['title' => 'Alpha', 'number' => 1, 'position' => 0, 'priority' => TaskPriority::LOW]);
+    Task::factory()->forProject($project)->create(['title' => 'Zulu', 'number' => 2, 'created_at' => '2026-08-29 12:00:00', 'due_on' => '2026-08-30', 'position' => 1, 'priority' => TaskPriority::URGENT]);
+    Task::factory()->forProject($project)->create(['title' => 'Alpha', 'number' => 1, 'created_at' => '2026-08-29 11:00:00', 'due_on' => '2026-08-29', 'position' => 0, 'priority' => TaskPriority::LOW]);
 
     expect((new ProjectTaskListQuery)->paginate($owner, $project, ['sort' => $sort])->getCollection()->pluck('title')->all())->toBe($expected);
 })->with([
-    'created' => ['created', ['Alpha', 'Zulu']],
+    'created' => ['created', ['Zulu', 'Alpha']],
     'priority' => ['priority', ['Zulu', 'Alpha']],
     'due' => ['due', ['Alpha', 'Zulu']],
     'task key' => ['task_key', ['Alpha', 'Zulu']],
