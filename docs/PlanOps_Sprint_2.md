@@ -1,11 +1,26 @@
-# PlanOps — Next Sprint Specification
-## Collaborative Projects, Groups/Teams, Roles, Invitations, Task Assignment & Notifications
+# PlanOps Sprint 2 Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. The sprint tasks below use checkbox syntax for tracking.
+
+**Goal:** Move PlanOps from user-owned projects to a secure, project-scoped collaboration model with invitations, roles, one assignee per task, actor-aware history, and assignment-based My Work.
+
+**Architecture:** Preserve the existing Laravel domain boundaries, but replace owner-only access with active project membership and explicit policies. Use additive PostgreSQL migrations, transactional membership/assignment changes, after-commit events for notifications, and a narrow P0 vertical slice before collaboration analytics or notification polish.
+
+**Tech Stack:** PHP 8.3+, Laravel 13, Livewire 4, Blade, Tailwind, PostgreSQL-compatible persistence, Pest 4, Vite.
+
+**Spec:** `docs/PlanOps_Sprint_2.md`
+
+---
+
+## PlanOps — Next Sprint Specification
+### Collaborative Projects, Groups/Teams, Roles, Invitations, Task Assignment & Notifications
 
 **Project:** PlanOps  
 **Target stack:** PHP 8.3+, Laravel 13, Blade/Tailwind, PostgreSQL-compatible persistence, Pest 4  
 **Sprint type:** Architectural feature sprint  
 **Primary release target:** `PlanOps 1.1 — Collaboration Foundation`  
-**Secondary/stretch target:** first slice of `PlanOps 1.2 — Assignment & Notifications`
+**P0 release boundary:** secure collaboration foundation and one tested end-to-end assignment flow.
+**P1 target:** database/email notifications, notification center, assignee filters, and collaboration-aware dashboard counts after P0 is green.
 
 ---
 
@@ -64,6 +79,57 @@ Activity + Notifications
       ↓
 Analytics / Project Health
 ```
+
+---
+
+# 1.1 Document Authority and Contract Freeze
+
+This document is the implementation contract for Sprint 2. It supersedes conflicting collaboration guidance in the following baseline documents:
+
+- `planops-complete-spec.md`;
+- `docs/architecture/domain-contracts.md`;
+- `docs/architecture/stack.md`;
+- `docs/ui/screen-spec.md`;
+- `docs/superpowers/plans/2026-08-20-planops-implementation.md`.
+
+Those files may remain useful historical references, but they must be synchronized or explicitly marked superseded before code work is merged. No implementation task is complete while the code and these contracts disagree.
+
+The existing app is still a single-owner application. The current route bindings, policies, queries, label ownership, activity actor field, export authorization, profile deletion, and test baseline are therefore migration inputs, not proof that the collaboration design is already implemented.
+
+Baseline snapshot before collaboration work (2026-09-05): `php artisan test`
+reported 67 failures, 183 passes, and 1 skipped (1,028 assertions).
+`npm.cmd run build` passed. These are pre-existing repository conditions and
+must be resolved or explicitly quarantined before the collaboration release
+gate can be green.
+
+## Release gates before feature work
+
+1. Capture the current test/build baseline and fix or quarantine unrelated baseline failures with named issues.
+2. Produce a migration preflight report for duplicate project keys, orphaned references, missing owners, and activity rows.
+3. Add the collaboration invariants and access-scope tests before changing controller behavior.
+4. Update the architecture and UI contracts in the same change set as the implementation, or record an explicit exception in the release checklist.
+
+The canonical vocabulary is:
+
+~~~text
+viewer = the authenticated user making the request
+active member = project membership where removed_at IS NULL
+owner = the one active membership with role OWNER
+creator = tasks.created_by_user_id
+assignee = nullable tasks.assignee_id
+actor = the authenticated user who performed the action
+~~~
+
+# 1.2 Revised Sprint Boundary
+
+The P0 slice is intentionally narrow: secure access migration, member/invitation lifecycle, minimal ownership transfer, one assignee per task, actor-aware task activity, assignment-based My Work, and complete read/export scoping.
+
+P1 begins only after P0 passes the database, concurrency, authorization, and
+migration gates. Browser, keyboard, and accessibility checks remain mandatory
+before final release. P1 contains notification center/email delivery, assignee
+filters, and collaboration-aware dashboard counts. WebSockets,
+productivity scoring, and organization/workspace abstractions remain out of
+scope.
 
 ---
 
@@ -182,7 +248,8 @@ without requiring that architecture now.
 7. Make My Work assignment-based.
 8. Record the actor behind activity events.
 9. Protect all project/task reads by project membership.
-10. Add the first notification foundation for invitations and assignments.
+10. Record notification events for invitations and assignments; deliver the
+    database/email notification experience in P1 after commit.
 
 ## Quality goals
 
@@ -193,6 +260,9 @@ without requiring that architecture now.
 5. Keep role logic centralized in policies/domain logic.
 6. Keep one human assignee per task.
 7. Maintain test coverage for every permission boundary.
+8. Make PostgreSQL the authority for constraints and concurrency verification.
+9. Keep documentation, routes, queue behavior, and browser-test promises in
+   sync with the repository.
 
 ---
 
@@ -222,6 +292,13 @@ The following features are **not part of this sprint**:
 - external client/guest portals.
 
 These remain valid future ideas but must not dilute the collaboration foundation.
+
+The following are deliberately split from the P0 foundation rather than silently
+left ambiguous:
+
+- P0: active membership, invitation acceptance, Owner protection and minimal ownership transfer, role enforcement, assignment, actor-aware task history, project-scoped labels, My Work, and membership-aware reads.
+- P1: database notifications, invitation/assignment email delivery, notification center, assignee filters, and collaboration-aware dashboard counts.
+- P2: team workload views, team analytics, realtime delivery, saved views, productivity scoring, role-change feed polish, and broader planning features.
 
 ---
 
@@ -416,7 +493,7 @@ Admin can:
 - view project;
 - edit project content/settings that are not ownership/security critical;
 - change project status;
-- archive/restore project if desired by the final policy;
+- archive/restore project;
 - create tasks;
 - edit tasks;
 - change priority;
@@ -438,17 +515,20 @@ Admin cannot:
 - transfer ownership;
 - demote/remove the Owner;
 - promote another user to Owner;
-- promote/demote Admin roles unless explicitly allowed later.
+- promote/demote Admin roles;
+- invite another Admin.
 
-### Recommended security boundary
+### Required security boundary
 
-Only the Owner manages role elevation:
+Only the Owner manages role elevation and demotion:
 
 ```text
 MEMBER ↔ ADMIN
 ```
 
 This prevents one Admin from silently expanding administrative authority.
+The Owner role cannot be changed through the generic role endpoint; only
+TransferProjectOwnership may move it.
 
 ---
 
@@ -516,7 +596,7 @@ A task assigned to another Member cannot be updated by the current Member.
 | Reorder project tasks | ✅ | ✅ | ❌ |
 | Manage labels | ✅ | ✅ | ❌ |
 | Invite Member | ✅ | ✅ | ❌ |
-| Invite Admin | ✅ | Recommended: ❌ | ❌ |
+| Invite Admin | ✅ | ❌ | ❌ |
 | Remove Member | ✅ | ✅ | ❌ |
 | Change Member/Admin role | ✅ | ❌ | ❌ |
 | Edit project | ✅ | ✅ | ❌ |
@@ -524,7 +604,7 @@ A task assigned to another Member cannot be updated by the current Member.
 | Transfer ownership | ✅ | ❌ | ❌ |
 | Delete project permanently | ✅ | ❌ | ❌ |
 | Export complete project data | ✅ | ✅ | ❌ |
-| Team analytics | ✅ | ✅ | Limited/❌ |
+| Project/team analytics | ✅ | ✅ | ❌ (project progress remains visible in Overview) |
 
 ---
 
@@ -542,6 +622,8 @@ project_id
 user_id
 role
 joined_at
+removed_at nullable
+removed_by_user_id nullable
 created_at
 updated_at
 ```
@@ -552,12 +634,38 @@ Constraints:
 UNIQUE(project_id, user_id)
 ```
 
+The row is retained when a member is removed. An active membership is exactly
+one row where removed_at IS NULL; re-adding the same user reactivates the
+existing row and updates its role/joined timestamp instead of creating a
+second row.
+
+PostgreSQL must also enforce one active Owner:
+
+~~~sql
+CREATE UNIQUE INDEX project_memberships_one_active_owner
+ON project_memberships (project_id)
+WHERE role = 'OWNER' AND removed_at IS NULL;
+~~~
+
+Application code must additionally lock the project and affected membership
+rows when changing roles, removing members, or transferring ownership. The
+invariant is:
+
+~~~text
+projects.owner_id = the user_id of the one active OWNER membership
+~~~
+
+If the database engine is not PostgreSQL-compatible, enforce the same rule
+with a serialized transaction and an invariant check before commit.
+
 Indexes:
 
 ```text
 (project_id)
 (user_id)
 (project_id, role)
+(user_id, project_id)
+(project_id, removed_at)
 ```
 
 Foreign keys:
@@ -565,12 +673,77 @@ Foreign keys:
 ```text
 project_id → projects.id
 user_id    → users.id
+removed_by_user_id → users.id, nullable
 ```
 
-Recommended delete behavior:
+Delete behavior:
 
 - deleting a project may cascade membership deletion;
-- deleting a user account needs an explicit product decision and should not silently destroy project history.
+- deleting a user account is blocked while the user owns a project;
+- a non-owner account is deactivated/anonymized only through an explicit retention flow;
+- task and project event history is never silently cascaded away.
+
+Do not expose a hard-delete profile action until the retention flow preserves
+creator, assignee, and actor history. This sprint uses retained identifiers
+with a disabled/anonymized profile for historical rows.
+
+Add users.deactivated_at nullable and change the existing profile deletion
+action to deactivate the account, revoke sessions, reject new assignments and
+invitations, and retain the user row for foreign-key history. Permanent
+personal-data erasure is a separate privacy workflow after the history
+retention policy has been approved.
+
+## 10.2 Immutable project audit events
+
+Task activity is not enough to explain membership and security changes. Add a
+small immutable project event stream for invitation, membership, role, removal,
+and ownership changes:
+
+~~~text
+project_events
+id
+project_id
+actor_user_id nullable
+subject_user_id nullable
+event_type
+metadata jsonb
+created_at
+~~~
+
+ProjectEventType values are:
+
+~~~text
+INVITATION_CREATED
+INVITATION_ACCEPTED
+INVITATION_REVOKED
+INVITATION_RESENT
+MEMBER_REMOVED
+MEMBER_ROLE_CHANGED
+OWNERSHIP_TRANSFERRED
+~~~
+
+Indexes and foreign keys:
+
+~~~text
+index(project_id, created_at)
+index(actor_user_id, created_at)
+project_id → projects.id
+actor_user_id → users.id, nullOnDelete
+subject_user_id → users.id, nullOnDelete
+~~~
+
+Rules:
+
+- events are append-only; there is no update or delete action;
+- event_type is a finite application enum;
+- metadata stores stable IDs plus safe display snapshots when later account
+  anonymization could remove a name;
+- actor_user_id is nullable only for future system events;
+- project event queries require active project membership;
+- membership removal does not erase historical events.
+
+This is the audit trail for security-relevant changes. TaskActivity remains the
+task-specific timeline and keeps its own append-only contract.
 
 ---
 
@@ -638,6 +811,44 @@ Remove legacy `user_id` from `projects` only after all references/tests have bee
 
 This strategy protects existing data and simplifies rollback/debugging.
 
+## Migration and deployment runbook
+
+Run this sequence against a PostgreSQL staging copy before production:
+
+1. Generate a preflight report for projects without a valid owner, duplicate
+   project keys, duplicate task numbers within a project, orphaned tasks,
+   orphaned labels, and activities whose user reference cannot be resolved.
+2. Add new nullable columns and tables without removing legacy columns.
+3. Backfill in bounded batches. Create or upsert the Owner membership before
+   enabling membership-aware reads.
+4. Backfill task creators, legacy assignees, activity actors, and project
+   events. Preserve the pre-migration project/task/activity counts.
+5. Resolve duplicate project keys before creating the global key constraint.
+   The resolution report must list the old key, new key, project ID, and
+   affected task display keys.
+6. Validate counts, foreign keys, membership uniqueness, exactly one active
+   Owner, owner_id/membership agreement, and active-assignee membership.
+7. Deploy dual-read/dual-write compatibility code, then switch reads to the
+   new columns and membership scopes.
+8. Keep a rollback migration that restores legacy reads while the additive
+   columns remain. Remove legacy columns/indexes only in a later release after
+   the cutover report is accepted.
+
+The migration must be repeatable on a fresh database, and factories/seeders
+must create the same invariants as production migrations. Migrations run once;
+the backfill/report command must be safe to rerun without duplicate memberships,
+events, labels, or assignments.
+
+## Project key decision
+
+Project keys are globally unique in the collaboration model because task keys
+such as PLAN-42 are rendered and searched outside an owner-only scope. The
+migration must resolve existing per-user collisions before enforcing the
+global case-insensitive unique index. Canonical writes trim and uppercase the
+key, while the database index uses LOWER(key). If product later requires duplicate keys, the task
+identifier format must change in a separate design; this sprint does not keep
+an ambiguous key.
+
 ---
 
 # 12. Task Ownership → Creator + Assignee
@@ -694,7 +905,7 @@ created_by_user_id = existing user_id
 assignee_id        = existing user_id OR null
 ```
 
-### Recommended choice
+### Migration default
 
 For existing personal tasks, set:
 
@@ -705,6 +916,19 @@ assignee_id = existing user_id
 because the previous single user was effectively responsible for all work.
 
 This means existing My Work behavior remains intuitive immediately after migration.
+
+Database rules:
+
+- created_by_user_id remains required for normal tasks;
+- assignee_id is nullable and uses nullOnDelete or an explicit anonymization
+  path;
+- assignee_id may never be validated by a user-only foreign key check;
+- every assignment write locks the task and revalidates active membership;
+- add an index on project_id, assignee_id, status for task lists and My Work;
+- keep the existing unique index on project_id, number for stable task keys.
+
+If an actor or creator account is anonymized, keep the row ID and a safe
+display snapshot so historical task/activity records remain understandable.
 
 ---
 
@@ -773,17 +997,19 @@ project_invitations
 id
 project_id
 email
+normalized_email
 role
 invited_by_user_id
 token_hash
 expires_at
 accepted_at
 revoked_at
+last_sent_at
 created_at
 updated_at
 ```
 
-Recommended constraints/indexes:
+Base indexes:
 
 ```text
 index(project_id)
@@ -798,13 +1024,32 @@ Prevent more than one active invitation for the same:
 project + normalized email
 ```
 
-at the domain/service level.
+Enforce this at both the database and domain levels. Normalize by trimming and
+lower-casing the canonical email value before every comparison or write.
+
+Required PostgreSQL constraints:
+
+~~~sql
+CREATE UNIQUE INDEX project_invitations_pending_email
+ON project_invitations (project_id, normalized_email)
+WHERE accepted_at IS NULL AND revoked_at IS NULL;
+
+CREATE UNIQUE INDEX project_invitations_token_hash
+ON project_invitations (token_hash);
+~~~
+
+An expired invitation remains the one pending row for that project/email until
+it is accepted, revoked, or reused by a resend operation. Resend rotates the
+token hash and expiry on that row. The token hash is a fixed SHA-256 hex value;
+token_hash is required and raw tokens never appear in logs, analytics, stored
+metadata, or URLs other than the initial acceptance link.
 
 ---
 
 # 15. Invitation Status
 
-Do not necessarily persist a `status` column if the status can be derived cleanly.
+Do not persist a status column in P0. Derive status from accepted_at,
+revoked_at, and expires_at so one source of truth controls lifecycle rules.
 
 Derived statuses:
 
@@ -822,7 +1067,8 @@ status = PENDING
 accepted_at != null
 ```
 
-If a persisted enum is preferred for query ergonomics, then enforce transitions in one domain action/service.
+If a reporting query needs a status value, derive it in one named scope/service;
+do not add a second mutable lifecycle state in this sprint.
 
 ---
 
@@ -858,7 +1104,7 @@ token_hash = hash(rawToken)
 
 Invitation expiration should be finite.
 
-Recommended initial product rule:
+Initial product rule:
 
 ```text
 expires in 7 days
@@ -883,7 +1129,7 @@ Check existing active invitation
         ↓
 Create invitation
         ↓
-Send notification/email
+Create pending invitation and dispatch delivery after commit when enabled
         ↓
 Invitee opens link
         ↓
@@ -916,14 +1162,52 @@ User gains project access
 1. Do not invite an existing project member.
 2. Do not allow duplicate pending invitation for the same project/email.
 3. Only Owner/Admin may invite.
-4. Recommended: only Owner may invite someone directly as Admin.
+4. Only Owner may invite someone directly as Admin.
 5. Member invitation role defaults to `MEMBER`.
-6. Invitation acceptance must match the authenticated user email.
-7. Expired invitations cannot be accepted.
-8. Revoked invitations cannot be accepted.
-9. Accepted invitations cannot be accepted again.
-10. Resend should invalidate the previous token or update expiry/token safely.
-11. Email comparison should be normalized case-insensitively.
+6. OWNER is never an invitation role; ownership changes only through
+   TransferProjectOwnership.
+7. Invitation acceptance must match the authenticated user email.
+8. Expired invitations cannot be accepted.
+9. Revoked invitations cannot be accepted.
+10. Accepted invitations cannot be accepted again.
+11. Resend should invalidate the previous token or update expiry/token safely.
+12. Email comparison should be normalized case-insensitively.
+
+Canonicalize users.email and project_invitations.normalized_email by trimming
+and lower-casing at the write boundary. Existing case-only duplicates must be
+reported and resolved before adding any case-insensitive unique index.
+
+## 18.1 Invitation security and concurrency contract
+
+The invitation state machine is:
+
+~~~text
+PENDING -> ACCEPTED
+PENDING -> REVOKED
+PENDING -> EXPIRED (derived from expires_at)
+EXPIRED -> PENDING (resend rotates token and expiry on the same row)
+ACCEPTED and REVOKED are terminal
+~~~
+
+The acceptance surface has two stages:
+
+1. Public GET token preview shows only generic invitation state and prompts
+   authentication. It must not reveal project data or whether an email belongs
+   to an account.
+2. Authenticated POST acceptance requires CSRF protection, a canonical email
+   match, and a verified email when email verification is available.
+
+Rate-limit token lookup, invitation creation, resend, and acceptance by user,
+email, project, and client address. Query by the stored token hash, compare the
+full hash, never log the raw token, and prevent token values from becoming
+referrer data. A successful acceptance locks the invitation and the target
+membership in one transaction, rechecks expiry/revocation/email/member state,
+and returns the existing membership when a concurrent request already won.
+
+Concurrent invite requests rely on the partial unique index. On a uniqueness
+conflict, reload the existing pending row and return the existing invitation
+state rather than creating a second row. Concurrent accept/remove/role changes
+use a consistent lock order: project, invitation, membership.
 
 ---
 
@@ -941,7 +1225,7 @@ app/Domain/Collaboration/
 └── Services/
 ```
 
-Recommended actions:
+Required domain actions:
 
 ```text
 InviteProjectMember
@@ -953,13 +1237,9 @@ ChangeProjectMemberRole
 TransferProjectOwnership
 ```
 
-Stretch if sprint capacity is limited:
-
-```text
-TransferProjectOwnership
-```
-
-may be deferred to the next sprint, provided the Owner cannot leave/remove themselves.
+TransferProjectOwnership is P0 because the existing profile deletion path
+otherwise has no safe exit for a project Owner. The action changes the new
+Owner to OWNER and the old Owner to ADMIN in one transaction.
 
 ---
 
@@ -1010,13 +1290,17 @@ members()
 invitations()
 ```
 
-Recommended semantics:
+Required semantics:
 
 ```text
 owner()       → belongsTo(User::class, 'owner_id')
 memberships() → hasMany(ProjectMembership::class)
-members()     → belongsToMany(User::class, 'project_memberships')
+members()     → belongsToMany(User::class, 'project_memberships') filtered to active rows
 ```
+
+Keep memberships() unfiltered for audit/history queries. Expose a separate
+activeMemberships() relation or named scope for authorization and assignment
+eligibility so historical removals cannot accidentally become access grants.
 
 Keep task relationship unchanged:
 
@@ -1038,12 +1322,12 @@ assignedTasks()
 createdTasks()
 ```
 
-Recommended meanings:
+Required meanings:
 
 ```text
 ownedProjects()      → projects where owner_id = user.id
 projectMemberships() → membership rows
-projects()           → projects accessible through membership
+projects()           → projects accessible through active membership
 assignedTasks()      → tasks.assignee_id = user.id
 createdTasks()       → tasks.created_by_user_id = user.id
 ```
@@ -1096,6 +1380,49 @@ Project membership is the security boundary.
 
 Assignment is a work-responsibility property.
 
+## 23.1 Access-layer migration checklist
+
+Use one canonical scope per resource:
+
+~~~text
+Project::accessibleBy(viewer)
+Task::accessibleBy(viewer)
+~~~
+
+The scope must join only active memberships. Rename owner-oriented local
+variables to viewer and remove or deprecate ownedBy() after all callers have
+been migrated; do not keep two subtly different security paths.
+
+Audit every query and selector, including ProjectIndexQuery,
+ProjectOverviewQuery, ProjectBoardQuery, ProjectTaskListQuery, TaskDetailQuery,
+MyWorkQuery, SearchQueryService, DashboardQueryService,
+AnalyticsQueryService, TaskActivityFeedQuery, and all export queries.
+
+Audit every controller/action. In the current codebase,
+ReorderTasksRequest authorizes only project view while ReorderTasks does not
+perform its own policy check; the final action must enforce reorder. The
+ExportController must authorize export for each requested scope, and global
+exports must include only projects for which the viewer has export permission.
+TaskKeyQuery must use project identity/access rather than matching task and
+project user_id values.
+
+Every policy entry must be exercised at the request boundary:
+
+~~~text
+Project: viewAny, view, create, update, changeStatus, archive, restore,
+         invite, manageMembers, manageRoles, transferOwnership, export,
+         viewAnalytics
+Task:    view, create, update, changeStatus, changePriority, changeDueDate,
+         assign, delete, restore, reorder
+Label:   view, create, delete, attach, detach
+~~~
+
+Nested routes must use scopeBindings() or an explicit project_id check. An
+inaccessible resource returns the chosen 404 semantics before rendering or
+mutating data. Mutating actions authorize once before the transaction and
+revalidate the active membership/role while holding locks inside the
+transaction.
+
 ---
 
 # 24. Route-Model Binding Refactor
@@ -1129,7 +1456,7 @@ Access to Project A must never allow a crafted URL to mutate a task from Project
 
 # 25. ProjectPolicy Redesign
 
-Recommended policy abilities:
+Required policy abilities:
 
 ```text
 viewAny
@@ -1144,6 +1471,7 @@ manageMembers
 manageRoles
 transferOwnership
 export
+viewAnalytics
 ```
 
 Conceptual rules:
@@ -1175,6 +1503,12 @@ transferOwnership
 
 export
   → Owner or Admin
+
+viewAnalytics
+  → Owner or Admin
+
+view project progress
+  → any active project member through the Overview surface only
 ```
 
 ---
@@ -1185,7 +1519,7 @@ This is one of the most important sprint changes.
 
 Create explicit abilities instead of using generic `update` for everything.
 
-Recommended abilities:
+Required abilities:
 
 ```text
 view
@@ -1228,6 +1562,10 @@ OR Admin
 OR (Member AND task.assignee_id == user.id)
 ```
 
+The transition service must reject CANCELLED for Members. Owner/Admin may use
+every value in the existing TaskStatus enum, subject to the same transition
+validation used by the current application.
+
 ### `changePriority`
 
 ```text
@@ -1258,6 +1596,11 @@ Owner or Admin
 Owner or Admin
 ```
 
+Archived and cancelled projects are readable by active members but are
+read-only. Create, update, assign, reorder, invitation, and membership
+mutations require an active project state; restore returns the project to the
+normal write state.
+
 ---
 
 # 27. Critical Refactor: `ChangeTaskStatus`
@@ -1284,6 +1627,11 @@ This change is mandatory before regular Members can update their assigned task s
 
 The domain action must not rely only on Blade hiding controls. Authorization must be enforced server-side.
 
+The action must lock the project before the task, use the same lock order as
+assignment/removal, and re-read the membership and assignee inside the
+transaction. A member whose assignment was removed during the request must
+receive a forbidden result and no status/activity row may be written.
+
 ---
 
 # 28. Assignment Domain Action
@@ -1300,7 +1648,7 @@ or:
 ChangeTaskAssignee.php
 ```
 
-Recommended flow:
+Required flow:
 
 ```text
 Owner/Admin requests assignment
@@ -1433,6 +1781,19 @@ actor_type = SYSTEM
 
 but that abstraction is not required now.
 
+All existing task actions that mutate state must pass the authenticated actor,
+including CreateTask, UpdateTask, UpdateTaskDetails, ChangeTaskStatus,
+ChangeTaskPriority, ChangeTaskDueDate, DeleteTask, RestoreTask, ReorderTasks,
+and label attach/detach actions.
+
+## 31.1 Project membership audit
+
+Record invitation, acceptance, revocation, resend, member removal, role
+change, and ownership transfer in project_events. Each event includes the
+actor, affected subject IDs, event type, and structured metadata. Membership
+changes are security-relevant and must remain visible to current authorized
+project members even after the subject is removed.
+
 ---
 
 # 32. My Work Redesign
@@ -1463,14 +1824,15 @@ Preserve current filters where useful:
 - created/updated periods;
 - sorting.
 
-Add optional future filters:
+Defer these admin-only filters:
 
 ```text
 Assigned to me
 Unassigned
 ```
 
-for admin project views, not necessarily global My Work.
+These filters apply only to admin project views; global My Work remains
+assigned-to-me.
 
 ---
 
@@ -1511,6 +1873,10 @@ Assign task
 Assignee is read-only.
 
 The member can only manipulate the task status when the task is assigned to them.
+
+Members may move an assigned task to any existing non-`CANCELLED` `TaskStatus`
+value. Only Owner/Admin may set `CANCELLED` or restore a cancelled task. This
+rule is enforced by the transition action and policy, not only by the UI.
 
 ---
 
@@ -1558,7 +1924,7 @@ or:
 Members
 ```
 
-Recommended screen:
+Required screen:
 
 ```text
 PROJECT TEAM                                      [Invite member]
@@ -1631,6 +1997,10 @@ PLAN-22 → Unassigned
 
 Perform unassignment and membership removal transactionally where practical.
 
+There is no self-leave shortcut in P0. A Member/Admin who wants to leave must
+use an Owner-authorized removal; the Owner must use TransferProjectOwnership
+first. Re-adding a removed user reactivates the retained membership row.
+
 ---
 
 # 38. Owner Protection
@@ -1645,7 +2015,7 @@ Owner → Leave project
 
 unless ownership has first been transferred.
 
-Target future flow:
+Required P0 flow:
 
 ```text
 Transfer ownership
@@ -1658,13 +2028,9 @@ Old OWNER → ADMIN or MEMBER
 New member → OWNER
 ```
 
-If ownership transfer is outside current sprint capacity, enforce:
-
-```text
-Owner cannot leave/remove self
-```
-
-and defer transfer UI/action.
+The profile deletion action must reject an Owner with a clear message until
+all owned projects have been transferred. A removed/non-owner user is retained
+or anonymized according to the history-retention rule in the database section.
 
 ---
 
@@ -1697,9 +2063,24 @@ All members should see the same label taxonomy.
 
 ## Sprint decision
 
-If collaboration scope becomes too large, project-scoped label migration may be a **P1 stretch item**, but every label access query must at minimum remain secure.
+Project-scoped labels are P0. Leaving labels user-owned would make the Admin
+label permission and shared task filters inconsistent with the membership
+model.
 
-Recommended target before PlanOps 1.1 is considered fully complete:
+Migration rules:
+
+- add nullable project_id first;
+- infer a label's project from task_label attachments;
+- duplicate the label per project when one legacy label spans projects;
+- deduplicate by project_id and normalized_name;
+- preserve the label name in task activity metadata when a merge occurs;
+- keep unattached legacy labels private until a project is selected or archive
+  them from project selectors;
+- enforce unique(project_id, normalized_name) after backfill;
+- make project_id required for every label exposed to collaboration; retain
+  nullable private legacy rows only outside project selectors.
+
+Required target before PlanOps 1.1 is considered fully complete:
 
 - labels belong to project;
 - Owner/Admin manage labels;
@@ -1735,7 +2116,7 @@ The user must have active membership in both projects.
 
 Global activity should only expose events from projects the user can access.
 
-Recommended scopes:
+Required scopes:
 
 ### Personal/global activity
 
@@ -1756,7 +2137,7 @@ Activity itself may display actions by all team members.
 
 # 42. Exports
 
-Recommended permissions:
+Required permissions:
 
 ```text
 Owner → full project export
@@ -1782,7 +2163,7 @@ is deferred.
 
 The personal dashboard should gradually shift from ownership metrics to responsibility metrics.
 
-Recommended collaboration-aware KPIs:
+P0 collaboration-aware KPIs:
 
 ```text
 Assigned to me
@@ -1841,7 +2222,7 @@ Collaboration makes notifications much more important.
 
 Use Laravel's native notification system.
 
-Initial channels:
+Planned P1 channels:
 
 ```text
 Database
@@ -1850,20 +2231,25 @@ Email
 
 Do not require WebSockets/Reverb in this sprint.
 
-Database notifications are sufficient for an in-app notification center, and email is sufficient for invitations/important assignment events.
+Database notifications are sufficient for an in-app notification center, and
+email is sufficient for invitations/important assignment events once the
+after-commit delivery contract is enabled. P0 must not claim that email was
+delivered; it only records the event and preserves a usable pending invitation.
 
 ---
 
 # 46. Notification Types
 
-Recommended first notifications:
+P1 notification types:
 
 ```text
 ProjectInvitationCreated
 TaskAssigned
-TaskReassigned (optional, can reuse TaskAssigned)
-ProjectMemberRemoved (optional)
+TaskReassigned uses TaskAssigned with old/new assignee metadata
 ```
+
+Member-removal notification is P2. The P0/P1 removal action still records the
+project event and suppresses future notifications to the removed user.
 
 Potential follow-up notifications:
 
@@ -1967,10 +2353,13 @@ Prefer domain/application events where notification side effects would otherwise
 Examples:
 
 ```text
-ProjectMemberInvited
+ProjectInvitationCreated
 ProjectInvitationAccepted
+ProjectInvitationRevoked
 TaskAssigned
 ProjectMemberRemoved
+ProjectMemberRoleChanged
+ProjectOwnershipTransferred
 ```
 
 Example flow:
@@ -1986,6 +2375,35 @@ SendTaskAssignmentNotification listener
 ```
 
 The task assignment action should remain correct even if notification delivery fails.
+
+## 50.1 Notification delivery contract
+
+Notification scope is intentionally split:
+
+- P0 creates the invitation/assignment domain event and records the business
+  outcome;
+- P1 adds database notifications, unread/read state, and email delivery;
+- WebSockets/Reverb remain out of scope.
+
+Dispatch events after commit. Database notification writes and mail delivery
+must not run inside the transaction that changes membership or assignment.
+When a queue is enabled, notifications implement the Laravel after-commit
+contract and use a bounded retry policy. When the queue is unavailable, the
+business request still succeeds, the failure is logged with a correlation ID,
+and the notification is retryable through failed_jobs and
+php artisan queue:retry.
+
+Notification payloads store snapshots and target IDs, not authorization
+decisions. Every notification link reauthorizes the current viewer, and links
+to a removed member's project must fail safely. Use idempotency keys such as
+event ID plus recipient ID to prevent duplicate delivery on retries. Add
+indexes for recipient/read state and created_at, and define a retention period
+before enabling production delivery.
+
+The repository currently starts queue:listen in composer dev scripts but
+does not promise a permanent queue in the stack contract. Update composer,
+environment, and stack documentation together; do not silently require a
+worker for P0.
 
 ---
 
@@ -2182,11 +2600,80 @@ Where security disclosure matters, inaccessible resources may continue using `40
 
 ---
 
+## 56.1 Route and UX contract
+
+The collaboration routes must be explicit and covered by request tests:
+
+| Method | Route | Ability / rule |
+|---|---|---|
+| GET | /projects/{project}/team | project.view |
+| POST | /projects/{project}/invitations | project.invite |
+| DELETE | /projects/{project}/invitations/{invitation} | project.invite; revoke only pending |
+| POST | /projects/{project}/invitations/{invitation}/resend | project.invite |
+| GET | /invitations/{token} | public preview; no project data |
+| POST | /invitations/{token}/accept | authenticated email match; CSRF |
+| PATCH | /projects/{project}/members/{user}/role | project.manageRoles |
+| DELETE | /projects/{project}/members/{user} | project.manageMembers; never Owner |
+| POST | /projects/{project}/ownership-transfer | project.transferOwnership |
+| PATCH | /tasks/{task}/assignee | task.assign |
+| POST | /tasks/{task}/restore | task.restore |
+| GET | /notifications | authenticated notification list |
+| PATCH | /notifications/{notification}/read | notification belongs to viewer |
+| POST | /notifications/read-all | authenticated viewer only |
+
+Use route names and controller methods consistently with the existing Laravel
+route style. All state-changing routes require authentication and CSRF
+protection. Invitation token routes are rate-limited and must not place raw
+tokens in logs or rendered analytics.
+
+UX requirements:
+
+- show the viewer role and a reason when a control is read-only;
+- use a keyboard-accessible assignee combobox with an Unassigned option;
+- use cards rather than a wide table for the Team screen on small screens;
+- provide visible focus, submit progress, validation errors, and focus return;
+- use a live status message after invite, assignment, removal, or role changes;
+- do not use icon-only controls without an accessible name;
+- render inaccessible resources with the same 404/forbidden copy used by the
+  backend contract;
+- keep Analytics hidden from Members while retaining project progress in
+  Overview.
+
+---
+
 # 57. Testing Strategy
 
 The collaboration sprint needs strong authorization tests because most regressions will be security/permission related rather than syntax related.
 
 Use Pest feature tests heavily.
+
+## 57.1 Verification gates
+
+Record the current baseline before the migration and require the full suite to
+return zero failures before release. Existing unrelated failures must be
+tracked by name and fixed or explicitly quarantined; a green collaboration
+subset is not enough.
+
+The CI test profile must use PostgreSQL for partial indexes, JSON metadata,
+foreign-key behavior, and concurrency assertions. SQLite-only success does not
+prove the collaboration contract.
+
+Add request/feature coverage for every policy ability, every route in the
+route table, archived/cancelled read-only behavior, account deletion guards,
+cross-project selectors, exports, search, activity, dashboard, analytics, and
+the migration backfill.
+
+Add concurrency tests for duplicate invitations, concurrent acceptance,
+assignment versus removal, role changes, ownership transfer, and task number
+allocation. Assert both the final rows and the absence of duplicate activity
+or notification side effects.
+
+The UI gate includes browser tests for invite/accept, Team management,
+assignment, Member status editing, forbidden edits, notification read state,
+keyboard-only navigation, focus return, visible validation, and 404/403
+states. Use Playwright and axe only if the dependency/configuration is added
+to the repository; otherwise remove the promise from the stack contract before
+release.
 
 ---
 
@@ -2334,6 +2821,7 @@ Test:
 - actor differs correctly from assignee/creator;
 - member status transition records Member as actor;
 - admin assignment records Admin as actor;
+- invitation, role, removal, and ownership changes create immutable project_events;
 - append-only protection remains;
 - removed users' historical activity remains readable to authorized project members;
 - inaccessible-project activity never leaks into global feed.
@@ -2349,6 +2837,8 @@ Test:
 - invitation sends intended notification;
 - assignment sends notification to new assignee;
 - no-op assignment sends nothing;
+- notifications are dispatched only after the business transaction commits;
+- a delivery failure does not roll back an accepted invite or assignment;
 - unauthorized action sends nothing;
 - notification references accessible task/project;
 - database notification can be marked read;
@@ -2380,6 +2870,26 @@ A later analytics sprint can introduce:
 
 Do **not** introduce employee ranking/productivity scoring.
 
+## 66.1 Analytics and export privacy contract
+
+Every report accepts an explicit UTC time range plus the viewer's display
+timezone. The selected range is shown in the UI and stored nowhere as a
+server-global default.
+
+Overview progress is visible to active project members. Detailed analytics and
+complete exports are Owner/Admin capabilities. Global analytics and exports
+must filter each project by the corresponding policy ability rather than
+filtering after rows are loaded.
+
+For time-in-status, initialize a period from the last status event at or
+before the range start. If no prior event exists, label the duration as
+unknown rather than counting the whole period as NOT_STARTED. Add a test for
+the task that entered IN_PROGRESS before the selected range.
+
+The personal dashboard means assigned-to-me work across accessible projects.
+It must not become a cross-team productivity score or expose member-level
+performance rankings.
+
 ---
 
 # 67. Sprint Backlog — P0 Must Have
@@ -2393,9 +2903,12 @@ Do **not** introduce employee ranking/productivity scoring.
 - [ ] Add/backfill `tasks.created_by_user_id`.
 - [ ] Add/backfill `tasks.assignee_id`.
 - [ ] Add/backfill activity actor field.
+- [ ] Create immutable project_events for membership/security changes.
 - [ ] Create existing OWNER memberships.
 - [ ] Update model relationships.
-- [ ] Add unique/index constraints.
+- [ ] Add active-membership, one-active-Owner, invitation, label, and global
+  project-key constraints.
+- [ ] Migrate labels to project scope and resolve duplicate normalized names.
 
 ## EPIC B — Authorization/access
 
@@ -2406,6 +2919,7 @@ Do **not** introduce employee ranking/productivity scoring.
 - [ ] Redesign `TaskPolicy`.
 - [ ] Add dedicated `changeStatus` permission.
 - [ ] Add dedicated `assign` permission.
+- [ ] Add viewAnalytics/export abilities and audit every query/controller scope.
 - [ ] Protect nested project/task routes.
 
 ## EPIC C — Member management
@@ -2417,6 +2931,7 @@ Do **not** introduce employee ranking/productivity scoring.
 - [ ] Resend invitation.
 - [ ] Remove Member.
 - [ ] Owner protection.
+- [ ] Transfer ownership atomically before allowing Owner account deletion.
 - [ ] Owner role-management UI for Member/Admin.
 
 ## EPIC D — Task assignment
@@ -2429,6 +2944,7 @@ Do **not** introduce employee ranking/productivity scoring.
 - [ ] Add assignee selector for Owner/Admin.
 - [ ] Read-only assignee for Member.
 - [ ] Add assignment activity event.
+- [ ] Revalidate active membership inside the locked transaction.
 
 ## EPIC E — My Work
 
@@ -2443,6 +2959,7 @@ Do **not** introduce employee ranking/productivity scoring.
 - [ ] Update all existing task actions to pass actor.
 - [ ] Render actor names in activity feed.
 - [ ] Maintain append-only history.
+- [ ] Test project_events for invite, role, removal, and transfer actions.
 
 ## EPIC G — Tests
 
@@ -2454,20 +2971,21 @@ Do **not** introduce employee ranking/productivity scoring.
 - [ ] Cross-project access tests.
 - [ ] My Work tests.
 - [ ] Activity actor tests.
+- [ ] Migration, PostgreSQL, concurrency, export, analytics, and browser/a11y
+  gates.
 
 ---
 
 # 68. Sprint Backlog — P1 Should Have
 
-- [ ] Database + email invitation notifications.
-- [ ] Task assignment database notification.
+- [ ] Database notifications after commit.
+- [ ] Invitation and assignment email delivery with bounded retries.
 - [ ] Notification bell/unread count.
 - [ ] Notification center/list.
 - [ ] Mark read / mark all read.
 - [ ] Assignee filters on project task list.
 - [ ] Assignee filters on board.
-- [ ] Project-scoped labels migration.
-- [ ] Admin export authorization.
+- [ ] Collaboration-aware export authorization.
 - [ ] Collaboration-aware dashboard counts.
 - [ ] Invitation pending state UI.
 
@@ -2475,13 +2993,11 @@ Do **not** introduce employee ranking/productivity scoring.
 
 # 69. Sprint Backlog — P2 Stretch
 
-- [ ] Ownership transfer.
 - [ ] Team Work screen.
 - [ ] Role-change activity feed.
 - [ ] Member-removal notification.
-- [ ] Project membership activity feed entries.
 - [ ] Team analytics first version.
-- [ ] queued email notifications after commit.
+- [ ] Realtime notification delivery.
 
 If P0 work is not fully secure/tested, P2 must not be started.
 
@@ -2501,11 +3017,14 @@ owner_id
 created_by_user_id
 assignee_id
 actor_user_id
+project_events
+project-scoped labels
 ```
 
 ## Phase 2 — Migration/backfill
 
-Make all existing projects/tasks/users compatible with the new schema.
+Run the preflight report, additive migrations, batched backfill, duplicate-key
+resolution, invariant validation, and rollback rehearsal.
 
 ## Phase 3 — Access layer
 
@@ -2527,6 +3046,7 @@ Revoke
 Resend
 Remove
 Role management
+Ownership transfer
 ```
 
 ## Phase 5 — Assignment
@@ -2543,14 +3063,216 @@ Make assigned work the personal execution surface.
 
 ## Phase 7 — Notifications
 
-Database first; email where needed.
+Dispatch domain events after commit. Add database notifications and email in
+P1 with idempotency keys, retry logging, and target reauthorization.
 
 ## Phase 8 — Full regression/security test pass
 
-Do not finish the sprint with UI complete but authorization partially migrated.
+Run the full Pest suite on PostgreSQL, concurrency tests, browser/axe/keyboard
+checks, migration verification, build verification, and documentation
+reconciliation. Do not release with a partially migrated authorization layer.
 
 ---
 
+## 70.1 DYX task sequence
+
+Each task is independently reviewable. Do not start a task until its dependency
+is green.
+
+### Task DYX-000
+
+Goal: Freeze the collaboration contract and record the current baseline.
+
+Files: `docs/PlanOps_Sprint_2.md`, `docs/architecture/domain-contracts.md`,
+`docs/architecture/stack.md`, `docs/ui/screen-spec.md`,
+`planops-complete-spec.md`, and the existing implementation plan.
+
+Action: compare the baseline documents with this plan; record current Pest,
+build, and route-list results; align the queue, browser, and accessibility
+promises.
+
+Why: later security work must not be judged against contradictory contracts
+or an unknown failing-test baseline.
+
+Verification: `php artisan test`, `npm.cmd run build`, and
+`php artisan route:list --except-vendor` are recorded before implementation.
+
+Expected result: one accepted baseline and one authoritative Sprint 2 contract.
+
+### Task DYX-001
+
+Goal: Add collaboration invariants and migrate existing data safely.
+
+Files: `database/migrations/`,
+`app/Domain/Collaboration/Models/ProjectMembership.php`,
+`app/Domain/Collaboration/Models/ProjectInvitation.php`,
+`app/Domain/Projects/Models/Project.php`, `app/Domain/Tasks/Models/Task.php`,
+`database/factories/`, `database/seeders/`, and migration feature tests.
+
+Action: add owner_id, memberships, invitations, project_events, creator,
+assignee, actor, normalized email, removed_at, project-scoped labels, and
+global project-key constraints; backfill in batches; validate counts and
+orphan reports; keep legacy columns until cutover.
+
+Why: policies cannot be trusted while ownership and referential invariants
+are only conventions.
+
+Verification: run the migration twice on a PostgreSQL database and assert
+exactly one active OWNER, owner/membership agreement, valid assignees, stable
+task keys, and preserved project/task/activity counts.
+
+Expected result: old personal projects remain accessible as Owner projects.
+
+Dependency: DYX-000.
+
+### Task DYX-002
+
+Goal: Replace owner-only access with one membership-aware authorization layer.
+
+Files: `app/Domain/Projects/Models/Project.php`,
+`app/Domain/Tasks/Models/Task.php`, `app/Policies/ProjectPolicy.php`,
+`app/Policies/TaskPolicy.php`, `app/Policies/LabelPolicy.php`,
+`routes/web.php`, all listed query classes,
+`app/Http/Requests/ReorderTasksRequest.php`,
+`app/Domain/Tasks/Actions/ReorderTasks.php`, and
+`app/Http/Controllers/ExportController.php`.
+
+Action: implement accessibleBy(viewer), explicit policy abilities, nested
+binding checks, archived read-only behavior, export/viewAnalytics checks,
+and transaction-time revalidation. Remove every security-critical ownedBy()
+caller.
+
+Why: direct URLs, selectors, exports, and mutation actions are all part of
+the attack surface.
+
+Verification: request tests cover each role, every route, cross-project task
+mismatch, removed membership, archived project, search, activity, analytics,
+dashboard, and export scoping.
+
+Expected result: no project/task data is returned or mutated without active
+membership and the required ability.
+
+Dependency: DYX-001.
+
+### Task DYX-003
+
+Goal: Deliver the member and invitation lifecycle.
+
+Files: `app/Domain/Collaboration/Actions/`,
+`app/Domain/Collaboration/Rules/`, invitation/member controllers and requests,
+`resources/views/`, `routes/web.php`, and invitation/membership feature tests.
+
+Action: implement invite, public token preview, authenticated acceptance,
+resend, revoke, remove, role change, and atomic ownership transfer with
+canonical email matching, rate limits, CSRF, token hashing, unique pending
+invites, and retained audit events.
+
+Why: membership is the security boundary and ownership transfer closes the
+profile-deletion escape gap.
+
+Verification: test duplicate/racing invites, expired/revoked/reused tokens,
+email mismatch, concurrent acceptance, role restrictions, owner protection,
+removal/unassignment, and no project-data disclosure on token preview.
+
+Expected result: members gain or lose access immediately and exactly one
+membership is created for a successful acceptance.
+
+Dependency: DYX-002.
+
+### Task DYX-004
+
+Goal: Add assignment, actor-aware task changes, and assignment-based My Work.
+
+Files: `app/Domain/Tasks/Actions/AssignTask.php` or
+`ChangeTaskAssignee.php`, `app/Domain/Activity/Services/TaskActivityRecorder.php`,
+`app/Domain/Activity/Models/TaskActivity.php`, task actions,
+`app/Domain/Tasks/Queries/MyWorkQuery.php`, task views, and feature tests.
+
+Action: add one nullable assignee, actor-aware recorder calls,
+ASSIGNEE_CHANGED, non-CANCELLED Member status transitions, locked
+assignment/removal races, and accessible assigned-task queries.
+
+Why: collaboration is useful only when responsibility and history are both
+correct.
+
+Verification: test assign/reassign/unassign, no-op suppression, actor IDs,
+Member status boundaries, removed-member unassignment, and My Work across
+multiple projects.
+
+Expected result: every task mutation identifies the actor and My Work shows
+only assigned tasks in accessible projects.
+
+Dependency: DYX-003.
+
+### Task DYX-005
+
+Goal: Make labels project-scoped without leaking or merging unrelated data.
+
+Files: label migrations, `app/Domain/Labels/Models/Label.php`, label actions
+and policies, task-label queries, label views, and label tests.
+
+Action: infer projects from task attachments, duplicate cross-project legacy
+labels, deduplicate by normalized name within each project, and restrict
+management to Owner/Admin.
+
+Why: shared task filters require a shared project taxonomy.
+
+Verification: test cross-project duplicate names, unattached legacy labels,
+member read access, and Owner/Admin mutation boundaries.
+
+Expected result: project members see one consistent label set for their project.
+
+Dependency: DYX-001 and DYX-002.
+
+### Task DYX-006
+
+Goal: Add notification delivery after the P0 business outcomes are stable.
+
+Files: notification migrations/models, notification classes/listeners,
+`composer.json`, `.env.example`, notification views/routes, and notification
+feature tests.
+
+Action: add database notifications and email after commit with idempotency
+keys, bounded retries, failure logging, read state, retention, and target
+reauthorization. Keep WebSockets out of scope.
+
+Why: delivery failures must not roll back invitations or assignments.
+
+Verification: fake notifications/mail, assert after-commit behavior, retry
+deduplication, read/unread counts, removed-member suppression, and accessible
+target links.
+
+Expected result: P1 delivery is observable and retryable without changing the
+P0 authorization outcome.
+
+Dependency: DYX-003 and DYX-004.
+
+### Task DYX-007
+
+Goal: Close the release gate and reconcile all contracts.
+
+Files: `tests/Feature/`, `tests/Browser/`, Playwright/axe configuration if
+adopted, `docs/architecture/`, `docs/ui/`, and the Sprint 2 document.
+
+Action: run the full PostgreSQL Pest suite, migration rehearsal, concurrency
+suite, browser and keyboard checks, `npm.cmd run build`, and documentation
+searches for stale ownedBy(), user_id ownership, route, queue, and label claims.
+
+Why: the highest-risk failures are silent access leaks and documentation drift.
+
+Verification: zero unapproved failures, zero skipped security/concurrency
+tests, successful build, accepted migration report, and synchronized contracts.
+
+Expected result: Sprint 2 is releasable or has a named, blocking reason.
+
+Dependency: DYX-005 and DYX-006.
+
+### Next action
+
+Start with DYX-000: capture the baseline and synchronize the authority documents
+before writing collaboration migrations.
+
+---
 # 71. Definition of Done
 
 The sprint is considered complete only if all of the following are true.
@@ -2561,6 +3283,9 @@ The sprint is considered complete only if all of the following are true.
 - [ ] Existing project owners were migrated without losing access.
 - [ ] A user may be Member/Admin/Owner depending on the project.
 - [ ] A non-member cannot access project data by URL/query.
+- [ ] Exactly one active Owner is enforced by database and transaction checks.
+- [ ] Owner transfer is atomic and required before Owner account deletion.
+- [ ] Removed memberships remain auditable and cannot access project data.
 
 ## Invitations
 
@@ -2569,12 +3294,15 @@ The sprint is considered complete only if all of the following are true.
 - [ ] Invite can be accepted exactly once.
 - [ ] Duplicate/existing-member invitations are prevented.
 - [ ] Invitation acceptance creates membership atomically.
+- [ ] Canonical email, partial uniqueness, rate limits, CSRF, and no raw-token
+  logging are verified.
 
 ## Roles
 
 - [ ] OWNER/ADMIN/MEMBER behavior matches permission matrix.
 - [ ] Member cannot mutate task content/priority/due date/assignment.
 - [ ] Member can change status only on their assigned task.
+- [ ] Members cannot set CANCELLED.
 - [ ] Role checks are enforced server-side.
 
 ## Assignment
@@ -2584,6 +3312,7 @@ The sprint is considered complete only if all of the following are true.
 - [ ] Owner/Admin can assign/reassign/unassign.
 - [ ] Member removal safely unassigns work.
 - [ ] Assignment is visible on board/list/detail.
+- [ ] Assignment/removal races leave no task assigned to an inactive member.
 
 ## My Work
 
@@ -2595,19 +3324,25 @@ The sprint is considered complete only if all of the following are true.
 - [ ] Activity records actor separately from creator/assignee.
 - [ ] Assignment/status changes show correct actor.
 - [ ] Historical activity remains append-only.
+- [ ] Membership/security changes are present in immutable project_events.
 
 ## Security
 
 - [ ] Cross-project crafted URLs are rejected.
 - [ ] Search/activity/analytics/export do not leak inaccessible project data.
 - [ ] Nested routes verify task belongs to project.
+- [ ] Archived/cancelled projects reject all writes except restore.
+- [ ] Profile deletion cannot destroy creator, assignee, or actor history.
 
 ## Testing
 
 - [ ] Existing relevant tests pass after refactor.
 - [ ] New policy/authorization tests exist for all three roles.
 - [ ] Invitation and assignment happy/error paths are covered.
+- [ ] PostgreSQL migration and concurrency gates pass.
+- [ ] Browser, keyboard, and accessibility gates pass when promised by stack.
 - [ ] Frontend production build passes.
+- [ ] Architecture/UI/spec documents contain no stale ownership or route claims.
 
 ---
 
@@ -2628,7 +3363,8 @@ And an OWNER membership exists for Ali
 Given Ali owns PlanOps
 When Ali invites sara@example.com as Member
 Then a pending invitation is created
-And Sara receives an invitation
+And the invitation delivery event is recorded after commit
+And P1 email delivery may notify Sara when enabled
 ```
 
 ## Scenario C — Accept invitation
@@ -2705,6 +3441,52 @@ And tasks assigned to other people do not appear
 
 ---
 
+## 72.1 Security and lifecycle scenarios
+
+### Scenario J - Owner transfer protects account deletion
+
+~~~gherkin
+Given Ali owns PlanOps and Sara is an active Member
+When Ali transfers ownership to Sara
+Then Sara becomes the only active OWNER
+And Ali becomes an ADMIN
+And the transfer is recorded in project_events
+And Ali can no longer delete the project as Owner
+~~~
+
+### Scenario K - Removed membership is immediate
+
+~~~gherkin
+Given Sara is assigned PLAN-42
+When an authorized manager removes Sara
+And Sara submits a status change at the same time
+Then the final task has no inactive assignee
+And Sara's status request is forbidden
+And only one removal/unassignment history is recorded
+~~~
+
+### Scenario L - Archived projects are read-only
+
+~~~gherkin
+Given PlanOps is archived
+When a Member opens the project
+Then project history and Overview progress remain visible
+When any user attempts to create, edit, assign, reorder, or invite
+Then the request is rejected
+And restore is available only to Owner/Admin
+~~~
+
+### Scenario M - Invitation token preview is private
+
+~~~gherkin
+Given a valid invitation token exists
+When an unauthenticated visitor opens the token URL
+Then no project name, member list, or account-existence detail is disclosed
+When an authenticated user accepts with a different canonical email
+Then acceptance is rejected and no membership is created
+~~~
+
+---
 # 73. Architecture After Sprint
 
 ```text
@@ -2742,7 +3524,8 @@ Activity
 ├── Actor
 ├── Task Events
 ├── Status Events
-└── Assignment Events
+├── Assignment Events
+└── Project Events
 
 Personal Work
 │
@@ -2776,6 +3559,8 @@ Project-scoped authorization
 Assignees
 Actor-aware activity
 Assignment-based My Work
+Project-scoped labels
+Minimal ownership transfer
 Notification foundation
 ```
 
@@ -2786,9 +3571,7 @@ Next:
 ```text
 Notification center polish
 Team Work
-Project-scoped labels
 Team analytics
-Ownership transfer
 Saved views by assignee
 Better workload visibility
 ```
@@ -2856,10 +3639,10 @@ Integrations/API
 
 1. **Roles are project-scoped.**
 2. **Three roles only:** OWNER, ADMIN, MEMBER.
-3. **One Owner per project.**
+3. **Exactly one active Owner per project, enforced by a partial unique index and a locked transaction.**
 4. **One assignee per task.**
 5. **Assignee must be an active project member.**
-6. **Member can change only the status of their own assigned tasks.**
+6. **Member can change only a non-CANCELLED status on their own assigned tasks.**
 7. **Owner/Admin manage task content and assignments.**
 8. **Membership is the access/security boundary.**
 9. **Assignment is responsibility, not authorization to access foreign projects.**
@@ -2872,6 +3655,13 @@ Integrations/API
 16. **No multiple assignees in this phase.**
 17. **No realtime/WebSockets required in this phase.**
 18. **Daily Planning is deferred until collaboration is stable.**
+19. **Removed memberships are retained with removed_at and remain auditable.**
+20. **Owner transfer is P0; Owner account deletion is blocked until transfer.**
+21. **Project keys are globally unique for stable task identifiers.**
+22. **Labels are project-scoped in P0.**
+23. **Members see Overview progress/activity but not detailed team analytics or complete exports.**
+24. **Invitation acceptance is P0; database/email delivery is P1 and runs after commit.**
+25. **Archived/cancelled projects are read-only except for Owner/Admin restore.**
 
 ---
 
@@ -2925,7 +3715,7 @@ Mitigation:
 
 - commit business transaction first;
 - dispatch event/notification after commit;
-- queue mail later where appropriate.
+- queue mail in P1 under the documented worker and retry contract.
 
 ## Risk 6 — Sprint overload
 
@@ -2936,6 +3726,30 @@ Mitigation:
 - treat P0 as the true sprint boundary;
 - notification polish/team analytics remain P1/P2;
 - do not begin Daily Planning in this sprint.
+
+## Risk 7 — Invariant drift under concurrent writes
+
+Two requests can otherwise create two active Owners, accept one invitation
+twice, or assign work to a member being removed.
+
+Mitigation:
+
+- enforce partial unique indexes where PostgreSQL supports them;
+- lock project, invitation, membership, and task rows in a fixed order;
+- revalidate policy inputs inside each transaction;
+- test the race, not only the happy path.
+
+## Risk 8 — Contract and tooling drift
+
+The current stack documentation, route map, queue promise, and browser-test
+promise do not fully match the repository.
+
+Mitigation:
+
+- make DYX-000 a release prerequisite;
+- search for stale ownedBy(), owner user_id, route, label, queue, and
+  notification claims before merge;
+- either add Playwright/axe and a queue contract or remove those promises.
 
 ---
 
@@ -3014,4 +3828,3 @@ How does each person see their own work?
 If those six questions are modeled correctly, PlanOps will have a strong foundation for every later feature: Daily Planning, reminders, calendar integration, team analytics, dependencies, milestones, integrations, and AI assistance.
 
 The most important outcome of this sprint is therefore not the Invite button itself. It is the transition from **single-user ownership** to a secure, explicit, testable **collaborative project model**.
-
