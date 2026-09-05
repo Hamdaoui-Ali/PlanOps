@@ -2,7 +2,7 @@
 
 **Purpose:** record the DYX-000 starting point before collaboration migrations or authorization changes.
 
-**Status:** Captured with a reproducibility blocker.
+**Status:** Captured; repeatability variance resolved. The release gate remains red on pre-existing failures.
 
 **Authority:** [Sprint 2 specification](../PlanOps_Sprint_2.md)
 
@@ -30,14 +30,14 @@ php artisan test --no-ansi --compact
 Latest failure-inventory run:
 
 - Exit code: `2`.
-- Tests: `67 failed, 1 skipped, 183 passed`.
+- Tests: `64 failed, 1 skipped, 186 passed`.
 - Assertions: `1,028`.
-- Duration: `28.07s`.
+- Duration: approximately `20s`.
 - Non-blocking PHP warnings reported unused non-compound `use` statements in `TaskActivityRecorderTest.php:12`, `TaskKeyTest.php:8`, `TaskActivityImmutabilityTest.php:8`, `ProjectConsoleTest.php:7-9`, and `TaskMetadataTest.php:23`.
 
-Reproducibility observation: an earlier raw run in the same DYX-000 capture reported `68 failed, 1 skipped, 182 passed` in `27.69s`. The one-test variance is a DYX-000 blocker. Until it is explained, the latest inventory is recorded as the working baseline and the full-suite release gate remains red.
+Reproducibility observation: two fresh full-suite runs after fixture hardening both reported `64 failed, 1 skipped, 186 passed` with `1,028` assertions and exit code `2`. The earlier one-test variance was caused by random task numbers in the My Work `task_key` sort fixture; implicit timestamps and due dates also made the sort matrix under-specified. Those fixtures now provide explicit ordering inputs. The full-suite release gate remains red because the remaining failures are pre-existing contract and bootstrap failures.
 
-All 67 failures are classified as `fix-before-P0` with owner `PlanOps engineering`. No failure is quarantined yet.
+All 64 failures are classified as `fix-before-P0` with owner `PlanOps engineering`. No failure is quarantined yet.
 
 ## Failure inventory from the latest run
 
@@ -49,14 +49,14 @@ The counts below are grouped by test file. The detailed test output remains the 
 | `Tests\Feature\Database\SeedReproducibilityTest` | 1 | Seed snapshot is not stable between repeated seed runs. |
 | `Tests\Feature\Export\ExportTest` | 1 | Export content/scope assertion does not contain expected `OWN`. |
 | `Tests\Feature\MyWork\MyWorkFiltersTest` | 1 | `this_week` result differs from expected task set. |
-| `Tests\Feature\MyWork\MyWorkSortingTest` | 1 | One or more safe sort options return a different order than expected. |
+| `Tests\Feature\MyWork\MyWorkSortingTest` | 0 | Sort fixture stabilized with explicit task numbers and timestamps; all safe-sort cases pass. |
 | `Tests\Feature\Projects\ProjectBoardTest` | 1 | Board rendering/metadata assertion mismatch. |
 | `Tests\Feature\Projects\ProjectConsoleTest` | 5 | Project console feature-contract assertions; inspect individual cases before changing behavior. |
 | `Tests\Feature\Projects\ProjectManagementTest` | 1 | Project management feature-contract assertion. |
 | `Tests\Feature\Projects\ProjectOverviewTest` | 1 | Project overview feature-contract assertion. |
 | `Tests\Feature\Search\SearchQueryTest` | 4 | Search query/result contract assertions. |
 | `Tests\Feature\Settings\TimezoneBoundaryTest` | 1 | Timezone boundary assertion. |
-| `Tests\Feature\Tasks\ProjectTaskListTest` | 3 | Undefined `$project` in `resources\views\components\filters\project-task-filters.blade.php` and redirect query-order mismatch. |
+| `Tests\Feature\Tasks\ProjectTaskListTest` | 2 | Undefined `$project` in `resources\views\components\filters\project-task-filters.blade.php` and redirect query-order mismatch; sort matrix now passes with explicit fixture inputs. |
 | `Tests\Unit\Domain\Activity\TaskActivityRecorderTest` | 4 | `A facade root has not been set.` through `database\factories\UserFactory.php:31`. |
 | `Tests\Unit\Domain\Analytics\AnalyticsMetricTest` | 2 | `A facade root has not been set.` through `database\factories\UserFactory.php:31`. |
 | `Tests\Unit\Domain\Dashboard\DashboardMetricTest` | 2 | `A facade root has not been set.` through `database\factories\UserFactory.php:31`. |
@@ -113,6 +113,4 @@ Non-conflicting v1 contracts remain valid. The Sprint 2 authority controls activ
 
 ## DYX-000 decision
 
-DYX-000 has captured the required starting evidence and named every observed failing test file, but it is not accepted yet. The test-count variance must be explained or eliminated, and the authority-document banners must remain synchronized, before DYX-001 schema work begins.
-
-**Next action:** investigate the one-test variance with a repeatable test-order/fixture check, then update the release decision without weakening or skipping assertions.
+DYX-000 is accepted as a repeatable baseline gate. The authority-document banners are synchronized, the build and route inventories pass, and two fresh full-suite runs produce the same result. The PHP release gate remains red until the 64 named pre-existing failures are resolved or explicitly quarantined; this does not block starting schema work under DYX-001.

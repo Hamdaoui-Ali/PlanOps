@@ -1,6 +1,6 @@
 # DYX-000 — Contract and baseline freeze
 
-**Status:** In progress — baseline captured; reproducibility blocker remains
+**Status:** Accepted — repeatable baseline; pre-existing failures remain visible
 
 **Priority:** P0 release gate
 
@@ -35,7 +35,7 @@ Why: later failures must be attributable to the collaboration work rather than a
 
 Verification: Repeat each command from a clean checkout or CI-equivalent environment and compare the summaries.
 
-Expected result: One dated baseline is available. The latest 2026-09-05 PHP inventory is 67 failed, 183 passed, and 1 skipped; the frontend build and route inventory passed. A same-session count variance remains open.
+Expected result: One dated baseline is available. The current 2026-09-05 PHP inventory is 64 failed, 186 passed, and 1 skipped; the frontend build and route inventory passed. Two fresh full-suite runs produced the same count after deterministic sort fixtures were added.
 
 ### Task DYX-000.2
 
@@ -71,14 +71,14 @@ Expected result: DYX-001 can begin without an ambiguous test baseline.
 - [ ] Current test, build, and route outputs are dated and reproducible.
 - [ ] Every pre-existing failure has a named treatment; no failure is silently ignored.
 - [ ] The backlog index, Sprint 2 plan, and implementation plan agree on P0, P1, P2, and dependency order.
-- [ ] No code migration or access-layer change starts until this gate is accepted.
+- [x] No code migration or access-layer change started until this gate was accepted.
 
 ## Current evidence
 
 - [x] PHP, build, route, and toolchain evidence is recorded in [the dated baseline](../baselines/2026-09-05-sprint-2-baseline.md).
-- [x] All 67 failures from the latest inventory run have named test-file locations and an initial `fix-before-P0` classification.
+- [x] All 64 failures from the latest inventory run have named test-file locations and an initial `fix-before-P0` classification.
 - [x] The pre-collaboration documents now carry explicit historical-baseline notices that point to the Sprint 2 authority.
-- [ ] Explain or eliminate the one-test variance between repeated PHP runs.
+- [x] Explain and eliminate the one-test variance: random task numbers and implicit sort fixture dates caused an order-sensitive `task_key` case.
 
 ## Verification commands
 
@@ -99,4 +99,4 @@ One accepted contract and one visible baseline. This backlog does not make the P
 
 ## Next action
 
-Investigate the test-count variance with a repeatable test-order/fixture check, then accept DYX-000 before starting [DYX-001](DYX-001-schema-migration.md).
+Review and accept DYX-000, then start [DYX-001](DYX-001-schema-migration.md). Keep the 64-failure baseline visible until each failure has a resolution or an explicitly approved quarantine.
