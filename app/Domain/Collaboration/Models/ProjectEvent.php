@@ -23,8 +23,12 @@ class ProjectEvent extends Model
 
     protected static function booted(): void
     {
-        static::updating(static function (): never { throw new LogicException('Project events are append-only.'); });
-        static::deleting(static function (): never { throw new LogicException('Project events are append-only.'); });
+        static::updating(static function (): never {
+            throw new LogicException('Project events are append-only.');
+        });
+        static::deleting(static function (): never {
+            throw new LogicException('Project events are append-only.');
+        });
     }
 
     protected function casts(): array
@@ -32,9 +36,18 @@ class ProjectEvent extends Model
         return ['event_type' => ProjectEventType::class, 'metadata' => 'array', 'created_at' => 'immutable_datetime'];
     }
 
-    public function project(): BelongsTo { return $this->belongsTo(Project::class); }
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
 
-    public function actor(): BelongsTo { return $this->belongsTo(User::class, 'actor_user_id'); }
+    public function actor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'actor_user_id');
+    }
 
-    public function subject(): BelongsTo { return $this->belongsTo(User::class, 'subject_user_id'); }
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'subject_user_id');
+    }
 }

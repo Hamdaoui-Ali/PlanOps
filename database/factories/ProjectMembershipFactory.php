@@ -25,7 +25,13 @@ class ProjectMembershipFactory extends Factory
         ];
     }
 
-    public function owner(): static { return $this->state(['role' => ProjectRole::OWNER]); }
+    public function owner(): static
+    {
+        return $this->state(['role' => ProjectRole::OWNER]);
+    }
 
-    public function admin(): static { return $this->state(['role' => ProjectRole::ADMIN]); }
+    public function admin(): static
+    {
+        return $this->state(['role' => ProjectRole::ADMIN]);
+    }
 }

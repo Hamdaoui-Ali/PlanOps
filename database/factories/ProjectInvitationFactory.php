@@ -31,5 +31,8 @@ class ProjectInvitationFactory extends Factory
         ];
     }
 
-    public function admin(): static { return $this->state(['role' => ProjectRole::ADMIN]); }
+    public function admin(): static
+    {
+        return $this->state(['role' => ProjectRole::ADMIN]);
+    }
 }

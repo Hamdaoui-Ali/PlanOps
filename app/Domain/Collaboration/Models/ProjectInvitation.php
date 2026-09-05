@@ -32,15 +32,33 @@ class ProjectInvitation extends Model
         ];
     }
 
-    public function project(): BelongsTo { return $this->belongsTo(Project::class); }
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
 
-    public function invitedBy(): BelongsTo { return $this->belongsTo(User::class, 'invited_by_user_id'); }
+    public function invitedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'invited_by_user_id');
+    }
 
-    public function isAccepted(): bool { return $this->accepted_at !== null; }
+    public function isAccepted(): bool
+    {
+        return $this->accepted_at !== null;
+    }
 
-    public function isRevoked(): bool { return $this->revoked_at !== null; }
+    public function isRevoked(): bool
+    {
+        return $this->revoked_at !== null;
+    }
 
-    public function isExpired(): bool { return $this->expires_at->isPast(); }
+    public function isExpired(): bool
+    {
+        return $this->expires_at->isPast();
+    }
 
-    public function isPending(): bool { return ! $this->isAccepted() && ! $this->isRevoked() && ! $this->isExpired(); }
+    public function isPending(): bool
+    {
+        return ! $this->isAccepted() && ! $this->isRevoked() && ! $this->isExpired();
+    }
 }

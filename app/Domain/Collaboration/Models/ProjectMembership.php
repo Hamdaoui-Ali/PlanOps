@@ -27,9 +27,18 @@ class ProjectMembership extends Model
         ];
     }
 
-    public function project(): BelongsTo { return $this->belongsTo(Project::class); }
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
 
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
-    public function removedBy(): BelongsTo { return $this->belongsTo(User::class, 'removed_by_user_id'); }
+    public function removedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'removed_by_user_id');
+    }
 }
