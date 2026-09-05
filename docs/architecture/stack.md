@@ -1,5 +1,7 @@
 # PlanOps implementation baseline
 
+> **Historical baseline notice (2026-09-05):** This document records the pre-collaboration stack boundaries. Sprint 2 supersedes the single-user boundaries for active memberships, teams, assignees, invitations, project-scoped labels, and after-commit notifications. The Laravel, PHP, PostgreSQL, Blade/Livewire, Tailwind, Vite, Pest, Playwright, and axe-core choices remain the current technical baseline unless the Sprint 2 authority says otherwise.
+
 ## Chosen baseline
 
 PlanOps is a Laravel 13 modular monolith running PHP 8.3 with PostgreSQL. It uses normal Laravel session authentication and server-rendered Blade views enhanced with Livewire, Tailwind CSS, and Vite. The test stack is Pest/PHPUnit for application behaviour and Playwright with axe-core for browser and accessibility coverage.

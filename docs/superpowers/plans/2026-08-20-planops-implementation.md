@@ -1,5 +1,7 @@
 # PlanOps Implementation Plan
 
+> **Historical baseline notice (2026-09-05):** This plan targets the pre-collaboration foundation. For Sprint 2 work, use [`docs/PlanOps_Sprint_2.md`](../../PlanOps_Sprint_2.md), [`docs/backlogs/README.md`](../../backlogs/README.md), and the current collaboration implementation plan. Its single-user ownership and deferred-feature claims are superseded where those documents define active memberships, invitations, roles, assignees, actor history, project-scoped labels, notifications, or collaboration-aware access.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build PlanOps as a personal, user-scoped Laravel work-operations application that records explicit project/task state changes and derives trustworthy boards, activity feeds, dashboards, and analytics from those stored facts.

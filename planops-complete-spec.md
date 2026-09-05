@@ -1,6 +1,8 @@
 # PlanOps
 ## Complete Product, Domain, UX, Analytics & Laravel Architecture Specification
 
+> **Historical baseline notice (2026-09-05):** This document is the pre-collaboration product baseline. For Sprint 2, [`docs/PlanOps_Sprint_2.md`](docs/PlanOps_Sprint_2.md) is authoritative and supersedes conflicting single-user ownership, project-key, label-scope, role, invitation, assignment, actor-history, notification, and feature-boundary claims. Non-conflicting product, task, analytics, and accessibility contracts remain useful references.
+
 **Document version:** 1.0  
 **Status:** Product design baseline  
 **Date:** 2026-08-20  
@@ -4276,4 +4278,3 @@ The product requirements contain no intentionally unresolved implementation plac
 The most important scope decision is explicit:
 
 > **PlanOps tracks declared project/task state and derives progress from that state and its history. It does not track the user's actual physical/computer activity.**
-

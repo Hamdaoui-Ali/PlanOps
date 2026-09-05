@@ -1,5 +1,7 @@
 # PlanOps domain contracts
 
+> **Historical baseline notice (2026-09-05):** This document describes the pre-collaboration domain. The Sprint 2 authority in [`docs/PlanOps_Sprint_2.md`](../PlanOps_Sprint_2.md) supersedes conflicting ownership, project-key, label-scope, role, invitation, assignment, actor, and notification claims. Non-conflicting task, status, activity, analytics, and accessibility contracts remain applicable.
+
 ## Persistence model
 
 The seven core tables are `users`, `user_preferences`, `projects`, `tasks`, `labels`, `task_label`, and `task_activities`.

@@ -1,5 +1,7 @@
 # PlanOps screen contract
 
+> **Historical baseline notice (2026-09-05):** These screens describe the pre-collaboration route and ownership contract. The Sprint 2 authority in [`docs/PlanOps_Sprint_2.md`](../PlanOps_Sprint_2.md) supersedes conflicting authorization and adds the Team/Members, invitation, assignee, notification, and collaboration-aware export/filter requirements. Existing screen structure remains valid where Sprint 2 does not change it.
+
 ## Route map
 
 | Route | Screen / responsibility |
