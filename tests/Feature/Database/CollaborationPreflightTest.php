@@ -62,7 +62,9 @@ test('collaboration preflight detects migration anomalies without writing', func
         'activities' => TaskActivity::count(),
     ];
 
-    expect($report['duplicate_project_keys']['count'])->toBe(1)
+    expect($report['missing_project_owners']['count'])->toBe(2)
+        ->and($report['missing_project_owners']['sample_ids'])->toBe([$firstProject->id, $secondProject->id])
+        ->and($report['duplicate_project_keys']['count'])->toBe(1)
         ->and($report['duplicate_project_keys']['sample_ids'])->toBe([$firstProject->id, $secondProject->id])
         ->and($report['legacy_labels_spanning_projects']['count'])->toBe(1)
         ->and($report['legacy_labels_spanning_projects']['sample_ids'])->toBe([$label->id])

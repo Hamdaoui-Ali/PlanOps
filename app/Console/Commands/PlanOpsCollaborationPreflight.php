@@ -41,8 +41,10 @@ class PlanOpsCollaborationPreflight extends Command
     private function missingProjectOwners(): array
     {
         $query = DB::table('projects')
-            ->leftJoin('users', 'users.id', '=', 'projects.user_id')
-            ->whereNull('users.id');
+            ->leftJoin('users', 'users.id', '=', 'projects.owner_id')
+            ->where(function ($query): void {
+                $query->whereNull('projects.owner_id')->orWhereNull('users.id');
+            });
 
         return $this->result($query, 'projects.id');
     }
