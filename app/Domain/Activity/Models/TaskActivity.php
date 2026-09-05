@@ -23,6 +23,7 @@ class TaskActivity extends Model
 
     protected $fillable = [
         'user_id',
+        'actor_user_id',
         'project_id',
         'task_id',
         'event_type',
@@ -57,6 +58,11 @@ class TaskActivity extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function actor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'actor_user_id');
     }
 
     public function project(): BelongsTo

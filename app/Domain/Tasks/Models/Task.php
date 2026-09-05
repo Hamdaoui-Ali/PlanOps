@@ -27,6 +27,8 @@ class Task extends Model
 
     protected $fillable = [
         'user_id',
+        'created_by_user_id',
+        'assignee_id',
         'project_id',
         'parent_task_id',
         'number',
@@ -61,6 +63,16 @@ class Task extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assignee_id');
     }
 
     public function project(): BelongsTo

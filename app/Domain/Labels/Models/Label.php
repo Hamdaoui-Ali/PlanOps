@@ -3,6 +3,7 @@
 namespace App\Domain\Labels\Models;
 
 use App\Domain\Tasks\Models\Task;
+use App\Domain\Projects\Models\Project;
 use App\Models\User;
 use Database\Factories\LabelFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
@@ -19,6 +20,7 @@ class Label extends Model
 
     protected $fillable = [
         'user_id',
+        'project_id',
         'name',
         'normalized_name',
         'color',
@@ -27,6 +29,11 @@ class Label extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 
     public function tasks(): BelongsToMany
