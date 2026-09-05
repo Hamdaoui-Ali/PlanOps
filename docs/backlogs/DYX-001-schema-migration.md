@@ -1,6 +1,6 @@
 # DYX-001 — Schema, invariants, and migration
 
-**Status:** Ready — DYX-000 accepted; schema foundation in progress
+**Status:** In progress — local schema/backfill verified; PostgreSQL release checks remain
 
 **Priority:** P0
 
@@ -127,6 +127,14 @@ Expected result: Later policy and lifecycle tests can create valid collaboration
 - [ ] Labels are unique by project and normalized name after migration planning is complete.
 - [ ] Existing project/task/activity counts and task keys remain stable.
 - [ ] Fresh and legacy migration tests pass before DYX-002 starts.
+
+## Current evidence
+
+- [x] Collaboration tables, enums, additive identity fields, and local schema tests pass.
+- [x] Read-only preflight report is recorded in [the dated baseline](../baselines/2026-09-05-dyx-001-preflight.md).
+- [x] Local dry-run, backfill, and repeated-backfill checks are recorded in [the migration verification report](../reports/2026-09-05-dyx-001-migration-verification.md).
+- [ ] PostgreSQL partial-index, type, and concurrency verification is complete.
+- [ ] Production-shaped preflight anomalies are reviewed and approved.
 
 ## Verification commands
 
