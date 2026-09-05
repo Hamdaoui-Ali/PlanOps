@@ -95,3 +95,30 @@ test('historical collaboration fields are nullable and use the documented types'
             ->and(collaborationColumn('project_events', 'created_at')['type'] ?? null)->toBe('timestamptz');
     }
 });
+
+test('existing records expose additive collaboration identity fields', function (): void {
+    foreach ([
+        'projects' => ['owner_id'],
+        'tasks' => ['created_by_user_id', 'assignee_id'],
+        'task_activities' => ['actor_user_id'],
+        'labels' => ['project_id'],
+        'users' => ['deactivated_at'],
+    ] as $table => $columns) {
+        foreach ($columns as $column) {
+            expect(Schema::hasColumn($table, $column))->toBeTrue("{$table}.{$column} is required");
+        }
+    }
+
+    expect(collaborationIndex('tasks', 'tasks_project_id_assignee_id_status_index'))->not->toBeEmpty();
+
+    foreach ([
+        ['projects', 'owner_id'],
+        ['tasks', 'created_by_user_id'],
+        ['tasks', 'assignee_id'],
+        ['task_activities', 'actor_user_id'],
+        ['labels', 'project_id'],
+        ['users', 'deactivated_at'],
+    ] as [$table, $column]) {
+        expect(collaborationColumn($table, $column)['nullable'] ?? null)->toBeTrue("{$table}.{$column} must remain nullable during cutover");
+    }
+});
