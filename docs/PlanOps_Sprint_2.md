@@ -97,10 +97,13 @@ Those files may remain useful historical references, but they must be synchroniz
 The existing app is still a single-owner application. The current route bindings, policies, queries, label ownership, activity actor field, export authorization, profile deletion, and test baseline are therefore migration inputs, not proof that the collaboration design is already implemented.
 
 Baseline snapshot before collaboration work (2026-09-05): `php artisan test`
-reported 67 failures, 183 passes, and 1 skipped (1,028 assertions).
-`npm.cmd run build` passed. These are pre-existing repository conditions and
-must be resolved or explicitly quarantined before the collaboration release
-gate can be green.
+reported 67 failures, 183 passes, and 1 skipped (1,028 assertions) in the
+latest inventory run; `npm.cmd run build` passed. A preceding run in the same
+capture reported 68 failures, 182 passes, and 1 skipped, so test-count
+reproducibility is an open DYX-000 blocker. Full evidence is recorded in
+[`docs/baselines/2026-09-05-sprint-2-baseline.md`](baselines/2026-09-05-sprint-2-baseline.md).
+These are pre-existing repository conditions and must be resolved or
+explicitly quarantined before the collaboration release gate can be green.
 
 ## Release gates before feature work
 

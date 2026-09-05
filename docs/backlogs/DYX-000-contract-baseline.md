@@ -1,6 +1,6 @@
 # DYX-000 — Contract and baseline freeze
 
-**Status:** Ready to execute
+**Status:** In progress — baseline captured; reproducibility blocker remains
 
 **Priority:** P0 release gate
 
@@ -8,7 +8,7 @@
 
 **Owner:** PlanOps engineering
 
-**Source:** [Sprint 2 specification](../PlanOps_Sprint_2.md), sections 1.1, 1.2, 57, and 70.1.
+**Source:** [Sprint 2 specification](../PlanOps_Sprint_2.md), sections 1.1, 1.2, 57, and 70.1. [Baseline evidence](../baselines/2026-09-05-sprint-2-baseline.md).
 
 ## Goal
 
@@ -35,7 +35,7 @@ Why: later failures must be attributable to the collaboration work rather than a
 
 Verification: Repeat each command from a clean checkout or CI-equivalent environment and compare the summaries.
 
-Expected result: One dated baseline is available. The known 2026-09-05 PHP baseline is 67 failed, 183 passed, and 1 skipped; the frontend build passed.
+Expected result: One dated baseline is available. The latest 2026-09-05 PHP inventory is 67 failed, 183 passed, and 1 skipped; the frontend build and route inventory passed. A same-session count variance remains open.
 
 ### Task DYX-000.2
 
@@ -73,6 +73,13 @@ Expected result: DYX-001 can begin without an ambiguous test baseline.
 - [ ] The backlog index, Sprint 2 plan, and implementation plan agree on P0, P1, P2, and dependency order.
 - [ ] No code migration or access-layer change starts until this gate is accepted.
 
+## Current evidence
+
+- [x] PHP, build, route, and toolchain evidence is recorded in [the dated baseline](../baselines/2026-09-05-sprint-2-baseline.md).
+- [x] All 67 failures from the latest inventory run have named test-file locations and an initial `fix-before-P0` classification.
+- [x] The pre-collaboration documents now carry explicit historical-baseline notices that point to the Sprint 2 authority.
+- [ ] Explain or eliminate the one-test variance between repeated PHP runs.
+
 ## Verification commands
 
 ```text
@@ -92,4 +99,4 @@ One accepted contract and one visible baseline. This backlog does not make the P
 
 ## Next action
 
-Record the baseline and reconcile the authority documents before starting [DYX-001](DYX-001-schema-migration.md).
+Investigate the test-count variance with a repeatable test-order/fixture check, then accept DYX-000 before starting [DYX-001](DYX-001-schema-migration.md).

@@ -8,6 +8,10 @@
 
 **Created:** 2026-09-05
 
+**Baseline evidence:** [2026-09-05 Sprint 2 baseline](../baselines/2026-09-05-sprint-2-baseline.md)
+
+**Current gate:** DYX-000 is in progress. The latest inventory reports 67 failed, 183 passed, and 1 skipped; a same-session run reported 68 failed, 182 passed, and 1 skipped, so reproducibility must be resolved before DYX-001.
+
 This folder is an execution tracker. It does not replace the authority document. If a backlog item and the authority document disagree, stop and reconcile the documents before writing code.
 
 ## Current release boundary
