@@ -11,6 +11,7 @@ Environment: PHP 8.3.33, Laravel 13, SQLite test database.
 | `php artisan planops:collaboration-backfill --chunk=500 --no-interaction` | 0 | 5 projects, 5 memberships, 7 tasks, 3 activities, and 2 labels backfilled. |
 | Same backfill command a second time | 0 | Zero rows changed; rerun is idempotent. |
 | Focused schema/preflight/backfill/constraint tests | 0 | 12 tests passed, 95 assertions. |
+| `php artisan test --no-ansi` | 2 | 64 failed, 1 skipped, 198 passed, 1,123 assertions; the existing red baseline remains visible and the 12 new DYX-001 tests pass. |
 
 The backfill preserves legacy columns, canonicalizes project keys to uppercase, creates one active Owner membership per project, copies task creator/assignee and activity actor identities, and infers project-scoped labels from task attachments.
 
