@@ -10,6 +10,8 @@
 
 **Spec:** docs/PlanOps_Sprint_2.md
 
+**Backlog index:** docs/backlogs/README.md
+
 ## Global Constraints
 
 - An active membership has removed_at IS NULL.

@@ -2894,6 +2894,8 @@ performance rankings.
 
 # 67. Sprint Backlog — P0 Must Have
 
+Execution tracking is split into the issue-ready backlog files in [`docs/backlogs/README.md`](backlogs/README.md). The files preserve the DYX-000–DYX-007 dependency order, separate P0/P1/P2 scope, and repeat the acceptance and verification contract needed for implementation. This section remains the authority; the backlog files are the working index.
+
 ## EPIC A — Collaboration data model
 
 - [ ] Create `ProjectRole` enum.
