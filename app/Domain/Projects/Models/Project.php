@@ -3,6 +3,9 @@
 namespace App\Domain\Projects\Models;
 
 use App\Domain\Activity\Models\TaskActivity;
+use App\Domain\Collaboration\Models\ProjectEvent;
+use App\Domain\Collaboration\Models\ProjectInvitation;
+use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
@@ -56,6 +59,21 @@ class Project extends Model
     public function taskActivities(): HasMany
     {
         return $this->hasMany(TaskActivity::class);
+    }
+
+    public function memberships(): HasMany
+    {
+        return $this->hasMany(ProjectMembership::class);
+    }
+
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(ProjectInvitation::class);
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(ProjectEvent::class);
     }
 
     public function scopeOwnedBy(Builder $query, User|int $owner): Builder

@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use App\Domain\Activity\Models\TaskActivity;
+use App\Domain\Collaboration\Models\ProjectEvent;
+use App\Domain\Collaboration\Models\ProjectInvitation;
+use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Identity\Models\UserPreference;
 use App\Domain\Labels\Models\Label;
 use App\Domain\Projects\Models\Project;
@@ -65,5 +68,20 @@ class User extends Authenticatable
     public function taskActivities(): HasMany
     {
         return $this->hasMany(TaskActivity::class);
+    }
+
+    public function projectMemberships(): HasMany
+    {
+        return $this->hasMany(ProjectMembership::class);
+    }
+
+    public function sentInvitations(): HasMany
+    {
+        return $this->hasMany(ProjectInvitation::class, 'invited_by_user_id');
+    }
+
+    public function projectEvents(): HasMany
+    {
+        return $this->hasMany(ProjectEvent::class, 'actor_user_id');
     }
 }
