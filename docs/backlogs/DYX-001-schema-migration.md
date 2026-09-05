@@ -1,6 +1,6 @@
 # DYX-001 — Schema, invariants, and migration
 
-**Status:** Blocked until DYX-000 is accepted
+**Status:** Ready — DYX-000 accepted; schema foundation in progress
 
 **Priority:** P0
 
@@ -151,4 +151,4 @@ A PostgreSQL-compatible, repeatable collaboration schema with an accepted prefli
 
 ## Next action
 
-Run the preflight report and lock the migration tests after [DYX-000](DYX-000-contract-baseline.md) is accepted.
+Review [the preflight report](../baselines/2026-09-05-dyx-001-preflight.md), then implement the idempotent backfill and PostgreSQL constraint verification.
