@@ -84,12 +84,16 @@ class ProjectPolicy
 
     private function role(User $user, Project $project): ?ProjectRole
     {
+        if ((string) $project->owner_id === (string) $user->getKey()
+            || (string) $project->user_id === (string) $user->getKey()) {
+            return ProjectRole::OWNER;
+        }
+
         $membership = $project->memberships()->where('user_id', $user->getKey())->whereNull('removed_at')->first();
         if ($membership) {
             return $membership->role;
         }
 
-        return ! $project->memberships()->exists() && (string) $user->getKey() === (string) $project->user_id
-            ? ProjectRole::OWNER : null;
+        return null;
     }
 }

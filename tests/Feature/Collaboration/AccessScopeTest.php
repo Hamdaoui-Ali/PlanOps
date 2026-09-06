@@ -4,7 +4,6 @@ use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Projects\Models\Project;
-use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 
@@ -58,6 +57,18 @@ it('returns projects available through active membership', function (): void {
         ->toBe([$memberProject->id])
         ->and(Project::query()->accessibleBy($owner)->pluck('id')->all())
         ->toBe([$ownedProject->id]);
+});
+
+it('keeps the project creator visible after another user accepts an invitation', function (): void {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+
+    expect(Project::query()->accessibleBy($owner)->whereKey($project->id)->exists())->toBeTrue()
+        ->and(Project::query()->accessibleBy($member)->whereKey($project->id)->exists())->toBeTrue()
+        ->and($owner->can('view', $project))->toBeTrue()
+        ->and($owner->can('update', $project))->toBeTrue();
 });
 
 it('returns tasks only from projects with active membership', function (): void {
