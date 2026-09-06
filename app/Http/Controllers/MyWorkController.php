@@ -22,7 +22,7 @@ final class MyWorkController extends Controller
         return view('pages.my-work.index', [
             'tasks' => $tasks->paginate($owner, $filters),
             'keys' => $keys,
-            'hasAnyTasks' => Task::query()->accessibleBy($owner)->where('assignee_id', $owner->id)->exists(),
+            'hasAnyTasks' => Task::query()->accessibleBy($owner)->exists(),
             'filters' => $filters,
             'projects' => Project::query()->accessibleBy($owner)->orderBy('name')->get(['id', 'name', 'key']),
             'labels' => Label::query()->accessibleBy($owner)->orderBy('normalized_name')->get(['id', 'name']),

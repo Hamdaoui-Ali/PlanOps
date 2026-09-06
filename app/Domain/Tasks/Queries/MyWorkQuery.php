@@ -63,7 +63,8 @@ final class MyWorkQuery
         match ($due) {
             'overdue' => $query->whereDate('due_on', '<', $today->toDateString()),
             'today' => $query->whereDate('due_on', $today->toDateString()),
-            'this_week' => $query->whereBetween('due_on', [$today->startOfWeek()->toDateString(), $today->endOfWeek()->toDateString()]),
+            'this_week' => $query->whereDate('due_on', '>=', $today->toDateString())
+                ->whereDate('due_on', '<=', $today->endOfWeek()->toDateString()),
             'no_due_date' => $query->whereNull('due_on'),
             default => null,
         };
