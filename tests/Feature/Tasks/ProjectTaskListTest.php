@@ -5,6 +5,7 @@ use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Enums\TaskPriority;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
+use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Tasks\Queries\ProjectTaskListQuery;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -56,6 +57,19 @@ test('the project task list filters by status priority label and due state', fun
 
     expect($page->getCollection()->modelKeys())->toBe([$match->id]);
     CarbonImmutable::setTestNow();
+});
+
+test('the project task list filters by active project assignee', function (): void {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $assigned = Task::factory()->forProject($project)->create(['assignee_id' => $member->id]);
+    Task::factory()->forProject($project)->create(['assignee_id' => null]);
+
+    expect((new ProjectTaskListQuery)->paginate($owner, $project, ['assignee' => $member->id])
+        ->getCollection()->modelKeys())->toBe([$assigned->id]);
 });
 
 test('the project task list supports safe deterministic sorts', function (string $sort, array $expected): void {

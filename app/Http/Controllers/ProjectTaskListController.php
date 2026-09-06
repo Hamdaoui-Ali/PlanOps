@@ -32,6 +32,7 @@ final class ProjectTaskListController extends Controller
                 })
                 ->orderBy('normalized_name')
                 ->get(['id', 'name']),
+            'assignees' => $project->activeMemberships()->with('user:id,name')->get()->pluck('user')->filter()->unique('id')->values(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
         ]);

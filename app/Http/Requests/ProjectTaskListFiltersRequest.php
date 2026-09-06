@@ -18,6 +18,7 @@ final class ProjectTaskListFiltersRequest extends FormRequest
     {
         $this->merge(collect($this->only([
             'status', 'priority', 'label', 'due', 'sort',
+            'assignee',
         ]))->map(fn (mixed $value): mixed => $value === '' ? null : $value)->all());
     }
 
@@ -27,6 +28,7 @@ final class ProjectTaskListFiltersRequest extends FormRequest
             'status' => ['nullable', 'string', Rule::in(array_column(TaskStatus::cases(), 'value'))],
             'priority' => ['nullable', 'string', Rule::in(array_column(TaskPriority::cases(), 'value'))],
             'label' => ['nullable', 'integer'],
+            'assignee' => ['nullable', 'integer', 'exists:users,id'],
             'due' => ['nullable', 'string', Rule::in(['overdue', 'today', 'this_week', 'no_due_date'])],
             'sort' => ['nullable', 'string', Rule::in(['updated', 'created', 'priority', 'due', 'task_key'])],
         ];
