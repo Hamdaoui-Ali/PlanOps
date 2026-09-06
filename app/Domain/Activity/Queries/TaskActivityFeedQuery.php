@@ -21,7 +21,7 @@ final class TaskActivityFeedQuery
         $eventType = $eventType instanceof TaskActivityType ? $eventType->value : $eventType;
 
         return TaskActivity::query()
-            ->whereIn('task_id', Task::query()->accessibleBy($owner)->select('id'))
+            ->whereIn('task_id', Task::withTrashed()->accessibleBy($owner)->select('id'))
             ->with([
                 'project:id,user_id,name,key',
                 'task:id,user_id,project_id,number,title,deleted_at',
@@ -41,7 +41,7 @@ final class TaskActivityFeedQuery
         $taskId = $task instanceof Task ? $task->getKey() : $task;
 
         return TaskActivity::query()
-            ->whereIn('task_id', Task::query()->accessibleBy($owner)->select('id'))
+            ->whereIn('task_id', Task::withTrashed()->accessibleBy($owner)->select('id'))
             ->where('task_id', $taskId)
             ->with([
                 'project:id,user_id,name,key',

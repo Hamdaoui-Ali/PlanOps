@@ -33,9 +33,9 @@ test('an owner can view a readable global activity feed with safe filters', func
         ->assertSee('Activity')
         ->assertSee('PLAN-1')
         ->assertSee('Ship release')
-        ->assertSee('Status changed')
-        ->assertSee('Not started')
-        ->assertSee('In progress')
+        ->assertSee('Status Changed')
+        ->assertSee('Not Started')
+        ->assertSee('In Progress')
         ->assertDontSee('Foreign work')
         ->assertDontSee(json_encode($activity->new_value), false);
 });
