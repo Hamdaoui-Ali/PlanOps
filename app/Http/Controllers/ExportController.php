@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class ExportController extends Controller
 {
-    public function projects(ExportQueryService $exports): Response
+    public function projects(ExportRequest $request, ExportQueryService $exports): Response
     {
         return response()->streamDownload(function () use ($exports): void {
             $handle = fopen('php://output', 'wb');
@@ -21,7 +21,7 @@ final class ExportController extends Controller
         }, 'planops-projects.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
-    public function tasks(ExportQueryService $exports): Response
+    public function tasks(ExportRequest $request, ExportQueryService $exports): Response
     {
         return response()->streamDownload(function () use ($exports): void {
             $handle = fopen('php://output', 'wb');

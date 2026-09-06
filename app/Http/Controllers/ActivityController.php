@@ -31,8 +31,8 @@ final class ActivityController extends Controller
             'activities' => $feed->paginate($owner, $filters),
             'keys' => $keys,
             'filters' => $request->filters(),
-            'projects' => Project::query()->ownedBy($owner)->orderBy('name')->get(['id', 'name', 'key']),
-            'tasks' => Task::query()->ownedBy($owner)->with('project:id,key')->orderBy('project_id')->orderBy('number')->get(['id', 'project_id', 'number', 'title']),
+            'projects' => Project::query()->accessibleBy($owner)->orderBy('name')->get(['id', 'name', 'key']),
+            'tasks' => Task::query()->accessibleBy($owner)->with('project:id,key')->orderBy('project_id')->orderBy('number')->get(['id', 'project_id', 'number', 'title']),
             'eventTypes' => TaskActivityType::cases(),
         ]);
     }

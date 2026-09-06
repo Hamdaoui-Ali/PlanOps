@@ -23,7 +23,7 @@ class RestoreTask
         return DB::transaction(function () use ($user, $task): Task {
             $ownedTask = Task::query()
                 ->withTrashed()
-                ->ownedBy($user)
+                ->accessibleBy($user)
                 ->whereKey($task->getKey())
                 ->lockForUpdate()
                 ->firstOrFail();

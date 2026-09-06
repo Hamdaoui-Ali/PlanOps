@@ -13,7 +13,7 @@ class TaskDetailQuery
         $ownerId = $owner instanceof User ? $owner->getKey() : $owner;
 
         return Task::query()
-            ->ownedBy($ownerId)
+            ->accessibleBy($ownerId)
             ->whereKey($task->getKey())
             ->with([
                 'project',

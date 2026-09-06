@@ -17,7 +17,7 @@ class DeleteLabel
         Gate::forUser($user)->authorize('delete', $label);
 
         DB::transaction(function () use ($user, $label): void {
-            $ownedLabel = Label::query()->ownedBy($user)->whereKey($label->getKey())->lockForUpdate()->first();
+            $ownedLabel = Label::query()->accessibleBy($user)->whereKey($label->getKey())->lockForUpdate()->first();
 
             if ($ownedLabel === null) {
                 return;
@@ -25,7 +25,7 @@ class DeleteLabel
 
             $tasks = $ownedLabel->tasks()
                 ->withTrashed()
-                ->ownedBy($user)
+                ->accessibleBy($user)
                 ->orderBy((new Task)->qualifyColumn((new Task)->getKeyName()))
                 ->lockForUpdate()
                 ->get();

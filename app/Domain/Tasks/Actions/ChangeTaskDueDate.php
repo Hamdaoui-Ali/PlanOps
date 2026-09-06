@@ -21,7 +21,7 @@ class ChangeTaskDueDate
 
         $updatedTask = DB::transaction(function () use ($user, $task, $dueOn): Task {
             $ownedTask = Task::query()
-                ->ownedBy($user)
+                ->accessibleBy($user)
                 ->whereKey($task->getKey())
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -47,7 +47,7 @@ class ChangeTaskDueDate
         });
 
         return Task::query()
-            ->ownedBy($user)
+            ->accessibleBy($user)
             ->whereKey($updatedTask->getKey())
             ->firstOrFail();
     }

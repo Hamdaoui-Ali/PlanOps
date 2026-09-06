@@ -15,7 +15,7 @@ class ProjectOverviewQuery
         $ownerId = $owner instanceof User ? $owner->getKey() : $owner;
 
         return Project::query()
-            ->ownedBy($ownerId)
+            ->accessibleBy($ownerId)
             ->whereKey($project->getKey())
             ->with([
                 'tasks' => fn (HasMany $tasks): HasMany => $tasks

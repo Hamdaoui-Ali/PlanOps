@@ -172,10 +172,10 @@ test('DeleteLabel removes only its pivot when owner tasks share another label', 
         ))->toBeTrue();
 });
 
-test('DeleteLabel orders its owner-scoped task locks by primary key before locking', function (): void {
+test('DeleteLabel orders its accessible task locks by primary key before locking', function (): void {
     $source = file_get_contents(app_path('Domain/Labels/Actions/DeleteLabel.php'));
 
-    expect($source)->toMatch('/tasks\(\)\s*->withTrashed\(\)\s*->ownedBy\(\$user\)\s*->orderBy\(\(new Task\)->qualifyColumn\(\(new Task\)->getKeyName\(\)\)\)\s*->lockForUpdate\(\)\s*->get\(\)/s');
+    expect($source)->toMatch('/tasks\(\)\s*->withTrashed\(\)\s*->accessibleBy\(\$user\)\s*->orderBy\(\(new Task\)->qualifyColumn\(\(new Task\)->getKeyName\(\)\)\)\s*->lockForUpdate\(\)\s*->get\(\)/s');
 });
 
 test('label deletion by another user is rejected without detaching the label', function (): void {

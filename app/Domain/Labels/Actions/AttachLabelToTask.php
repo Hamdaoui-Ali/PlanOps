@@ -17,8 +17,8 @@ class AttachLabelToTask
         Gate::forUser($user)->authorize('attach', [$label, $task]);
 
         $updatedTask = DB::transaction(function () use ($user, $task, $label): Task {
-            $ownedLabel = Label::query()->ownedBy($user)->whereKey($label->getKey())->lockForUpdate()->firstOrFail();
-            $ownedTask = Task::query()->ownedBy($user)->whereKey($task->getKey())->lockForUpdate()->firstOrFail();
+            $ownedLabel = Label::query()->accessibleBy($user)->whereKey($label->getKey())->lockForUpdate()->firstOrFail();
+            $ownedTask = Task::query()->accessibleBy($user)->whereKey($task->getKey())->lockForUpdate()->firstOrFail();
 
             if (! $ownedTask->labels()->whereKey($ownedLabel->getKey())->exists()) {
                 $ownedTask->labels()->attach($ownedLabel->getKey());
@@ -36,6 +36,6 @@ class AttachLabelToTask
             return $ownedTask;
         });
 
-        return Task::query()->ownedBy($user)->whereKey($updatedTask->getKey())->firstOrFail();
+        return Task::query()->accessibleBy($user)->whereKey($updatedTask->getKey())->firstOrFail();
     }
 }

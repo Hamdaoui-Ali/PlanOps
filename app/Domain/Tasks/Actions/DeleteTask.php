@@ -17,7 +17,7 @@ class DeleteTask
 
         return DB::transaction(function () use ($user, $task): Task {
             $ownedTask = Task::query()
-                ->ownedBy($user)
+                ->accessibleBy($user)
                 ->whereKey($task->getKey())
                 ->lockForUpdate()
                 ->first();

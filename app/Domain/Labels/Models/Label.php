@@ -47,4 +47,14 @@ class Label extends Model
 
         return $query->where($query->getModel()->qualifyColumn('user_id'), $ownerId);
     }
+
+    public function scopeAccessibleBy(Builder $query, User|int $viewer): Builder
+    {
+        $viewerId = $viewer instanceof User ? $viewer->getKey() : $viewer;
+
+        return $query->where(function (Builder $labels) use ($viewer, $viewerId): void {
+            $labels->whereHas('project', fn (Builder $projects): Builder => $projects->accessibleBy($viewer))
+                ->orWhere(fn (Builder $legacy): Builder => $legacy->whereNull('project_id')->where('user_id', $viewerId));
+        });
+    }
 }

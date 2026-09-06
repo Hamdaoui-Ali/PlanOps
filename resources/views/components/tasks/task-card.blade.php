@@ -43,7 +43,7 @@
 
     <form method="POST" action="{{ route('projects.board.tasks.status', [$project, $task]) }}" class="board-status-form">
         @csrf
-        <label for="board-status-{{ $task->id }}">Move {{ $displayKey }} to</label>
+        <label for="board-status-{{ $task->id }}">Move to {{ $displayKey }}</label>
         <div class="board-status-controls">
             <select id="board-status-{{ $task->id }}" name="status">
                 @foreach ($statuses as $status)

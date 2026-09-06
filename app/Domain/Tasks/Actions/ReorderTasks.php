@@ -27,12 +27,12 @@ final class ReorderTasks
                 $this->invalidOrder('The task order must contain unique task ids.');
             }
 
-            if (! Project::query()->ownedBy($owner)->whereKey($project->getKey())->exists()) {
+            if (! Project::query()->accessibleBy($owner)->whereKey($project->getKey())->exists()) {
                 $this->invalidOrder('The project is not available.');
             }
 
             $tasks = Task::query()
-                ->ownedBy($owner)
+                ->accessibleBy($owner)
                 ->where('project_id', $project->getKey())
                 ->whereNull('parent_task_id')
                 ->where('status', $status->value)

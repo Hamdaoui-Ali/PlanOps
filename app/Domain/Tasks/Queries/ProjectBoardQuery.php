@@ -20,7 +20,7 @@ final class ProjectBoardQuery
         $ownerId = $owner instanceof User ? $owner->getKey() : $owner;
 
         $ownedProject = Project::query()
-            ->ownedBy($ownerId)
+            ->accessibleBy($ownerId)
             ->whereKey($project->getKey())
             ->firstOrFail();
 
@@ -30,7 +30,7 @@ final class ProjectBoardQuery
             ));
 
         $tasks = Task::query()
-            ->ownedBy($ownerId)
+            ->accessibleBy($ownerId)
             ->where('project_id', $ownedProject->getKey())
             ->whereNull('parent_task_id')
             ->when(! $includeCancelled, fn (Builder $query): Builder => $query->where('status', '!=', TaskStatus::CANCELLED->value))

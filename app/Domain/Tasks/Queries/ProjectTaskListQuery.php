@@ -14,13 +14,13 @@ final class ProjectTaskListQuery
 {
     public function paginate(User $owner, Project $project, array $filters = [], int $perPage = 50): LengthAwarePaginator
     {
-        $project = Project::query()->ownedBy($owner)->whereKey($project->getKey())->firstOrFail();
+        $project = Project::query()->accessibleBy($owner)->whereKey($project->getKey())->firstOrFail();
         $perPage = min(50, max(1, $perPage));
         $timezone = $owner->preference?->timezone ?? 'Africa/Casablanca';
         $today = CarbonImmutable::now($timezone)->startOfDay();
 
         $query = Task::query()
-            ->ownedBy($owner)
+            ->accessibleBy($owner)
             ->where('project_id', $project->getKey())
             ->with(['project', 'parent', 'labels'])
             ->withCount([
@@ -32,7 +32,7 @@ final class ProjectTaskListQuery
             ])
             ->when($filters['status'] ?? null, fn (Builder $tasks, string $status): Builder => $tasks->where('status', $status))
             ->when($filters['priority'] ?? null, fn (Builder $tasks, string $priority): Builder => $tasks->where('priority', $priority))
-            ->when($filters['label'] ?? null, fn (Builder $tasks, int|string $label): Builder => $tasks->whereHas('labels', fn (Builder $labels): Builder => $labels->whereKey($label)->ownedBy($owner)));
+            ->when($filters['label'] ?? null, fn (Builder $tasks, int|string $label): Builder => $tasks->whereHas('labels', fn (Builder $labels): Builder => $labels->accessibleBy($owner)->whereKey($label)));
 
         $this->applyDueFilter($query, $filters['due'] ?? null, $today);
         $this->applySort($query, $filters['sort'] ?? 'updated');

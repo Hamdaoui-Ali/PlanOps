@@ -10,7 +10,7 @@ class ReorderTasksRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('view', $this->route('project')) ?? false;
+        return $this->user()?->can('reorder', $this->route('project')) ?? false;
     }
 
     public function rules(): array

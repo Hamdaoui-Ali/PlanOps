@@ -24,8 +24,8 @@ final class ProjectTaskListController extends Controller
             'tasks' => $tasks->paginate($owner, $project, $filters),
             'keys' => $keys,
             'filters' => $filters,
-            'hasAnyTasks' => Task::query()->ownedBy($owner)->where('project_id', $project->getKey())->exists(),
-            'labels' => Label::query()->ownedBy($owner)->orderBy('normalized_name')->get(['id', 'name']),
+            'hasAnyTasks' => Task::query()->accessibleBy($owner)->where('project_id', $project->getKey())->exists(),
+            'labels' => Label::query()->accessibleBy($owner)->orderBy('normalized_name')->get(['id', 'name']),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
         ]);

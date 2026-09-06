@@ -20,7 +20,7 @@ final class SearchQueryService
 
         $needle = '%'.mb_strtolower($term).'%';
         $tasks = Task::query()
-            ->ownedBy($user)
+            ->accessibleBy($user)
             ->with(['project', 'labels'])
             ->where(function (Builder $query) use ($needle): void {
                 $query->whereRaw('LOWER(title) LIKE ?', [$needle])
@@ -30,7 +30,7 @@ final class SearchQueryService
                         ->whereRaw('LOWER(name) LIKE ?', [$needle])
                         ->orWhereRaw('LOWER(key) LIKE ?', [$needle]))
                     ->orWhereHas('labels', fn (Builder $labels): Builder => $labels
-                        ->ownedBy($user)
+                        ->accessibleBy($user)
                         ->whereRaw('LOWER(name) LIKE ?', [$needle]));
             })
             ->orderByDesc('updated_at')
@@ -39,7 +39,7 @@ final class SearchQueryService
             ->get();
 
         $projects = Project::query()
-            ->ownedBy($user)
+            ->accessibleBy($user)
             ->where(function (Builder $query) use ($needle): void {
                 $query->whereRaw('LOWER(name) LIKE ?', [$needle])
                     ->orWhereRaw('LOWER(key) LIKE ?', [$needle]);

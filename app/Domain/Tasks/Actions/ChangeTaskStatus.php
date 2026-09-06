@@ -16,7 +16,7 @@ class ChangeTaskStatus
 {
     public function handle(User $user, Task $task, TaskStatus|string $status): Task
     {
-        Gate::forUser($user)->authorize('update', $task);
+        Gate::forUser($user)->authorize('changeStatus', $task);
 
         $value = $status instanceof TaskStatus ? $status->value : $status;
         Validator::make(['status' => $value], [
@@ -26,7 +26,7 @@ class ChangeTaskStatus
 
         return DB::transaction(function () use ($user, $task, $nextStatus): Task {
             $ownedTask = Task::query()
-                ->ownedBy($user)
+                ->accessibleBy($user)
                 ->whereKey($task->getKey())
                 ->lockForUpdate()
                 ->firstOrFail();

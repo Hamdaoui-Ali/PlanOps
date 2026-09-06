@@ -82,6 +82,26 @@ class Project extends Model
         return $this->hasMany(ProjectEvent::class);
     }
 
+    public function activeMemberships(): HasMany
+    {
+        return $this->memberships()->whereNull('removed_at');
+    }
+
+    public function scopeAccessibleBy(Builder $query, User|int $viewer): Builder
+    {
+        $viewerId = $viewer instanceof User ? $viewer->getKey() : $viewer;
+        $table = $query->getModel()->getTable();
+
+        return $query->where(function (Builder $projects) use ($viewerId, $table): void {
+            $projects->whereHas('memberships', fn (Builder $memberships): Builder => $memberships
+                ->where('user_id', $viewerId)
+                ->whereNull('removed_at'))
+                ->orWhere(function (Builder $legacy) use ($viewerId, $table): void {
+                    $legacy->where($table.'.user_id', $viewerId)->whereDoesntHave('memberships');
+                });
+        });
+    }
+
     public function scopeOwnedBy(Builder $query, User|int $owner): Builder
     {
         $ownerId = $owner instanceof User ? $owner->getKey() : $owner;

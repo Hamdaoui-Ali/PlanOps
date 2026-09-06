@@ -14,7 +14,7 @@ class ProjectIndexQuery
 {
     public function paginate(User|int $owner, array $filters = [], int $perPage = 50): LengthAwarePaginator
     {
-        $query = Project::query()->ownedBy($owner)->withCount([
+        $query = Project::query()->accessibleBy($owner)->withCount([
             'tasks as eligible_task_count' => fn (Builder $tasks): Builder => $this->eligibleTasks($tasks),
             'tasks as completed_task_count' => fn (Builder $tasks): Builder => $this->eligibleTasks($tasks)->where('status', TaskStatus::DONE->value),
         ]);

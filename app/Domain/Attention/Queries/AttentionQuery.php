@@ -16,7 +16,7 @@ final class AttentionQuery
         $now = CarbonImmutable::now();
         $today = $now->setTimezone($owner->preference?->timezone ?? 'Africa/Casablanca');
 
-        return Task::query()->ownedBy($owner)->where('project_id', $project->getKey())->whereNull('parent_task_id')
+        return Task::query()->accessibleBy($owner)->where('project_id', $project->getKey())->whereNull('parent_task_id')
             ->where(function ($query) use ($now, $today): void {
                 $query->where(function ($query) use ($today): void {
                     $query->whereNotNull('due_on')->whereDate('due_on', '<', $today->toDateString())->whereNotIn('status', [TaskStatus::DONE->value, TaskStatus::CANCELLED->value]);

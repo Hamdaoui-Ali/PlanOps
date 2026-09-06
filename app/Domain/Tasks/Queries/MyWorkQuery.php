@@ -26,7 +26,14 @@ final class MyWorkQuery
         $today = CarbonImmutable::now($timezone)->startOfDay();
 
         $query = Task::query()
-            ->ownedBy($owner)
+            ->accessibleBy($owner)
+            ->where(function (Builder $tasks) use ($owner): void {
+                $tasks->where('assignee_id', $owner->getKey())
+                    ->orWhere(function (Builder $legacy) use ($owner): void {
+                        $legacy->whereNull('assignee_id')->where('user_id', $owner->getKey())
+                            ->whereHas('project', fn (Builder $projects): Builder => $projects->whereDoesntHave('memberships'));
+                    });
+            })
             ->with(['project', 'labels'])
             ->withCount([
                 'children',
@@ -39,7 +46,7 @@ final class MyWorkQuery
             ->when(! array_key_exists('status', $filters), fn (Builder $tasks): Builder => $tasks->whereIn('status', self::DEFAULT_STATUSES))
             ->when($filters['project'] ?? null, fn (Builder $tasks, int|string $project): Builder => $tasks->where('project_id', $project))
             ->when($filters['priority'] ?? null, fn (Builder $tasks, string $priority): Builder => $tasks->where('priority', $priority))
-            ->when($filters['label'] ?? null, fn (Builder $tasks, int|string $label): Builder => $tasks->whereHas('labels', fn (Builder $labels): Builder => $labels->whereKey($label)->ownedBy($owner)))
+            ->when($filters['label'] ?? null, fn (Builder $tasks, int|string $label): Builder => $tasks->whereHas('labels', fn (Builder $labels): Builder => $labels->accessibleBy($owner)->whereKey($label)))
             ->when($filters['created_from'] ?? null, fn (Builder $tasks, string $date): Builder => $tasks->whereDate('created_at', '>=', $date))
             ->when($filters['created_until'] ?? null, fn (Builder $tasks, string $date): Builder => $tasks->whereDate('created_at', '<=', $date))
             ->when($filters['updated_from'] ?? null, fn (Builder $tasks, string $date): Builder => $tasks->whereDate('updated_at', '>=', $date))

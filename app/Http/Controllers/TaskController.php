@@ -164,7 +164,7 @@ class TaskController extends Controller
     public function create(Project $project, TaskKeyQuery $keys): View
     {
         $parentOptions = $project->tasks()
-            ->ownedBy($project->user_id)
+            ->accessibleBy($project->user_id)
             ->whereNull('parent_task_id')
             ->orderBy('number')
             ->get()

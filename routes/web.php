@@ -34,11 +34,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/exports/activity.{format?}', [ExportController::class, 'activity'])->whereIn('format', ['csv', 'json'])->name('exports.activity');
 
     Route::bind('project', function (string $value): Project {
-        return Project::query()->ownedBy(request()->user())->findOrFail($value);
+        return Project::query()->accessibleBy(request()->user())->findOrFail($value);
     });
 
     Route::bind('task', function (string $value): Task {
-        return Task::query()->ownedBy(request()->user())->findOrFail($value);
+        return Task::query()->accessibleBy(request()->user())->findOrFail($value);
     });
 
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/{project}/board/reorder', [ProjectBoardController::class, 'reorder'])
         ->name('projects.board.reorder');
     Route::post('/projects/{project}/board/tasks/{task}/status', [ProjectBoardController::class, 'changeStatus'])
+        ->scopeBindings()
         ->name('projects.board.tasks.status');
     Route::get('/projects/{project}/board', [ProjectBoardController::class, 'show'])
         ->name('projects.board');

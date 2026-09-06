@@ -24,7 +24,7 @@ final class DashboardQueryService
         ), 0);
 
         $currentTasks = Task::query()
-            ->ownedBy($user)
+            ->accessibleBy($user)
             ->whereNull('parent_task_id')
             ->whereIn('status', array_keys($statusCounts))
             ->get(['id', 'status', 'due_on']);
@@ -37,7 +37,7 @@ final class DashboardQueryService
         $overdueCount = $currentTasks->filter(fn (Task $task): bool => $task->due_on !== null && $task->due_on->toDateString() < $today->toDateString() && ! in_array($task->status, [TaskStatus::DONE, TaskStatus::CANCELLED], true))->count();
 
         $activities = TaskActivity::query()
-            ->ownedBy($user)
+            ->accessibleBy($user)
             ->where('created_at', '>=', $period->start)
             ->where('created_at', '<', $period->end)
             ->with(['task' => fn ($tasks) => $tasks->withTrashed()->with('project'), 'project'])
@@ -57,7 +57,7 @@ final class DashboardQueryService
 
         return new DashboardSnapshot(
             reportPeriod: $period,
-            activeProjects: Project::query()->ownedBy($user)->whereNull('archived_at')->whereNotIn('status', [ProjectStatus::COMPLETED->value, ProjectStatus::CANCELLED->value])->count(),
+            activeProjects: Project::query()->accessibleBy($user)->whereNull('archived_at')->whereNotIn('status', [ProjectStatus::COMPLETED->value, ProjectStatus::CANCELLED->value])->count(),
             statusCounts: $statusCounts,
             overdueCount: $overdueCount,
             period: ['created' => $created, 'completed' => $completed, 'balance' => $created - $completed],

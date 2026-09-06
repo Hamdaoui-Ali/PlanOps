@@ -22,7 +22,7 @@ class ChangeTaskPriority
 
         $updatedTask = DB::transaction(function () use ($user, $task, $priority): Task {
             $ownedTask = Task::query()
-                ->ownedBy($user)
+                ->accessibleBy($user)
                 ->whereKey($task->getKey())
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -46,7 +46,7 @@ class ChangeTaskPriority
         });
 
         return Task::query()
-            ->ownedBy($user)
+            ->accessibleBy($user)
             ->whereKey($updatedTask->getKey())
             ->firstOrFail();
     }
