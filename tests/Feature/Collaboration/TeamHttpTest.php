@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\Collaboration\Enums\ProjectRole;
+use App\Domain\Collaboration\Actions\InviteProjectMember;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Models\Project;
 use App\Models\User;
@@ -28,4 +29,17 @@ it('accepts a matching invitation through the HTTP endpoint', function (): void 
 
     $response->assertRedirect(route('projects.index'));
     expect($project->memberships()->where('user_id', $invitee->id)->where('role', ProjectRole::MEMBER->value)->exists())->toBeTrue();
+});
+
+it('shows pending invitations on the project team surface', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    (new InviteProjectMember)->handle($owner, $project, 'pending@example.com', ProjectRole::MEMBER);
+
+    $this->actingAs($owner)->get(route('projects.team', $project))
+        ->assertOk()
+        ->assertSee('Pending invitations')
+        ->assertSee('pending@example.com')
+        ->assertSee('Pending');
 });

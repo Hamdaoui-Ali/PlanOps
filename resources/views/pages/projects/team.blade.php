@@ -20,6 +20,16 @@
                 @can('manageMembers', $project) @if ($membership->role !== \App\Domain\Collaboration\Enums\ProjectRole::OWNER)<form method="POST" action="{{ route('projects.team.members.destroy', [$project, $membership]) }}" style="display:inline">@csrf @method('DELETE')<button type="submit">Remove</button></form>@endif @endcan
             </td></tr>@endforeach
             </tbody></table></div>
+            @if ($project->invitations->isNotEmpty())
+                <section aria-labelledby="pending-invitations-heading" class="project-overview-summary">
+                    <h2 id="pending-invitations-heading">Pending invitations</h2>
+                    <ul>
+                        @foreach ($project->invitations as $invitation)
+                            <li><span>{{ $invitation->email }}</span> <span>Pending</span> <span>{{ $invitation->role->value }}</span></li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
         </section>
     </div>
 </x-app-layout>
