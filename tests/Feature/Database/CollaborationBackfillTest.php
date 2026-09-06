@@ -81,3 +81,14 @@ test('collaboration backfill dry-run does not change legacy rows', function (): 
         ->and($report['projects_updated'])->toBe(1)
         ->and($before)->toBe($after);
 });
+
+test('collaboration backfill reports unattached labels without guessing a project', function (): void {
+    $owner = User::factory()->create();
+    $label = Label::factory()->forUser($owner)->create(['name' => 'Unresolved']);
+
+    $report = runCollaborationBackfill();
+
+    expect($label->fresh()->project_id)->toBeNull()
+        ->and($report['labels_unresolved'])->toBe(1)
+        ->and($report['unresolved_label_ids'])->toBe([$label->id]);
+});

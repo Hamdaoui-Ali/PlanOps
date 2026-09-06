@@ -29,6 +29,8 @@ class PlanOpsCollaborationBackfill extends Command
             'activities_updated' => 0,
             'labels_updated' => 0,
             'labels_duplicated' => 0,
+            'labels_unresolved' => 0,
+            'unresolved_label_ids' => [],
         ];
         $chunk = max(1, (int) $this->option('chunk'));
 
@@ -158,6 +160,9 @@ class PlanOpsCollaborationBackfill extends Command
                     ->pluck('tasks.project_id');
 
                 if ($projects->count() === 0) {
+                    $report['labels_unresolved']++;
+                    $report['unresolved_label_ids'][] = $label->id;
+
                     continue;
                 }
 
