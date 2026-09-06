@@ -14,6 +14,12 @@
     --planops-accent: #68b8c0;
     --planops-warning: #e9b66a;
     --planops-danger: #f08c84;
+    --planops-input-surface: #172831;
+    --planops-input-text: #f1f5f6;
+    --planops-input-placeholder: #a9bbc0;
+    --planops-input-border: #46616b;
+    --planops-input-selected: #1f3a3e;
+    --planops-input-disabled: #263841;
     color-scheme: dark;
 }
 
@@ -1630,6 +1636,42 @@ textarea:focus-visible,
     outline-offset: 3px;
 }
 
+input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
+select,
+textarea {
+    border-color: var(--planops-input-border);
+    background: var(--planops-input-surface);
+    color: var(--planops-input-text);
+}
+
+input:not([type='checkbox']):not([type='radio']):not([type='hidden'])::placeholder,
+textarea::placeholder {
+    color: var(--planops-input-placeholder);
+    opacity: 1;
+}
+
+input:not([type='checkbox']):not([type='radio']):not([type='hidden']):focus,
+select:focus,
+textarea:focus {
+    border-color: var(--planops-focus);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--planops-focus) 28%, transparent);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+    border-color: var(--planops-input-border);
+    background: var(--planops-input-disabled);
+    color: var(--planops-muted);
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+option {
+    background: var(--planops-input-surface);
+    color: var(--planops-input-text);
+}
+
 html.theme-light {
     --planops-canvas: #f5f8f8;
     --planops-rail: #e6eff0;
@@ -1642,6 +1684,12 @@ html.theme-light {
     --planops-accent: #287e87;
     --planops-warning: #a56510;
     --planops-danger: #a84c47;
+    --planops-input-surface: #f3f6f7;
+    --planops-input-text: #17252b;
+    --planops-input-placeholder: #52666e;
+    --planops-input-border: #82959c;
+    --planops-input-selected: #dcebed;
+    --planops-input-disabled: #e0e8e9;
     color-scheme: light;
 }
 
@@ -1658,6 +1706,12 @@ html.theme-light {
         --planops-accent: #287e87;
         --planops-warning: #a56510;
         --planops-danger: #a84c47;
+        --planops-input-surface: #f3f6f7;
+        --planops-input-text: #17252b;
+        --planops-input-placeholder: #52666e;
+        --planops-input-border: #82959c;
+        --planops-input-selected: #dcebed;
+        --planops-input-disabled: #e0e8e9;
         color-scheme: light;
     }
 }
