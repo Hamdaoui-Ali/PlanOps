@@ -102,7 +102,7 @@
                                         <td>{{ $task->due_on?->format('M j, Y') ?? 'No due date' }}</td>
                                         <td>
                                             @if ($task->eligible_children_count > 0)
-                                                {{ $task->completed_children_count }} of {{ $task->eligible_children_count }} done
+                                                {{ $task->completed_children_count }} of {{ $task->eligible_children_count }} subtasks done
                                             @elseif ($task->children_count > 0)
                                                 <span class="project-no-scope">No active subtasks</span>
                                             @else
