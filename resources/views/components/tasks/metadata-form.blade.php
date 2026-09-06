@@ -32,8 +32,8 @@
 
         <div class="task-metadata-controls">
             <div class="task-metadata-field">
-                <label for="task-status">Status</label>
-                <select id="task-status" name="status">
+                <label for="task-status-member">Status</label>
+                <select id="task-status-member" name="status">
                     @foreach ($statuses as $status)
                         <option value="{{ $status->value }}" @selected(old('status', $task->status->value) === $status->value)>{{ str($status->value)->replace('_', ' ')->title() }}</option>
                     @endforeach
