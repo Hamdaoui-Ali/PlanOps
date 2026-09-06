@@ -58,4 +58,9 @@ final readonly class NotificationOutcome
     {
         return $this->payload;
     }
+
+    public function withoutTarget(): self
+    {
+        return new self($this->eventType, $this->recipientId, $this->projectId, null, null, $this->payload, $this->key);
+    }
 }
