@@ -81,4 +81,9 @@ class TaskActivity extends Model
 
         return $query->where($query->getModel()->qualifyColumn('user_id'), $ownerId);
     }
+
+    public function scopeAccessibleBy(Builder $query, User|int $viewer): Builder
+    {
+        return $query->whereIn('task_id', Task::query()->accessibleBy($viewer)->select('id'));
+    }
 }
