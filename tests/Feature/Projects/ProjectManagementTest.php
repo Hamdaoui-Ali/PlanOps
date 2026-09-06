@@ -180,7 +180,7 @@ test('project create and edit HTTP flows authenticate and return actionable vali
         'name' => '', 'key' => 'bad key', 'start_on' => '2026-08-20', 'target_on' => '2026-08-19',
     ]);
     $invalidResponse->assertSessionHasErrors(['name', 'key', 'target_on']);
-    $errors = $invalidResponse->session()->get('errors');
+    $errors = session()->get('errors');
     expect($errors->get('name'))->not->toBeEmpty()
         ->and($errors->get('key'))->not->toBeEmpty()
         ->and($errors->get('target_on'))->not->toBeEmpty();
