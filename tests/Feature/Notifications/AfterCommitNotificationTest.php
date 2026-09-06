@@ -3,6 +3,8 @@
 use App\Domain\Collaboration\Actions\InviteProjectMember;
 use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Tasks\Actions\AssignTask;
+use App\Domain\Tasks\Models\Task;
 use App\Domain\Notifications\Data\NotificationOutcome;
 use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
 use App\Domain\Projects\Models\Project;
@@ -27,5 +29,24 @@ it('releases invitation notification only after the transaction commits', functi
 
     Queue::assertPushed(DeliverNotificationOutcome::class, function (DeliverNotificationOutcome $job) use ($invitee, $project): bool {
         return $job->outcome->recipientId === $invitee->id && $job->outcome->projectId === $project->id;
+    });
+});
+
+it('releases assignment notification only after the task transaction commits', function (): void {
+    Queue::fake();
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $task = Task::factory()->forProject($project)->create(['assignee_id' => null]);
+
+    DB::beginTransaction();
+    (new AssignTask)->handle($owner, $task, $member);
+    Queue::assertNothingPushed();
+    DB::commit();
+
+    Queue::assertPushed(DeliverNotificationOutcome::class, function (DeliverNotificationOutcome $job) use ($member, $task): bool {
+        return $job->outcome->recipientId === $member->id && $job->outcome->targetId === $task->id;
     });
 });
