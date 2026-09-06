@@ -178,7 +178,8 @@ test('project create and edit HTTP flows authenticate and return actionable vali
     $this->get('/projects/create')->assertRedirect('/login');
     $invalidResponse = $this->actingAs($user)->post('/projects', [
         'name' => '', 'key' => 'bad key', 'start_on' => '2026-08-20', 'target_on' => '2026-08-19',
-    ])->assertSessionHasErrors(['name', 'key', 'target_on']);
+    ]);
+    $invalidResponse->assertSessionHasErrors(['name', 'key', 'target_on']);
     $errors = $invalidResponse->session()->get('errors');
     expect($errors->get('name'))->not->toBeEmpty()
         ->and($errors->get('key'))->not->toBeEmpty()
