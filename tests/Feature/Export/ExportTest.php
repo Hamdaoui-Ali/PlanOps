@@ -52,7 +52,11 @@ it('exports only the current users projects and activity records', function (): 
     ]);
     TaskActivity::factory()->forTask($foreignTask)->create(['event_type' => TaskActivityType::TASK_CREATED]);
 
-    $this->actingAs($user)->get(route('exports.projects'))->assertOk()->assertSee('OWN')->assertDontSee('OTHER');
+    $projectsResponse = $this->actingAs($user)->get(route('exports.projects'));
+    $projectsCsv = $projectsResponse->streamedContent();
+    expect($projectsResponse->getStatusCode())->toBe(200)
+        ->and($projectsCsv)->toContain('OWN')
+        ->and($projectsCsv)->not->toContain('OTHER');
     $this->actingAs($user)->get(route('exports.activity', ['format' => 'json']))
         ->assertOk()
         ->assertHeader('content-type', 'application/json')

@@ -35,7 +35,7 @@ final class ExportController extends Controller
 
     public function activity(ExportRequest $request, ExportQueryService $exports): Response
     {
-        if ($request->validated('format', 'csv') === 'json') {
+        if (($request->route('format') ?? $request->validated('format', 'csv')) === 'json') {
             return response()->stream(function () use ($exports): void {
                 echo '[';
                 $first = true;

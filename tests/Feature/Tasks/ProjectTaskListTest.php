@@ -137,15 +137,15 @@ test('project task quick actions preserve the project list context safely', func
         'status' => TaskStatus::IN_PROGRESS->value,
     ])->assertRedirect(route('projects.tasks.index', [
         'project' => $project->id,
-        'sort' => 'priority',
         'status' => TaskStatus::IN_PROGRESS->value,
+        'sort' => 'priority',
     ], absolute: false));
 
     $this->actingAs($owner)->patch(route('tasks.priority', $task).'?'.$query, [
         'priority' => TaskPriority::HIGH->value,
     ])->assertRedirect(route('projects.tasks.index', [
         'project' => $project->id,
-        'sort' => 'priority',
         'status' => TaskStatus::IN_PROGRESS->value,
+        'sort' => 'priority',
     ], absolute: false));
 });
