@@ -17,19 +17,11 @@ Command:
 php artisan test --no-ansi --compact
 ```
 
-Result: 236 passed, 65 failed, 2 skipped, 1261 assertions.
+Result: 301 passed, 2 skipped, 1425 assertions.
 
-The failures are not in the scoped DYX-006 matrix. The main baseline groups
-are:
-
-- unit tests that use Laravel factories without the Laravel application
-  bootstrap (`A facade root has not been set`);
-- legacy expectations that do not include the new `ASSIGNEE_CHANGED` activity
-  enum value;
-- older dashboard, project-console, My Work, and task-identity contracts that
-  predate the collaboration access model.
-
-The full run also emits existing non-compound `use` warnings in test files.
+The full run is green. Two skipped tests are environment-scoped PostgreSQL
+checks; the independent-process assignment race remains verified separately
+on PostgreSQL. The run still emits non-compound `use` warnings in test files.
 
 ## Build and static checks
 
@@ -41,8 +33,6 @@ git diff --check              PASS
 
 ## Release decision
 
-DYX-007 is not approved for a clean full-suite release yet. DYX-006 scoped
-evidence is green, but the overall gate remains red until the 65 baseline
-failures are either corrected or explicitly accepted as known issues with an
-owner and follow-up. No new migration, notification, or collaboration scope
-failure was observed in the scoped verification matrix.
+DYX-007 is approved for a clean full-suite release. DYX-006 scoped evidence
+and the complete application suite are green; no migration, notification, or
+collaboration scope failure was observed.
