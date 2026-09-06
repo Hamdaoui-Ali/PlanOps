@@ -10,7 +10,7 @@
 
 **Baseline evidence:** [2026-09-05 Sprint 2 baseline](../baselines/2026-09-05-sprint-2-baseline.md)
 
-**Current gate:** DYX-000 baseline evidence is repeatable at 64 failed, 186 passed, and 1 skipped across two fresh full-suite runs. The release gate remains red on pre-existing failures; DYX-001 remains gated until DYX-000 is formally accepted.
+**Current gate:** DYX-007 application release verification is approved. The fresh full suite reports 301 passed and 2 environment-scoped skips; the PostgreSQL assignment race is verified separately. No browser/axe suite is configured, so browser automation remains a documented follow-up.
 
 This folder is an execution tracker. It does not replace the authority document. If a backlog item and the authority document disagree, stop and reconcile the documents before writing code.
 
@@ -47,40 +47,40 @@ These items are P1 scope from the authority document. They are intentionally tra
 
 ### S2-P1-001 — Notification persistence and delivery
 
-- [ ] Add database notification persistence after the business transaction commits. Owner: DYX-006.
-- [ ] Deliver invitation and assignment email through the existing queue contract with bounded retries. Owner: DYX-006.
-- [ ] Add idempotency keys, failure logging, retention, and target reauthorization. Owner: DYX-006.
+- [x] Add database notification persistence after the business transaction commits. Owner: DYX-006.
+- [x] Deliver invitation and assignment email through the existing queue contract with bounded retries. Owner: DYX-006.
+- [x] Add idempotency keys, failure logging, retention, and target reauthorization. Owner: DYX-006.
 
 ### S2-P1-002 — Notification center
 
-- [ ] Add unread count and notification list routes/components.
-- [ ] Add mark-read and mark-all-read actions with authorization tests.
-- [ ] Keep notification links accessible and safe after membership removal.
+- [x] Add unread count and notification list routes/components.
+- [x] Add mark-read and mark-all-read actions with authorization tests.
+- [x] Keep notification links accessible and safe after membership removal.
 
 ### S2-P1-003 — Assignee filters
 
-- [ ] Add assignee filters to the project task list.
-- [ ] Add assignee filters to the project board.
-- [ ] Preserve current sorting, pagination, and membership scope.
+- [x] Add assignee filters to the project task list.
+- [x] Add assignee filters to the project board.
+- [x] Preserve current sorting, pagination, and membership scope.
 - [ ] Defer team-wide filters until the P2 Team Work decision is approved.
 
 ### S2-P1-004 — Collaboration-aware exports
 
-- [ ] Require the explicit `export` ability before project/task export.
-- [ ] Scope exported rows through the same membership-aware query path as the UI.
-- [ ] Test direct URLs, cross-project identifiers, archived projects, and role boundaries.
+- [x] Require the explicit `export` ability before project/task export.
+- [x] Scope exported rows through the same membership-aware query path as the UI.
+- [x] Test direct URLs, cross-project identifiers, archived projects, and role boundaries.
 
 ### S2-P1-005 — Collaboration-aware dashboard counts
 
-- [ ] Count only projects and tasks visible to the authenticated viewer.
-- [ ] Keep member-facing progress in project Overview without exposing performance rankings.
-- [ ] Add Owner/Admin-only analytics and export assertions.
+- [x] Count only projects and tasks visible to the authenticated viewer.
+- [x] Keep member-facing progress in project Overview without exposing performance rankings.
+- [x] Add Owner/Admin-only analytics and export assertions.
 
 ### S2-P1-006 — Pending invitation experience
 
-- [ ] Show a safe pending invitation state without exposing invitation tokens or project data.
-- [ ] Support resend/revoke state transitions already defined by DYX-003.
-- [ ] Cover expired, revoked, accepted, and duplicate pending invitations.
+- [x] Show a safe pending invitation state without exposing invitation tokens or project data.
+- [x] Support resend/revoke state transitions already defined by DYX-003.
+- [x] Cover expired, revoked, accepted, and duplicate pending invitations.
 
 ## P2 deferred backlog
 

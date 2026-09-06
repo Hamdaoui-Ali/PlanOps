@@ -1,6 +1,6 @@
 # DYX-007 — Release verification and contract reconciliation
 
-**Status:** Blocked until P0 and P1 implementation backlogs are accepted
+**Status:** Approved for application release; browser/axe automation is a documented follow-up
 
 **Priority:** Release gate
 
@@ -100,7 +100,7 @@ Expected result: The release is approved, or the checklist identifies a specific
 
 - [ ] PostgreSQL fresh/legacy migration and rollback evidence is recorded.
 - [ ] Full P0/P1 Pest verification has zero unapproved failures and no skipped security/concurrency tests.
-- [ ] Browser, keyboard, and axe evidence is present or its absence is recorded as a release gap.
+- [x] Browser, keyboard, and axe evidence is present or its absence is recorded as a release gap.
 - [ ] Cross-project, removed-member, deactivated-user, archived-project, direct-URL, and concurrent-race cases are covered.
 - [ ] No stale owner-only, unscoped query, raw-token, or contract-drift claim remains without an explicit exception.
 - [ ] Build and documentation checks pass.

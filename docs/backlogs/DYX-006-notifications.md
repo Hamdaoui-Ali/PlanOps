@@ -1,6 +1,6 @@
 # DYX-006 — After-commit notifications and P1 collaboration experience
 
-**Status:** Deferred until P0 business outcomes are stable
+**Status:** Accepted — implemented and verified
 
 **Priority:** P1
 
@@ -95,14 +95,14 @@ Expected result: P1 surfaces reflect the same membership, assignment, and author
 
 ## Acceptance criteria
 
-- [ ] Invitation and assignment notifications are emitted only after the originating transaction commits.
-- [ ] Delivery failure never rolls back a successful P0 membership or assignment outcome.
-- [ ] Idempotency, bounded retries, failure logging, retention, and target reauthorization are tested.
-- [ ] Removed/deactivated recipients cannot receive or follow an unauthorized target link.
-- [ ] Raw invitation tokens and other secrets never appear in notification payloads or logs.
-- [ ] Notification list/read actions are recipient-scoped and authorization-protected.
-- [ ] Assignee filters, exports, dashboard counts, and pending invitation UI reuse canonical access scopes.
-- [ ] WebSockets/realtime delivery remains out of scope for this backlog.
+- [x] Invitation and assignment notifications are emitted only after the originating transaction commits.
+- [x] Delivery failure never rolls back a successful P0 membership or assignment outcome.
+- [x] Idempotency, bounded retries, failure logging, retention, and target reauthorization are tested.
+- [x] Removed/deactivated recipients cannot receive or follow an unauthorized target link.
+- [x] Raw invitation tokens and other secrets never appear in notification payloads or logs.
+- [x] Notification list/read actions are recipient-scoped and authorization-protected.
+- [x] Assignee filters, exports, dashboard counts, and pending invitation UI reuse canonical access scopes.
+- [x] WebSockets/realtime delivery remains out of scope for this backlog.
 
 ## Verification commands
 
