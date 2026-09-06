@@ -3,11 +3,11 @@
 use App\Domain\Collaboration\Actions\InviteProjectMember;
 use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
+use App\Domain\Notifications\Models\PlanOpsNotification;
+use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Actions\AssignTask;
 use App\Domain\Tasks\Models\Task;
-use App\Domain\Notifications\Data\NotificationOutcome;
-use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
-use App\Domain\Projects\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +42,7 @@ it('releases an invitation notification after the action-owned transaction commi
     (new InviteProjectMember)->handle($owner, $project, $invitee->email, ProjectRole::MEMBER);
 
     Queue::assertPushed(DeliverNotificationOutcome::class);
+    expect(PlanOpsNotification::query()->where('recipient_id', $invitee->id)->exists())->toBeTrue();
 });
 
 it('releases assignment notification only after the task transaction commits', function (): void {

@@ -7,6 +7,7 @@ use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectEvent;
 use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Notifications\Actions\PersistNotificationOutcome;
 use App\Domain\Notifications\Data\NotificationOutcome;
 use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
 use App\Domain\Projects\Models\Project;
@@ -60,7 +61,10 @@ final class InviteProjectMember
                 $recipient->getKey(),
                 $project->name,
             );
-            $dispatch = fn (): mixed => DeliverNotificationOutcome::dispatch($outcome);
+            $dispatch = function () use ($outcome): void {
+                app(PersistNotificationOutcome::class)->handle($outcome);
+                DeliverNotificationOutcome::dispatch($outcome);
+            };
             if (DB::transactionLevel() > 0) {
                 DB::afterCommit($dispatch);
             } else {
