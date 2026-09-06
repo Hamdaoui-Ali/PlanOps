@@ -11,6 +11,7 @@ Date: 2026-09-06
 - Notification center reads and mutations are recipient-scoped.
 - Project task assignee filters use active project members.
 - Member task exports and dashboard counts reuse canonical access scopes.
+- Pending invitations are visible on the Team surface with status and role.
 - Blade templates cache successfully.
 - Vite production build succeeds.
 
@@ -48,7 +49,6 @@ git diff --check              PASS
 
 DYX-006 implementation evidence is present for notification contracts,
 after-commit behavior, retry/failure handling, reauthorization, notification
-center scope, assignee filters, exports, and dashboard counts. The overall
-Sprint 2 release gate remains open until the two baseline failures are either
-accepted as known issues or corrected and the remaining product decision on
-pending-invitation UI is recorded.
+center scope, assignee filters, exports, dashboard counts, and pending
+invitation UI. The overall Sprint 2 release gate remains open until the two
+baseline failures are either accepted as known issues or corrected.
