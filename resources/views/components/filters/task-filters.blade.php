@@ -14,7 +14,7 @@
         <div class="my-work-filter-field">
             <label for="my-work-status">Status</label>
             <select id="my-work-status" name="status">
-                <option value="">Focus statuses</option>
+                <option value="">All statuses</option>
                 @foreach ($statuses as $status)
                     <option value="{{ $status->value }}" @selected(($filters['status'] ?? '') === $status->value)>{{ str($status->value)->replace('_', ' ')->title() }}</option>
                 @endforeach

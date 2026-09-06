@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Labels\Models\Label;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Enums\TaskPriority;
@@ -30,6 +31,16 @@ final class MyWorkController extends Controller
                         ->orWhere(function (Builder $legacy) use ($owner): void {
                             $legacy->whereNull('assignee_id')->where('user_id', $owner->getKey())
                                 ->whereHas('project', fn (Builder $projects): Builder => $projects->whereDoesntHave('memberships'));
+                        })
+                        ->orWhereHas('project', function (Builder $projects) use ($owner): void {
+                            $projects->where(function (Builder $managerProjects) use ($owner): void {
+                                $managerProjects->where('owner_id', $owner->getKey())
+                                    ->orWhere('user_id', $owner->getKey())
+                                    ->orWhereHas('memberships', fn (Builder $memberships): Builder => $memberships
+                                        ->where('user_id', $owner->getKey())
+                                        ->whereNull('removed_at')
+                                        ->whereIn('role', [ProjectRole::OWNER->value, ProjectRole::ADMIN->value]));
+                            });
                         });
                 })
                 ->exists(),
@@ -38,12 +49,6 @@ final class MyWorkController extends Controller
             'labels' => Label::query()->accessibleBy($owner)->orderBy('normalized_name')->get(['id', 'name']),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
-            'focusStatuses' => [
-                TaskStatus::IN_PROGRESS,
-                TaskStatus::IN_REVIEW,
-                TaskStatus::BLOCKED,
-                TaskStatus::NOT_STARTED,
-            ],
         ]);
     }
 }

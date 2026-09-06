@@ -2,6 +2,7 @@
 
 namespace App\Domain\Tasks\Queries;
 
+use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
@@ -11,13 +12,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 final class MyWorkQuery
 {
-    private const DEFAULT_STATUSES = [
-        TaskStatus::IN_PROGRESS->value,
-        TaskStatus::IN_REVIEW->value,
-        TaskStatus::BLOCKED->value,
-        TaskStatus::NOT_STARTED->value,
-    ];
-
     public function paginate(User $owner, array $filters = [], int $perPage = 50): LengthAwarePaginator
     {
         $perPage = min(50, max(1, $perPage));
@@ -31,6 +25,16 @@ final class MyWorkQuery
                     ->orWhere(function (Builder $legacy) use ($owner): void {
                         $legacy->whereNull('assignee_id')->where('user_id', $owner->getKey())
                             ->whereHas('project', fn (Builder $projects): Builder => $projects->whereDoesntHave('memberships'));
+                    })
+                    ->orWhereHas('project', function (Builder $projects) use ($owner): void {
+                        $projects->where(function (Builder $managerProjects) use ($owner): void {
+                            $managerProjects->where('owner_id', $owner->getKey())
+                                ->orWhere('user_id', $owner->getKey())
+                                ->orWhereHas('memberships', fn (Builder $memberships): Builder => $memberships
+                                    ->where('user_id', $owner->getKey())
+                                    ->whereNull('removed_at')
+                                    ->whereIn('role', [ProjectRole::OWNER->value, ProjectRole::ADMIN->value]));
+                        });
                     });
             })
             ->with(['project', 'labels', 'assignee'])
@@ -42,7 +46,6 @@ final class MyWorkQuery
                     ->where('status', TaskStatus::DONE->value),
             ])
             ->when(array_key_exists('status', $filters), fn (Builder $tasks): Builder => $tasks->where('status', $filters['status']))
-            ->when(! array_key_exists('status', $filters), fn (Builder $tasks): Builder => $tasks->whereIn('status', self::DEFAULT_STATUSES))
             ->when($filters['project'] ?? null, fn (Builder $tasks, int|string $project): Builder => $tasks->where('project_id', $project))
             ->when($filters['priority'] ?? null, fn (Builder $tasks, string $priority): Builder => $tasks->where('priority', $priority))
             ->when($filters['label'] ?? null, fn (Builder $tasks, int|string $label): Builder => $tasks->whereHas('labels', fn (Builder $labels): Builder => $labels->accessibleBy($owner)->whereKey($label)))

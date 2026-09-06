@@ -12,7 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('My Work defaults to focused statuses and excludes deleted and foreign tasks', function (): void {
+test('My Work defaults to every accessible status and excludes deleted and foreign tasks', function (): void {
     $owner = User::factory()->create();
     $project = Project::factory()->for($owner)->create();
     $otherProject = Project::factory()->for(User::factory())->create();
@@ -21,6 +21,8 @@ test('My Work defaults to focused statuses and excludes deleted and foreign task
     Task::factory()->forProject($project)->blocked()->create(['title' => 'Blocked work']);
     Task::factory()->forProject($project)->create(['title' => 'Not started work']);
     Task::factory()->forProject($project)->backlog()->create(['title' => 'Backlog work']);
+    Task::factory()->forProject($project)->done()->create(['title' => 'Done work']);
+    Task::factory()->forProject($project)->cancelled()->create(['title' => 'Cancelled work']);
     $deleted = Task::factory()->forProject($project)->done()->create(['title' => 'Deleted work']);
     $deleted->delete();
     Task::factory()->forProject($otherProject)->active()->create(['title' => 'Foreign work']);
@@ -28,9 +30,9 @@ test('My Work defaults to focused statuses and excludes deleted and foreign task
     $tasks = (new MyWorkQuery)->paginate($owner);
 
     expect($tasks->getCollection()->pluck('title')->all())
-        ->toHaveCount(4)
-        ->toContain('Active work', 'Review work', 'Blocked work', 'Not started work')
-        ->not->toContain('Backlog work', 'Deleted work', 'Foreign work');
+        ->toHaveCount(7)
+        ->toContain('Active work', 'Review work', 'Blocked work', 'Not started work', 'Backlog work', 'Done work', 'Cancelled work')
+        ->not->toContain('Deleted work', 'Foreign work');
 });
 
 test('My Work filters by project, priority, label, and explicit status', function (): void {
@@ -82,6 +84,9 @@ test('the My Work route exposes only owned filter options and a useful empty sta
         ->assertSee('In Review')
         ->assertSee('Blocked')
         ->assertSee('Not Started')
+        ->assertSee('Backlog')
+        ->assertSee('Done')
+        ->assertSee('Cancelled')
         ->assertSee('Project')
         ->assertSee('Due')
         ->assertSee('Recently updated')
@@ -107,14 +112,14 @@ test('the cancelled status filter keeps its empty result instead of redirecting 
         ->assertDontSee('value="IN_REVIEW" selected', false);
 });
 
-test('the empty state explains how to reach assigned backlog work', function (): void {
+test('the default My Work view shows assigned backlog work without a status filter', function (): void {
     $owner = User::factory()->create();
     $project = Project::factory()->for($owner)->create();
-    Task::factory()->forProject($project)->backlog()->create(['assignee_id' => $owner->id]);
+    $task = Task::factory()->forProject($project)->backlog()->create(['assignee_id' => $owner->id, 'title' => 'Assigned backlog task']);
 
     $this->actingAs($owner)->get('/my-work')
         ->assertOk()
-        ->assertSee('No tasks in your current focus.')
-        ->assertSee('Your assigned Backlog, Done, and Cancelled tasks are available from the Status filter.')
-        ->assertSee('Show Backlog');
+        ->assertSee('Backlog')
+        ->assertSee($task->title)
+        ->assertDontSee('No tasks in your current focus.');
 });
