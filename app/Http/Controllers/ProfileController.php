@@ -48,6 +48,13 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
+        if (\App\Domain\Projects\Models\Project::query()
+            ->where(fn ($projects) => $projects->where('owner_id', $user->getKey())->orWhere('user_id', $user->getKey()))
+            ->exists()
+            || $user->projectMemberships()->where('role', 'OWNER')->whereNull('removed_at')->exists()) {
+            return back()->withErrors(['password' => 'Transfer project ownership before deleting your account.'], 'userDeletion');
+        }
+
         Auth::logout();
 
         $user->delete();

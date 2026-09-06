@@ -13,6 +13,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\Collaboration\ProjectInvitationController;
+use App\Http\Controllers\Collaboration\ProjectMemberController;
+use App\Http\Controllers\Collaboration\ProjectTeamController;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +23,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/invitations/{token}', [ProjectInvitationController::class, 'show'])->name('invitations.show');
 
 Route::get('/dashboard', DashboardController::class)
     ->middleware('auth')
@@ -47,6 +52,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}/tasks', [ProjectTaskListController::class, 'index'])
         ->name('projects.tasks.index');
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::get('/projects/{project}/team', [ProjectTeamController::class, 'show'])->name('projects.team');
+    Route::post('/projects/{project}/team/invitations', [ProjectInvitationController::class, 'store'])->name('projects.team.invitations.store');
+    Route::delete('/invitations/{invitation}', [ProjectInvitationController::class, 'revoke'])->name('invitations.revoke');
+    Route::post('/invitations/{invitation}/resend', [ProjectInvitationController::class, 'resend'])->name('invitations.resend');
+    Route::post('/invitations/{token}/accept', [ProjectInvitationController::class, 'accept'])->name('invitations.accept');
+    Route::patch('/projects/{project}/team/members/{membership}', [ProjectMemberController::class, 'update'])->name('projects.team.members.update');
+    Route::delete('/projects/{project}/team/members/{membership}', [ProjectMemberController::class, 'destroy'])->name('projects.team.members.destroy');
+    Route::post('/projects/{project}/team/members/{membership}/transfer', [ProjectMemberController::class, 'transfer'])->name('projects.team.members.transfer');
     Route::get('/projects/{project}/analytics', [ProjectAnalyticsController::class, 'index'])->name('projects.analytics');
     Route::get('/projects/{project}/tasks/create', [TaskController::class, 'create'])
         ->name('projects.tasks.create');

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Domain\Projects\Models\Project;
 
 test('profile page is displayed', function () {
     $user = User::factory()->create();
@@ -81,5 +82,18 @@ test('correct password must be provided to delete account', function () {
         ->assertSessionHasErrorsIn('userDeletion', 'password')
         ->assertRedirect('/profile');
 
+    $this->assertNotNull($user->fresh());
+});
+
+test('project owners cannot delete their account before transferring ownership', function () {
+    $user = User::factory()->create();
+    Project::factory()->create(['user_id' => $user->id, 'owner_id' => $user->id]);
+
+    $response = $this
+        ->actingAs($user)
+        ->from('/profile')
+        ->delete('/profile', ['password' => 'password']);
+
+    $response->assertSessionHasErrorsIn('userDeletion', 'password');
     $this->assertNotNull($user->fresh());
 });
