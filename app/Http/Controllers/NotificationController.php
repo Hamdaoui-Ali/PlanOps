@@ -8,12 +8,23 @@ use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Notifications\Enums\NotificationEventType;
 use App\Domain\Notifications\Models\PlanOpsNotification;
 use App\Domain\Notifications\Queries\NotificationCenterQuery;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class NotificationController extends Controller
 {
+    public function unreadCount(Request $request): JsonResponse
+    {
+        return response()->json([
+            'count' => PlanOpsNotification::query()
+                ->forRecipient($request->user())
+                ->whereNull('read_at')
+                ->count(),
+        ]);
+    }
+
     public function index(Request $request, NotificationCenterQuery $notifications): View
     {
         $recipient = $request->user();

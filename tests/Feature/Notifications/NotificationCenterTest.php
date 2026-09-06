@@ -24,12 +24,28 @@ it('lists only the authenticated recipient notifications and supports read actio
         ->assertOk()
         ->assertSee('Mine')
         ->assertDontSee('Other')
-        ->assertSee('Notifications');
+        ->assertSee('Notifications')
+        ->assertSee('notification-count-badge')
+        ->assertSee('notification-toast');
 
     $this->actingAs($user)->patch(route('notifications.read', $mine))->assertRedirect();
     expect($mine->fresh()->read_at)->not->toBeNull();
 
     $this->actingAs($user)->patch(route('notifications.read-all'))->assertRedirect();
+});
+
+it('returns the authenticated unread notification count for the alert poller', function (): void {
+    $user = User::factory()->create();
+    PlanOpsNotification::query()->create([
+        'recipient_id' => $user->id,
+        'event_type' => 'INVITATION_CREATED',
+        'idempotency_key' => 'unread-count',
+        'data' => ['message' => 'Unread'],
+    ]);
+
+    $this->actingAs($user)->get(route('notifications.unread-count'))
+        ->assertOk()
+        ->assertJson(['count' => 1]);
 });
 
 it('explains an invitation and lets the recipient accept it from the notification center', function (): void {

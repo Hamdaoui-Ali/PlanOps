@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('/my-work', [MyWorkController::class, 'index'])->name('my-work');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::post('/notifications/{notification}/accept-invitation', [NotificationController::class, 'acceptInvitation'])->name('notifications.accept-invitation');
     Route::post('/notifications/{notification}/decline-invitation', [NotificationController::class, 'declineInvitation'])->name('notifications.decline-invitation');

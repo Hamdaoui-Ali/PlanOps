@@ -42,3 +42,43 @@ document.querySelectorAll('[data-password-toggle]').forEach((toggle) => {
         icon?.classList.toggle('ph-eye-slash', isHidden);
     });
 });
+
+const notificationToast = document.querySelector('[data-notification-toast]');
+const notificationBadge = document.querySelector('#notification-count-badge');
+
+if (notificationToast) {
+    const countLabel = notificationToast.querySelector('[data-notification-toast-count]');
+    const pluralLabel = notificationToast.querySelector('[data-notification-toast-plural]');
+    const closeButton = notificationToast.querySelector('[data-notification-toast-close]');
+    const endpoint = notificationToast.dataset.notificationUrl;
+    let knownCount = Number(notificationToast.dataset.notificationCount || 0);
+
+    const showNotificationToast = (count) => {
+        knownCount = count;
+        if (countLabel) countLabel.textContent = count;
+        if (pluralLabel) pluralLabel.textContent = count === 1 ? '' : 's';
+        notificationToast.hidden = false;
+    };
+
+    closeButton?.addEventListener('click', () => {
+        notificationToast.hidden = true;
+    });
+
+    if (knownCount > 0 && !sessionStorage.getItem('planops-notification-toast-seen')) {
+        showNotificationToast(knownCount);
+        sessionStorage.setItem('planops-notification-toast-seen', '1');
+    }
+
+    if (endpoint) {
+        window.setInterval(() => {
+            fetch(endpoint, { headers: { Accept: 'application/json' } })
+                .then((response) => response.ok ? response.json() : null)
+                .then((payload) => {
+                    if (!payload || Number(payload.count) <= knownCount) return;
+                    showNotificationToast(Number(payload.count));
+                    if (notificationBadge) notificationBadge.textContent = payload.count > 99 ? '99+' : payload.count;
+                })
+                .catch(() => {});
+        }, 30000);
+    }
+}

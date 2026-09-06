@@ -164,6 +164,178 @@ body {
     text-align: center;
 }
 
+.planops-notifications-link {
+    position: relative;
+}
+
+.notification-count-badge {
+    display: inline-grid;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    margin-left: auto;
+    border-radius: 999px;
+    background: var(--planops-accent);
+    color: var(--planops-canvas);
+    place-items: center;
+    padding: 0 0.3rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.notification-toast {
+    position: fixed;
+    z-index: 20;
+    top: 1.25rem;
+    right: 1.25rem;
+    display: flex;
+    align-items: center;
+    max-width: min(28rem, calc(100vw - 2rem));
+    gap: 0.75rem;
+    border: 1px solid var(--planops-focus);
+    border-radius: 10px;
+    background: var(--planops-surface);
+    box-shadow: 0 18px 50px rgba(9, 25, 31, 0.22);
+    color: var(--planops-text);
+    padding: 0.9rem 1rem;
+}
+
+.notification-toast > i {
+    color: var(--planops-accent);
+    font-size: 1.4rem;
+}
+
+.notification-toast div {
+    display: grid;
+    gap: 0.15rem;
+    font-size: 0.8rem;
+}
+
+.notification-toast strong {
+    font-size: 0.86rem;
+}
+
+.notification-toast-link {
+    color: var(--planops-focus);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.notification-toast-close {
+    align-self: flex-start;
+    border: 0;
+    background: transparent;
+    color: var(--planops-muted);
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.notification-list {
+    display: grid;
+    gap: 0.85rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.notification-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 1rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 10px;
+    background: var(--planops-surface);
+    padding: 1.15rem;
+}
+
+.notification-card.is-unread {
+    border-color: rgba(104, 184, 192, 0.65);
+    box-shadow: inset 3px 0 0 var(--planops-focus);
+}
+
+.notification-card-icon {
+    display: grid;
+    width: 2.45rem;
+    height: 2.45rem;
+    border-radius: 8px;
+    background: rgba(104, 184, 192, 0.12);
+    color: var(--planops-focus);
+    place-items: center;
+    font-size: 1.25rem;
+}
+
+.notification-card-body {
+    min-width: 0;
+}
+
+.notification-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--planops-muted);
+    font-size: 0.72rem;
+}
+
+.notification-card-type {
+    color: var(--planops-focus);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.notification-card h2 {
+    margin: 0.45rem 0 0;
+    color: var(--planops-text);
+    font-size: 1rem;
+    font-weight: 650;
+}
+
+.notification-card-description {
+    margin: 0.5rem 0 0;
+    color: var(--planops-muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.notification-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.notification-card-actions form {
+    margin: 0;
+}
+
+.notification-card-actions .planops-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.notification-card-status {
+    color: var(--planops-muted);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.notification-read-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.notification-card-state {
+    display: inline-block;
+    margin-top: 0.9rem;
+    color: var(--planops-muted);
+    font-size: 0.78rem;
+}
+
 .planops-account {
     display: grid;
     gap: 0.25rem;
@@ -2465,6 +2637,21 @@ kbd { padding: 0.1rem 0.35rem; border: 1px solid var(--planops-border); border-r
 }
 
 @media (max-width: 700px) {
+    .notification-toast {
+        top: 0.75rem;
+        right: 0.75rem;
+        left: 0.75rem;
+        max-width: none;
+    }
+
+    .notification-card {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .notification-card-status {
+        grid-column: 2;
+    }
+
     .project-board-header {
         align-items: stretch;
         flex-direction: column;

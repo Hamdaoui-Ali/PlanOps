@@ -26,9 +26,12 @@
 
         @include('components.navigation.sidebar')
 
-        <a href="{{ route('notifications.index') }}" class="planops-nav-link">
+        <a href="{{ route('notifications.index') }}" class="planops-nav-link planops-notifications-link">
             <i class="ph ph-bell" aria-hidden="true"></i>
             <span>Notifications</span>
+            @if ($unreadNotificationCount > 0)
+                <span id="notification-count-badge" class="notification-count-badge" aria-label="{{ $unreadNotificationCount }} unread notifications">{{ $unreadNotificationCount > 99 ? '99+' : $unreadNotificationCount }}</span>
+            @endif
         </a>
 
         <div class="planops-account">

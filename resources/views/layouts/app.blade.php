@@ -24,6 +24,25 @@
         <div class="min-h-screen app-shell" x-data="{ mobileOpen: false, railCollapsed: false }" :class="{ 'rail-collapsed': railCollapsed }">
             @include('layouts.navigation')
 
+            <div
+                id="notification-toast"
+                class="notification-toast"
+                role="status"
+                aria-live="polite"
+                data-notification-toast
+                data-notification-count="{{ $unreadNotificationCount }}"
+                data-notification-url="{{ route('notifications.unread-count') }}"
+                hidden
+            >
+                <i class="ph ph-bell-ringing" aria-hidden="true"></i>
+                <div>
+                    <strong>New notification</strong>
+                    <span>You have <span data-notification-toast-count>{{ $unreadNotificationCount }}</span> unread notification<span data-notification-toast-plural>{{ $unreadNotificationCount === 1 ? '' : 's' }}</span>.</span>
+                </div>
+                <a href="{{ route('notifications.index') }}" class="notification-toast-link">View</a>
+                <button type="button" class="notification-toast-close" data-notification-toast-close aria-label="Dismiss notification alert">&times;</button>
+            </div>
+
             <!-- Page Heading -->
             @isset($header)
                 <header class="page-header">
