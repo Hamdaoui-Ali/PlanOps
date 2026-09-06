@@ -22,7 +22,7 @@ final class SearchQueryService
         $tasks = Task::query()
             ->accessibleBy($user)
             ->with(['project', 'labels'])
-            ->where(function (Builder $query) use ($needle): void {
+            ->where(function (Builder $query) use ($needle, $user): void {
                 $query->whereRaw('LOWER(title) LIKE ?', [$needle])
                     ->orWhereRaw('LOWER(COALESCE(description, \'\')) LIKE ?', [$needle])
                     ->orWhereRaw("LOWER((SELECT key FROM projects WHERE projects.id = tasks.project_id) || '-' || CAST(tasks.number AS TEXT)) LIKE ?", [$needle])
