@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Attention\Queries\AttentionQuery;
 use App\Domain\Projects\Actions\ArchiveProject;
 use App\Domain\Projects\Actions\ChangeProjectStatus;
 use App\Domain\Projects\Actions\CreateProject;
@@ -11,7 +12,6 @@ use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Projects\Queries\ProjectIndexQuery;
 use App\Domain\Projects\Queries\ProjectOverviewQuery;
-use App\Domain\Attention\Queries\AttentionQuery;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Http\Requests\ChangeProjectStatusRequest;
 use App\Http\Requests\StoreProjectRequest;

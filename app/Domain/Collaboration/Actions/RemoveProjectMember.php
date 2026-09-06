@@ -27,8 +27,12 @@ final class RemoveProjectMember
                 ->lockForUpdate()
                 ->get();
             $membership = ProjectMembership::query()->where('project_id', $project->getKey())->where('user_id', $subject->getKey())->lockForUpdate()->first();
-            if (! $membership || $membership->removed_at !== null) throw ValidationException::withMessages(['member' => 'That person is not an active project member.']);
-            if ($membership->role->value === 'OWNER') throw ValidationException::withMessages(['member' => 'Transfer ownership before removing the project owner.']);
+            if (! $membership || $membership->removed_at !== null) {
+                throw ValidationException::withMessages(['member' => 'That person is not an active project member.']);
+            }
+            if ($membership->role->value === 'OWNER') {
+                throw ValidationException::withMessages(['member' => 'Transfer ownership before removing the project owner.']);
+            }
             foreach ($tasks as $task) {
                 $task->forceFill(['assignee_id' => null])->save();
                 app(TaskActivityRecorder::class)->record(

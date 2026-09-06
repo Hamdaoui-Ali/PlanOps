@@ -18,6 +18,7 @@ class ProjectMemberController
     {
         abort_unless((int) $membership->project_id === (int) $project->getKey(), 404);
         $remove->handle($request->user(), $project, $membership->user);
+
         return back()->with('status', 'Member removed.');
     }
 
@@ -25,6 +26,7 @@ class ProjectMemberController
     {
         abort_unless((int) $membership->project_id === (int) $project->getKey(), 404);
         $change->handle($request->user(), $membership, ProjectRole::from($request->validated('role')));
+
         return back()->with('status', 'Member role updated.');
     }
 
@@ -32,6 +34,7 @@ class ProjectMemberController
     {
         abort_unless((int) $membership->project_id === (int) $project->getKey(), 404);
         $transfer->handle($request->user(), $project, $membership->user);
+
         return back()->with('status', 'Project ownership transferred.');
     }
 }

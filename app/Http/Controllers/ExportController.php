@@ -40,7 +40,9 @@ final class ExportController extends Controller
                 echo '[';
                 $first = true;
                 foreach ($exports->activity(request()->user()) as $activity) {
-                    if (! $first) echo ',';
+                    if (! $first) {
+                        echo ',';
+                    }
                     $first = false;
                     echo json_encode($this->activityRow($activity), JSON_THROW_ON_ERROR);
                 }

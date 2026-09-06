@@ -11,11 +11,11 @@ use App\Domain\Notifications\Data\NotificationOutcome;
 use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
 use App\Domain\Projects\Models\Project;
 use App\Models\User;
+use App\Models\User as UserModel;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
-use App\Models\User as UserModel;
 
 final class InviteProjectMember
 {
@@ -48,6 +48,7 @@ final class InviteProjectMember
             ]);
             $invitation->setAttribute('plain_token', $plain);
             ProjectEvent::create(['project_id' => $project->getKey(), 'actor_user_id' => $actor->getKey(), 'event_type' => ProjectEventType::INVITATION_CREATED, 'metadata' => ['email' => $normalized, 'role' => $role->value]]);
+
             return $invitation;
         });
 

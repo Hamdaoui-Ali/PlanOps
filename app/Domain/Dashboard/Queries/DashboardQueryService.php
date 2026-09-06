@@ -4,12 +4,12 @@ namespace App\Domain\Dashboard\Queries;
 
 use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Activity\Models\TaskActivity;
+use App\Domain\Dashboard\ValueObjects\DashboardSnapshot;
 use App\Domain\Identity\ValueObjects\ReportPeriod;
 use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
-use App\Domain\Dashboard\ValueObjects\DashboardSnapshot;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;

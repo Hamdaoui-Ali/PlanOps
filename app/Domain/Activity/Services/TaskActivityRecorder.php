@@ -5,10 +5,10 @@ namespace App\Domain\Activity\Services;
 use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Activity\Models\TaskActivity;
 use App\Domain\Tasks\Models\Task;
+use App\Models\User;
 use BackedEnum;
 use DateTimeInterface;
 use Illuminate\Support\Carbon;
-use App\Models\User;
 use LogicException;
 
 final class TaskActivityRecorder

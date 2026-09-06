@@ -2,7 +2,6 @@
 
 namespace App\Domain\Dashboard\ValueObjects;
 
-use App\Domain\Activity\Models\TaskActivity;
 use App\Domain\Identity\ValueObjects\ReportPeriod;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -16,6 +15,5 @@ final readonly class DashboardSnapshot
         public int $overdueCount,
         public array $period,
         public Collection $recentActivity,
-    ) {
-    }
+    ) {}
 }

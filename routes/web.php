@@ -1,24 +1,24 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
+use App\Domain\Projects\Models\Project;
+use App\Domain\Tasks\Models\Task;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AnalyticsController;
-use App\Http\Controllers\ProjectAnalyticsController;
-use App\Http\Controllers\SearchController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\ProjectBoardController;
-use App\Http\Controllers\ProjectTaskListController;
-use App\Http\Controllers\MyWorkController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\TaskController;
-use App\Http\Controllers\ExportController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Collaboration\ProjectInvitationController;
 use App\Http\Controllers\Collaboration\ProjectMemberController;
 use App\Http\Controllers\Collaboration\ProjectTeamController;
-use App\Domain\Projects\Models\Project;
-use App\Domain\Tasks\Models\Task;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\MyWorkController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectAnalyticsController;
+use App\Http\Controllers\ProjectBoardController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectTaskListController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {

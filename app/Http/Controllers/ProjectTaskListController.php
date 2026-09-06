@@ -6,9 +6,9 @@ use App\Domain\Labels\Models\Label;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Enums\TaskPriority;
 use App\Domain\Tasks\Enums\TaskStatus;
+use App\Domain\Tasks\Models\Task;
 use App\Domain\Tasks\Queries\ProjectTaskListQuery;
 use App\Domain\Tasks\Queries\TaskKeyQuery;
-use App\Domain\Tasks\Models\Task;
 use App\Http\Requests\ProjectTaskListFiltersRequest;
 use Illuminate\View\View;
 

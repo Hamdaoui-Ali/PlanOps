@@ -14,11 +14,18 @@ final class AcceptProjectInvitation
 {
     public function handle(User $user, string $rawToken): ProjectMembership
     {
-        if ($rawToken === '') throw ValidationException::withMessages(['token' => 'This invitation is invalid.']);
+        if ($rawToken === '') {
+            throw ValidationException::withMessages(['token' => 'This invitation is invalid.']);
+        }
+
         return DB::transaction(function () use ($user, $rawToken): ProjectMembership {
             $invitation = ProjectInvitation::query()->where('token_hash', hash('sha256', $rawToken))->lockForUpdate()->first();
-            if (! $invitation || ! $invitation->isPending()) throw ValidationException::withMessages(['token' => 'This invitation is invalid or expired.']);
-            if (strtolower(trim($user->email)) !== $invitation->normalized_email) throw ValidationException::withMessages(['email' => 'This invitation belongs to a different email address.']);
+            if (! $invitation || ! $invitation->isPending()) {
+                throw ValidationException::withMessages(['token' => 'This invitation is invalid or expired.']);
+            }
+            if (strtolower(trim($user->email)) !== $invitation->normalized_email) {
+                throw ValidationException::withMessages(['email' => 'This invitation belongs to a different email address.']);
+            }
 
             $membership = ProjectMembership::query()->where('project_id', $invitation->project_id)->where('user_id', $user->getKey())->lockForUpdate()->first();
             if ($membership) {
@@ -28,6 +35,7 @@ final class AcceptProjectInvitation
             }
             $invitation->forceFill(['accepted_at' => now()])->save();
             ProjectEvent::create(['project_id' => $invitation->project_id, 'actor_user_id' => $user->getKey(), 'subject_user_id' => $user->getKey(), 'event_type' => ProjectEventType::INVITATION_ACCEPTED, 'metadata' => ['role' => $membership->role->value]]);
+
             return $membership;
         });
     }

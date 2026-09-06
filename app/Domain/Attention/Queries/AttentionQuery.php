@@ -25,10 +25,18 @@ final class AttentionQuery
                     ->orWhere(fn ($query) => $query->whereIn('status', [TaskStatus::IN_PROGRESS->value, TaskStatus::IN_REVIEW->value, TaskStatus::BLOCKED->value])->where('updated_at', '<', $now->subDays(7)));
             })->with('project:id,key')->orderBy('updated_at')->get()->each(function (Task $task) use ($now, $today): void {
                 $reasons = [];
-                if ($task->isOverdueOn($today)) $reasons[] = 'Past due';
-                if ($task->status === TaskStatus::BLOCKED) $reasons[] = 'Blocked work';
-                if ($task->status === TaskStatus::IN_REVIEW && $task->status_changed_at?->lt($now->subDays(3))) $reasons[] = 'In review for '.$task->status_changed_at->diffInDays($now).' days';
-                if (in_array($task->status, [TaskStatus::IN_PROGRESS, TaskStatus::IN_REVIEW, TaskStatus::BLOCKED], true) && $task->updated_at?->lt($now->subDays(7))) $reasons[] = 'No status change for '.$task->updated_at->diffInDays($now).' days';
+                if ($task->isOverdueOn($today)) {
+                    $reasons[] = 'Past due';
+                }
+                if ($task->status === TaskStatus::BLOCKED) {
+                    $reasons[] = 'Blocked work';
+                }
+                if ($task->status === TaskStatus::IN_REVIEW && $task->status_changed_at?->lt($now->subDays(3))) {
+                    $reasons[] = 'In review for '.$task->status_changed_at->diffInDays($now).' days';
+                }
+                if (in_array($task->status, [TaskStatus::IN_PROGRESS, TaskStatus::IN_REVIEW, TaskStatus::BLOCKED], true) && $task->updated_at?->lt($now->subDays(7))) {
+                    $reasons[] = 'No status change for '.$task->updated_at->diffInDays($now).' days';
+                }
                 $task->setAttribute('attention_reasons', $reasons);
             });
     }

@@ -5,7 +5,6 @@ namespace App\Domain\Projects\Queries;
 use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Enums\TaskStatus;
-use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;

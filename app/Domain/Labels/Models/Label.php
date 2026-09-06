@@ -2,8 +2,8 @@
 
 namespace App\Domain\Labels\Models;
 
-use App\Domain\Tasks\Models\Task;
 use App\Domain\Projects\Models\Project;
+use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Database\Factories\LabelFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;

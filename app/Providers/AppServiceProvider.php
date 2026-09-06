@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Domain\Projects\Models\Project;
 use App\Domain\Labels\Models\Label;
+use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
 use App\Policies\LabelPolicy;
 use App\Policies\ProjectPolicy;

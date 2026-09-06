@@ -9,7 +9,10 @@ use App\Models\User;
 
 class TaskPolicy
 {
-    public function viewAny(User $user): bool { return true; }
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
 
     public function create(User $user, Project $project): bool
     {
@@ -48,15 +51,27 @@ class TaskPolicy
 
     public function changeStatus(User $user, Task $task): bool
     {
-        if (! $task->project || $task->project->archived_at !== null) return false;
-        if ($this->legacyTaskOwner($user, $task)) return true;
+        if (! $task->project || $task->project->archived_at !== null) {
+            return false;
+        }
+        if ($this->legacyTaskOwner($user, $task)) {
+            return true;
+        }
         $role = $this->role($user, $task->project);
+
         return in_array($role, [ProjectRole::OWNER, ProjectRole::ADMIN], true)
             || ($role === ProjectRole::MEMBER && (int) $task->assignee_id === (int) $user->getKey());
     }
 
-    public function assign(User $user, Task $task): bool { return $this->canManageTask($user, $task); }
-    public function reorder(User $user, Project $project): bool { return $this->canManage($user, $project); }
+    public function assign(User $user, Task $task): bool
+    {
+        return $this->canManageTask($user, $task);
+    }
+
+    public function reorder(User $user, Project $project): bool
+    {
+        return $this->canManage($user, $project);
+    }
 
     private function canManageTask(User $user, Task $task): bool
     {
@@ -78,7 +93,10 @@ class TaskPolicy
     private function role(User $user, Project $project): ?ProjectRole
     {
         $membership = $project->memberships()->where('user_id', $user->getKey())->whereNull('removed_at')->first();
-        if ($membership) return $membership->role;
+        if ($membership) {
+            return $membership->role;
+        }
+
         return ! $project->memberships()->exists() && (string) $user->getKey() === (string) $project->user_id
             ? ProjectRole::OWNER : null;
     }

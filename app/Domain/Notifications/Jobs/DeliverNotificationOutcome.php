@@ -2,11 +2,11 @@
 
 namespace App\Domain\Notifications\Jobs;
 
+use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Notifications\Actions\PersistNotificationOutcome;
 use App\Domain\Notifications\Data\NotificationOutcome;
-use App\Domain\Notifications\Models\NotificationDeliveryFailure;
-use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Notifications\Enums\NotificationEventType;
+use App\Domain\Notifications\Models\NotificationDeliveryFailure;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use App\Notifications\PlanOpsNotificationMail;

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Projects\Models\Project;
 use App\Domain\Activity\Queries\TaskActivityFeedQuery;
-use App\Domain\Tasks\Actions\ChangeTaskDueDate;
+use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Actions\AssignTask;
+use App\Domain\Tasks\Actions\ChangeTaskDueDate;
 use App\Domain\Tasks\Actions\ChangeTaskPriority;
 use App\Domain\Tasks\Actions\ChangeTaskStatus;
 use App\Domain\Tasks\Actions\CreateTask;
@@ -17,22 +17,23 @@ use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
 use App\Domain\Tasks\Queries\TaskDetailQuery;
 use App\Domain\Tasks\Queries\TaskKeyQuery;
-use App\Http\Requests\ChangeTaskDueDateRequest;
 use App\Http\Requests\AssignTaskRequest;
+use App\Http\Requests\ChangeTaskDueDateRequest;
 use App\Http\Requests\ChangeTaskPriorityRequest;
-use App\Http\Requests\UpdateTaskRequest;
-use App\Http\Requests\UpdateTaskDetailsRequest;
-use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\ChangeTaskStatusRequest;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskDetailsRequest;
+use App\Http\Requests\UpdateTaskRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class TaskController extends Controller
 {
     public function assign(AssignTaskRequest $request, Task $task, AssignTask $assign): RedirectResponse
     {
-        $assign->handle($request->user(), $task, $request->filled('assignee_id') ? \App\Models\User::query()->findOrFail($request->validated('assignee_id')) : null);
+        $assign->handle($request->user(), $task, $request->filled('assignee_id') ? User::query()->findOrFail($request->validated('assignee_id')) : null);
 
         return to_route('tasks.show', $task)->with('status', 'Task assignment updated.');
     }

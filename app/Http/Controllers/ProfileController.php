@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Projects\Models\Project;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,7 +49,7 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        if (\App\Domain\Projects\Models\Project::query()
+        if (Project::query()
             ->where(fn ($projects) => $projects->where('owner_id', $user->getKey())->orWhere('user_id', $user->getKey()))
             ->exists()
             || $user->projectMemberships()->where('role', 'OWNER')->whereNull('removed_at')->exists()) {

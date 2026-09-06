@@ -7,6 +7,7 @@ use App\Domain\Collaboration\Models\ProjectEvent;
 use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Enums\ProjectStatus;
+use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Database\Factories\ProjectFactory;
@@ -128,11 +129,11 @@ class Project extends Model
 
         $eligibleTasks = $this->tasks()
             ->whereNull('parent_task_id')
-            ->where('status', '!=', \App\Domain\Tasks\Enums\TaskStatus::CANCELLED->value);
+            ->where('status', '!=', TaskStatus::CANCELLED->value);
 
         return [
             'eligible_task_count' => (clone $eligibleTasks)->count(),
-            'completed_task_count' => (clone $eligibleTasks)->where('status', \App\Domain\Tasks\Enums\TaskStatus::DONE->value)->count(),
+            'completed_task_count' => (clone $eligibleTasks)->where('status', TaskStatus::DONE->value)->count(),
         ];
     }
 

@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 final class ReorderTasks
 {
     /**
-     * @param array<int, int|string> $orderedTaskIds
+     * @param  array<int, int|string>  $orderedTaskIds
      */
     public function handle(User $owner, Project $project, TaskStatus $status, array $orderedTaskIds): void
     {

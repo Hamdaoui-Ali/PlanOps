@@ -15,6 +15,5 @@ final readonly class AnalyticsSnapshot
         public ?float $cycleTimeMedianHours,
         public array $timeInStatus,
         public Collection $projectContribution,
-    ) {
-    }
+    ) {}
 }

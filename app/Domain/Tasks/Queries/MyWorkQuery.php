@@ -2,7 +2,6 @@
 
 namespace App\Domain\Tasks\Queries;
 
-use App\Domain\Tasks\Enums\TaskPriority;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
