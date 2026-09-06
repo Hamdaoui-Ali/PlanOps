@@ -46,8 +46,8 @@ test('month and year resolve calendar boundaries in the users timezone', functio
     $year = $resolver->year($user, $now);
 
     expect($month->bucket)->toBe('month')
-        ->and($month->start->toIso8601String())->toBe('2026-08-01T00:00:00+00:00')
-        ->and($month->end->toIso8601String())->toBe('2026-09-01T00:00:00+00:00')
+        ->and($month->start->toIso8601String())->toBe('2026-07-31T23:00:00+00:00')
+        ->and($month->end->toIso8601String())->toBe('2026-08-31T23:00:00+00:00')
         ->and($year->bucket)->toBe('month')
         ->and($year->start->toIso8601String())->toBe('2026-01-01T00:00:00+00:00')
         ->and($year->end->toIso8601String())->toBe('2027-01-01T00:00:00+00:00');

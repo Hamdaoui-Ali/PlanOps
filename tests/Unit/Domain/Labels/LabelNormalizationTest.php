@@ -16,7 +16,7 @@ test('label display names are trimmed and repeated whitespace is squished', func
 test('label normalized names are lowercase display names', function (): void {
     $rule = new NormalizedLabelName;
 
-    expect($rule->normalize('  Frontend\t  Platform  '))->toBe('frontend platform');
+    expect($rule->normalize("  Frontend\t  Platform  "))->toBe('frontend platform');
 });
 
 test('normalized label names collide for one owner but not another owner', function (): void {
