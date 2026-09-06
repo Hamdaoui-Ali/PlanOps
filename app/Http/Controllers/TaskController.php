@@ -174,7 +174,9 @@ class TaskController extends Controller
     {
         $parentOptions = $project->tasks()
             ->accessibleBy($project->user_id)
+            ->where('user_id', $project->user_id)
             ->whereNull('parent_task_id')
+            ->with('project')
             ->orderBy('number')
             ->get()
             ->map(fn (Task $task): array => [

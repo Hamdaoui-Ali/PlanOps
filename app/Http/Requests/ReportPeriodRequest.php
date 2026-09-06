@@ -30,6 +30,6 @@ final class ReportPeriodRequest extends FormRequest
 
     public function period(): string
     {
-        return $this->validated('period') ?: 'today';
+        return $this->input('period') ?: 'today';
     }
 }

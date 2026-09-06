@@ -90,12 +90,12 @@ class CreateTask
                 TaskActivityType::TASK_CREATED,
                 null,
                 null,
-                null,
                 [
                     'display_key' => $key,
                     'status' => $task->status,
                     'priority' => $task->priority,
                 ],
+                [],
                 $user,
             );
 
