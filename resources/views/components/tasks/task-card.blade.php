@@ -22,6 +22,7 @@
     <h3><a href="{{ route('tasks.show', $task) }}">{{ $task->title }}</a></h3>
     <dl class="board-task-meta">
         <div><dt>Priority</dt><dd>{{ str($task->priority->value)->replace('_', ' ')->title() }}</dd></div>
+        <div><dt>Assignee</dt><dd>{{ $task->assignee?->name ?? 'Unassigned' }}</dd></div>
         <div><dt>Due</dt><dd>{{ $task->due_on?->format('M j, Y') ?? 'No due date' }}</dd></div>
         <div><dt>Subtasks</dt><dd>
             @if ($task->eligible_children_count > 0)

@@ -11,6 +11,7 @@
             <tr>
                 <th scope="col">Task</th>
                 <th scope="col">Project</th>
+                <th scope="col">Assignee</th>
                 <th scope="col">Status</th>
                 <th scope="col">Priority</th>
                 <th scope="col">Due</th>
@@ -29,6 +30,7 @@
                         <a href="{{ route('tasks.show', $task) }}" class="my-work-task-title">{{ $task->title }}</a>
                     </th>
                     <td data-label="Project"><a href="{{ route('projects.show', $task->project) }}">{{ $task->project->name }}</a></td>
+                    <td data-label="Assignee">{{ $task->assignee?->name ?? 'Unassigned' }}</td>
                     <td data-label="Status">{{ str($task->status->value)->replace('_', ' ')->title() }}</td>
                     <td data-label="Priority">{{ str($task->priority->value)->replace('_', ' ')->title() }}</td>
                     <td data-label="Due">{{ $task->due_on?->format('M j, Y') ?? 'No due date' }}</td>

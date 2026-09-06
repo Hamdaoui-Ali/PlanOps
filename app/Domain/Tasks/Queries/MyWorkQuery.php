@@ -34,7 +34,7 @@ final class MyWorkQuery
                             ->whereHas('project', fn (Builder $projects): Builder => $projects->whereDoesntHave('memberships'));
                     });
             })
-            ->with(['project', 'labels'])
+            ->with(['project', 'labels', 'assignee'])
             ->withCount([
                 'children',
                 'children as eligible_children_count' => fn (Builder $children): Builder => $children

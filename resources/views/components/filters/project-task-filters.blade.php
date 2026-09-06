@@ -1,4 +1,4 @@
-@props(['filters', 'labels', 'statuses', 'priorities'])
+@props(['project', 'filters', 'labels', 'statuses', 'priorities'])
 
 <form method="GET" action="{{ route('projects.tasks.index', $project) }}" class="my-work-filters project-task-filters" role="search">
     <div class="my-work-filter-grid">

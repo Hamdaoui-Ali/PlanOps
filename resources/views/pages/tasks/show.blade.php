@@ -40,6 +40,25 @@
                         :save-action="route('tasks.details.update', $task)"
                         :delete-action="route('tasks.destroy', $task)"
                     />
+                    <section class="task-detail-panel" aria-labelledby="task-assignee-heading">
+                        <p class="planops-eyebrow">Responsibility</p>
+                        <h2 id="task-assignee-heading">Assignee</h2>
+                        @can('assign', $task)
+                            <form method="POST" action="{{ route('tasks.assignee', $task) }}">
+                                @csrf @method('PATCH')
+                                <label for="task-assignee">Assign task to</label>
+                                <select id="task-assignee" name="assignee_id">
+                                    <option value="">Unassigned</option>
+                                    @foreach ($task->project->activeMemberships as $membership)
+                                        <option value="{{ $membership->user_id }}" @selected($task->assignee_id === $membership->user_id)>{{ $membership->user->name }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="planops-button planops-button-secondary">Save assignee</button>
+                            </form>
+                        @else
+                            <p>Assigned to {{ $task->assignee?->name ?? 'No one' }}</p>
+                        @endcan
+                    </section>
                 </div>
 
                 <aside class="task-detail-aside">

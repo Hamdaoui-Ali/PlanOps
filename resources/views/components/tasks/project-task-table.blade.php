@@ -4,12 +4,13 @@
 <div class="my-work-table-wrap project-task-table-wrap">
     <table class="my-work-table project-task-table">
         <caption class="sr-only">Tasks for {{ $project->name }}</caption>
-        <thead><tr><th scope="col">Task</th><th scope="col">Status</th><th scope="col">Priority</th><th scope="col">Due</th><th scope="col">Labels</th><th scope="col">Subtasks</th><th scope="col">Updated</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+        <thead><tr><th scope="col">Task</th><th scope="col">Assignee</th><th scope="col">Status</th><th scope="col">Priority</th><th scope="col">Due</th><th scope="col">Labels</th><th scope="col">Subtasks</th><th scope="col">Updated</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
         <tbody>
             @foreach ($tasks as $task)
                 @php($displayKey = $keys->displayKey($task))
                 <tr @class(['project-task-subtask' => $task->parent_task_id !== null])>
                     <th scope="row" data-label="Task"><div class="project-task-identity"><a href="{{ route('tasks.show', $task) }}" class="my-work-task-key">{{ $displayKey }}</a><a href="{{ route('tasks.show', $task) }}" class="my-work-task-title">{{ $task->title }}</a>@if ($task->parent)<span class="project-task-parent">Subtask of {{ $keys->displayKey($task->parent) }}</span>@endif</div></th>
+                    <td data-label="Assignee">{{ $task->assignee?->name ?? 'Unassigned' }}</td>
                     <td data-label="Status">{{ str($task->status->value)->replace('_', ' ')->title() }}</td>
                     <td data-label="Priority">{{ str($task->priority->value)->replace('_', ' ')->title() }}</td>
                     <td data-label="Due">{{ $task->due_on?->format('M j, Y') ?? 'No due date' }}</td>

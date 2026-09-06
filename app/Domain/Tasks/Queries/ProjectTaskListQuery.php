@@ -22,7 +22,7 @@ final class ProjectTaskListQuery
         $query = Task::query()
             ->accessibleBy($owner)
             ->where('project_id', $project->getKey())
-            ->with(['project', 'parent', 'labels'])
+            ->with(['project', 'parent', 'labels', 'assignee'])
             ->withCount([
                 'children',
                 'children as eligible_children_count' => fn (Builder $children): Builder => $children

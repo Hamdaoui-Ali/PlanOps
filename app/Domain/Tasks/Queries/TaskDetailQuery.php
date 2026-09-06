@@ -16,7 +16,7 @@ class TaskDetailQuery
             ->accessibleBy($ownerId)
             ->whereKey($task->getKey())
             ->with([
-                'project',
+                'project.activeMemberships.user',
                 'parent',
                 'children' => fn (HasMany $children): HasMany => $children
                     ->withCount('children')

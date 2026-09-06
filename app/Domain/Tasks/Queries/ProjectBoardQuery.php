@@ -37,6 +37,7 @@ final class ProjectBoardQuery
             ->with([
                 'project',
                 'labels',
+                'assignee',
                 'children' => fn (HasMany $children): HasMany => $children
                     ->withCount([
                         'children',
