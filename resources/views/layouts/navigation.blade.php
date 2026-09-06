@@ -25,6 +25,11 @@
 
         @include('components.navigation.sidebar')
 
+        <a href="{{ route('notifications.index') }}" class="planops-nav-link">
+            <i class="ph ph-bell" aria-hidden="true"></i>
+            <span>Notifications</span>
+        </a>
+
         <div class="planops-account">
             <div class="planops-account-copy">
                 <span class="planops-account-name">{{ Auth::user()->name }}</span>
