@@ -65,7 +65,7 @@ test('the foundation contains required columns and lifecycle fields', function (
 test('the foundation contains the documented unique keys', function () {
     expect(indexDefinition('projects', 'projects_user_id_key_unique')['unique'] ?? false)->toBeTrue();
     expect(indexDefinition('tasks', 'tasks_project_id_number_unique')['unique'] ?? false)->toBeTrue();
-    expect(indexDefinition('labels', 'labels_user_id_normalized_name_unique')['unique'] ?? false)->toBeTrue();
+    expect(indexDefinition('labels', 'labels_project_id_normalized_name_unique')['unique'] ?? false)->toBeTrue();
     expect(indexDefinition('task_label', 'task_label_task_id_label_id_unique')['unique'] ?? false)->toBeTrue();
     expect(indexDefinition('user_preferences', 'user_preferences_user_id_unique')['unique'] ?? false)->toBeTrue();
 });

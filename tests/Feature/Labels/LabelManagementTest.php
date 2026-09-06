@@ -7,6 +7,9 @@ use App\Domain\Labels\Actions\CreateLabel;
 use App\Domain\Labels\Actions\DeleteLabel;
 use App\Domain\Labels\Actions\DetachLabelFromTask;
 use App\Domain\Labels\Models\Label;
+use App\Domain\Collaboration\Enums\ProjectRole;
+use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Actions\DeleteTask;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
@@ -15,6 +18,35 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
+
+test('CreateLabel scopes normalized names to a project', function (): void {
+    $owner = User::factory()->create();
+    $firstProject = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    $secondProject = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $firstProject->id, 'user_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $secondProject->id, 'user_id' => $owner->id]);
+
+    $first = (new CreateLabel)->handle($owner, $firstProject, ['name' => ' Platform ']);
+    $second = (new CreateLabel)->handle($owner, $secondProject, ['name' => 'PLATFORM']);
+
+    expect($first->project_id)->toBe($firstProject->id)
+        ->and($second->project_id)->toBe($secondProject->id)
+        ->and($first->normalized_name)->toBe('platform')
+        ->and(fn (): Label => (new CreateLabel)->handle($owner, $firstProject, ['name' => 'platform']))
+        ->toThrow(ValidationException::class);
+});
+
+test('project labels cannot be attached to a task from another project', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    $foreignProject = Project::factory()->create();
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    $task = Task::factory()->forProject($foreignProject)->create();
+    $label = Label::factory()->create(['user_id' => $owner->id, 'project_id' => $project->id]);
+
+    expect(fn (): Task => (new AttachLabelToTask)->handle($owner, $task, $label))
+        ->toThrow(AuthorizationException::class);
+});
 
 test('CreateLabel normalizes names, rejects same-owner duplicates, and allows another owner', function (): void {
     $owner = User::factory()->create();

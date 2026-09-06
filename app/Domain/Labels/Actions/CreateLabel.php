@@ -4,6 +4,7 @@ namespace App\Domain\Labels\Actions;
 
 use App\Domain\Labels\Models\Label;
 use App\Domain\Labels\Rules\NormalizedLabelName;
+use App\Domain\Projects\Models\Project;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -12,8 +13,10 @@ use Illuminate\Validation\ValidationException;
 
 class CreateLabel
 {
-    public function handle(User $user, array $attributes): Label
+    public function handle(User $user, Project|array $projectOrAttributes, ?array $attributes = null): Label
     {
+        $project = $projectOrAttributes instanceof Project ? $projectOrAttributes : null;
+        $attributes ??= is_array($projectOrAttributes) ? $projectOrAttributes : [];
         $names = new NormalizedLabelName;
         $values = [
             'name' => is_string($attributes['name'] ?? null) ? $names->displayName($attributes['name']) : ($attributes['name'] ?? null),
@@ -37,15 +40,22 @@ class CreateLabel
             'name' => [
                 'required',
                 Rule::unique('labels', 'normalized_name')->where(
-                    fn ($query) => $query->where('user_id', $user->getKey()),
+                    fn ($query) => $project === null
+                        ? $query->where('user_id', $user->getKey())
+                        : $query->where('project_id', $project->getKey()),
                 ),
             ],
         ])->validate();
 
-        Gate::forUser($user)->authorize('create', Label::class);
+        if ($project !== null) {
+            Gate::forUser($user)->authorize('update', $project);
+        } else {
+            Gate::forUser($user)->authorize('create', Label::class);
+        }
 
         return Label::query()->create([
             'user_id' => $user->getKey(),
+            'project_id' => $project?->getKey(),
             'name' => $values['name'],
             'normalized_name' => $normalizedName,
             'color' => $values['color'],

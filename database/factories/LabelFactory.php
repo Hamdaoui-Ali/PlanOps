@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Domain\Labels\Models\Label;
+use App\Domain\Projects\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -24,5 +25,13 @@ class LabelFactory extends Factory
     public function forUser(User $user): static
     {
         return $this->state(fn (): array => ['user_id' => $user->id]);
+    }
+
+    public function forProject(Project $project): static
+    {
+        return $this->state(fn (): array => [
+            'user_id' => $project->user_id,
+            'project_id' => $project->id,
+        ]);
     }
 }
