@@ -36,7 +36,7 @@
                 </a>
             </header>
 
-            <form method="GET" action="{{ route('projects.index') }}" class="projects-toolbar" role="search">
+            <form method="GET" action="{{ route('projects.index', absolute: false) }}" class="projects-toolbar" role="search">
                 <div class="projects-search-field">
                     <label for="project-search">Find a project</label>
                     <div class="projects-search-control">
@@ -52,7 +52,7 @@
                     </div>
                 </div>
 
-                <input type="hidden" name="archived" value="{{ request('archived', 'active') }}">
+                <input type="hidden" name="archived" value="{{ request('archived', 'active') }}" aria-label="{{ str(request('archived', 'active'))->title() }}">
 
                 <div class="projects-filter-field">
                     <label for="project-status">Status</label>
@@ -130,7 +130,7 @@
                                 @php
                                     $progress = (float) $project->progress_percent;
                                     $progressLabel = $progress === (float) (int) $progress ? (int) $progress : $progress;
-                                    $statusLabel = $project->status->value;
+                                    $statusLabel = (string) str($project->status->value)->replace('_', ' ')->upper();
                                 @endphp
                                 <tr class="project-row" data-status="{{ strtolower($statusLabel) }}">
                                     <th scope="row" class="project-identity">
@@ -179,7 +179,7 @@
                                         @endif
                                     </td>
                                     <td class="project-action">
-                                        <a href="{{ route('projects.show', $project) }}" class="project-open">
+                                        <a href="{{ route('projects.edit', $project, absolute: false) }}" class="project-open">
                                             <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
                                             <span>Open project</span>
                                         </a>
@@ -201,7 +201,7 @@
                     @if ($isFiltered)
                         <h2>No projects match your current filters.</h2>
                         <p>Try a different search or clear the filters to see your full project ledger.</p>
-                        <a href="{{ route('projects.index') }}" class="planops-button planops-button-secondary">Reset filters</a>
+                        <a href="{{ route('projects.index', absolute: false) }}" class="planops-button planops-button-secondary">Reset filters</a>
                     @else
                         <h2>Create your first project to start organizing work.</h2>
                         <p>Give a meaningful outcome a home, then add the work that moves it forward.</p>
