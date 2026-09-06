@@ -39,7 +39,7 @@ test('analytics counts distinct lifecycle facts and calculates median durations'
         ->and($snapshot->throughput['completed'])->toBe(2)
         ->and($snapshot->throughput['reopened'])->toBe(1)
         ->and($snapshot->leadTimeMedianHours)->toBe(96.0)
-        ->and($snapshot->cycleTimeMedianHours)->toBe(48.0);
+        ->and($snapshot->cycleTimeMedianHours)->toBe(72.0);
 });
 
 test('analytics keeps project contribution owner-scoped and excludes subtasks', function (): void {

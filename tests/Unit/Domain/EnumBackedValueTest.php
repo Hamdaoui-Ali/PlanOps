@@ -24,6 +24,7 @@ test('domain enums expose every documented backed value', function (string $enum
         'TASK_MOVED_PROJECT',
         'TASK_DELETED',
         'TASK_RESTORED',
+        'ASSIGNEE_CHANGED',
     ]],
     'theme preference' => [ThemePreference::class, ['SYSTEM', 'LIGHT', 'DARK']],
     'density preference' => [DensityPreference::class, ['COMFORTABLE', 'COMPACT']],
