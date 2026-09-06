@@ -20,7 +20,25 @@
         <ul aria-label="Notification list">
             @forelse ($notifications as $notification)
                 <li>
-                    <p>{{ $notification->data['message'] ?? $notification->event_type->value }}</p>
+                    @if ($notification->event_type === \App\Domain\Notifications\Enums\NotificationEventType::INVITATION_CREATED && $invitations->has($notification->target_id))
+                        @php($invitation = $invitations->get($notification->target_id))
+                        <p>
+                            {{ $invitation?->invitedBy?->name ?? 'A project manager' }} invited you to join
+                            {{ $notification->data['project_name'] ?? 'a project' }}.
+                        </p>
+                        @if ($invitation?->isPending())
+                            <form method="POST" action="{{ route('notifications.accept-invitation', $notification) }}">
+                                @csrf
+                                <button type="submit" class="planops-button planops-button-primary">Accept invitation</button>
+                            </form>
+                            <form method="POST" action="{{ route('notifications.decline-invitation', $notification) }}">
+                                @csrf
+                                <button type="submit" class="planops-button planops-button-secondary">Decline invitation</button>
+                            </form>
+                        @endif
+                    @else
+                        <p>{{ $notification->data['message'] ?? $notification->event_type->value }}</p>
+                    @endif
                     @if ($notification->read_at === null)
                         <form method="POST" action="{{ route('notifications.read', $notification) }}">
                             @csrf
