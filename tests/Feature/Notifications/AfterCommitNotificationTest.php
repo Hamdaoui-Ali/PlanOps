@@ -32,6 +32,18 @@ it('releases invitation notification only after the transaction commits', functi
     });
 });
 
+it('releases an invitation notification after the action-owned transaction commits', function (): void {
+    Queue::fake();
+    $owner = User::factory()->create();
+    $invitee = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+
+    (new InviteProjectMember)->handle($owner, $project, $invitee->email, ProjectRole::MEMBER);
+
+    Queue::assertPushed(DeliverNotificationOutcome::class);
+});
+
 it('releases assignment notification only after the task transaction commits', function (): void {
     Queue::fake();
     $owner = User::factory()->create();

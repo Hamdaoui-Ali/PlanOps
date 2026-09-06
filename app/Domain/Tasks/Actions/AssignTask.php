@@ -62,7 +62,12 @@ final class AssignTask
                 $actor->getKey(),
                 $updatedTask->title,
             );
-            DB::afterCommit(fn (): mixed => DeliverNotificationOutcome::dispatch($outcome));
+            $dispatch = fn (): mixed => DeliverNotificationOutcome::dispatch($outcome);
+            if (DB::transactionLevel() > 0) {
+                DB::afterCommit($dispatch);
+            } else {
+                $dispatch();
+            }
         }
 
         return $updatedTask;
