@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Domain\Projects\Models\Project;
+use App\Models\User;
 
 test('profile page is displayed', function () {
     $user = User::factory()->create();
@@ -85,7 +85,7 @@ test('correct password must be provided to delete account', function () {
     $this->assertNotNull($user->fresh());
 });
 
-test('project owners cannot delete their account before transferring ownership', function () {
+test('project owners cannot delete their account while they own a project', function () {
     $user = User::factory()->create();
     Project::factory()->create(['user_id' => $user->id, 'owner_id' => $user->id]);
 

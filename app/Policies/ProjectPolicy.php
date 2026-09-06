@@ -71,11 +71,6 @@ class ProjectPolicy
         return $this->role($user, $project) === ProjectRole::OWNER;
     }
 
-    public function transferOwnership(User $user, Project $project): bool
-    {
-        return $this->role($user, $project) === ProjectRole::OWNER;
-    }
-
     public function reorder(User $user, Project $project): bool
     {
         return $this->canManageContent($user, $project);

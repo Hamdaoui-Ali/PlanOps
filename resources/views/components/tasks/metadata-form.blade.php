@@ -4,6 +4,7 @@
     'priorities',
     'saveAction',
     'deleteAction' => null,
+    'statusAction' => null,
 ])
 
 <section class="task-metadata" aria-labelledby="task-metadata-heading">
@@ -12,6 +13,7 @@
         <h2 id="task-metadata-heading">Task metadata</h2>
     </div>
 
+    @can('update', $task)
     <form id="task-details-form" method="POST" action="{{ $saveAction }}" class="task-metadata-form">
         @csrf
         @method('PATCH')
@@ -77,4 +79,22 @@
             </form>
         @endif
     </div>
+    @else
+        @can('changeStatus', $task)
+        <form method="POST" action="{{ $statusAction }}" class="task-metadata-form">
+            @csrf
+            <div class="task-metadata-field">
+                <label for="task-status">Status</label>
+                <select id="task-status" name="status">
+                    @foreach ($statuses as $status)
+                        <option value="{{ $status->value }}" @selected($task->status === $status)>{{ str($status->value)->replace('_', ' ')->title() }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" class="planops-button planops-button-primary">Change status</button>
+        </form>
+        @else
+            <p class="task-detail-muted">This task is read-only because it is not assigned to you.</p>
+        @endcan
+    @endcan
 </section>

@@ -26,11 +26,15 @@
                     <a href="{{ route('projects.tasks.index', $project) }}" class="planops-button planops-button-secondary">View tasks</a>
                     <a href="{{ route('projects.board', $project) }}" class="planops-button planops-button-secondary">Open board</a>
                     <a href="{{ route('projects.team', $project) }}" class="planops-button planops-button-secondary">Team</a>
-                    <a href="{{ route('projects.edit', $project) }}" class="planops-button planops-button-secondary">Edit project</a>
-                    <a href="{{ route('projects.tasks.create', $project) }}" class="planops-button planops-button-primary">
-                        <i class="ph ph-plus" aria-hidden="true"></i>
-                        <span>New task</span>
-                    </a>
+                    @can('update', $project)
+                        <a href="{{ route('projects.edit', $project) }}" class="planops-button planops-button-secondary">Edit project</a>
+                    @endcan
+                    @can('create', [\App\Domain\Tasks\Models\Task::class, $project])
+                        <a href="{{ route('projects.tasks.create', $project) }}" class="planops-button planops-button-primary">
+                            <i class="ph ph-plus" aria-hidden="true"></i>
+                            <span>New task</span>
+                        </a>
+                    @endcan
                 </div>
             </header>
 
@@ -110,6 +114,7 @@
                                             @endif
                                         </td>
                                         <td>
+                                            @can('changeStatus', $task)
                                             <form method="POST" action="{{ route('tasks.status', $task) }}" class="task-status-form">
                                                 @csrf
                                                 <label class="sr-only" for="task-status-{{ $task->id }}">Status for {{ $task->title }}</label>
@@ -120,6 +125,9 @@
                                                 </select>
                                                 <button type="submit" class="planops-button planops-button-secondary">Save status</button>
                                             </form>
+                                            @else
+                                                <span class="project-no-scope">Read-only</span>
+                                            @endcan
                                         </td>
                                     </tr>
                                     @if ($task->children_count > 0)

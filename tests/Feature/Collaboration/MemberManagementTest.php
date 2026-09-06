@@ -2,7 +2,6 @@
 
 use App\Domain\Collaboration\Actions\ChangeProjectMemberRole;
 use App\Domain\Collaboration\Actions\RemoveProjectMember;
-use App\Domain\Collaboration\Actions\TransferProjectOwnership;
 use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Models\Project;
@@ -14,6 +13,7 @@ function memberManagementProject(User $owner): Project
 {
     $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
     ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+
     return $project;
 }
 
@@ -31,7 +31,7 @@ it('removes members and unassigns their tasks while retaining the membership row
         ->and($member->can('view', $project))->toBeFalse();
 });
 
-it('allows only the owner to change roles and transfer ownership', function (): void {
+it('allows only the owner to change collaborator roles while keeping ownership permanent', function (): void {
     $owner = User::factory()->create();
     $project = memberManagementProject($owner);
     $admin = User::factory()->create();
@@ -43,9 +43,7 @@ it('allows only the owner to change roles and transfer ownership', function (): 
         ->toThrow(AuthorizationException::class);
 
     (new ChangeProjectMemberRole)->handle($owner, $memberMembership, ProjectRole::ADMIN);
-    (new TransferProjectOwnership)->handle($owner, $project, $member);
-
-    expect($memberMembership->fresh()->role)->toBe(ProjectRole::OWNER)
+    expect($memberMembership->fresh()->role)->toBe(ProjectRole::ADMIN)
         ->and($adminMembership->fresh()->role)->toBe(ProjectRole::ADMIN)
-        ->and($project->fresh()->owner_id)->toBe($member->id);
+        ->and($project->fresh()->owner_id)->toBe($owner->id);
 });

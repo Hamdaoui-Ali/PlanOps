@@ -39,6 +39,7 @@
                         :priorities="$priorities"
                         :save-action="route('tasks.details.update', $task)"
                         :delete-action="route('tasks.destroy', $task)"
+                        :status-action="route('tasks.status', $task)"
                     />
                     <section class="task-detail-panel" aria-labelledby="task-assignee-heading">
                         <p class="planops-eyebrow">Responsibility</p>

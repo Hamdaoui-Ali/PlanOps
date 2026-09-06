@@ -17,7 +17,7 @@ final class ChangeProjectMemberRole
     {
         Gate::forUser($actor)->authorize('manageRoles', $membership->project);
         if ($role === ProjectRole::OWNER) {
-            throw ValidationException::withMessages(['role' => 'Use ownership transfer to change the owner.']);
+            throw ValidationException::withMessages(['role' => 'The project owner role is permanent.']);
         }
 
         return DB::transaction(function () use ($actor, $membership, $role): ProjectMembership {

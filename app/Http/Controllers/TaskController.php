@@ -27,6 +27,7 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class TaskController extends Controller
@@ -171,8 +172,9 @@ class TaskController extends Controller
         return to_route('projects.show', $projectId)->with('status', 'Task deleted.');
     }
 
-    public function create(Project $project, TaskKeyQuery $keys): View
+    public function create(Request $request, Project $project, TaskKeyQuery $keys): View
     {
+        Gate::forUser($request->user())->authorize('create', [Task::class, $project]);
         $parentOptions = $project->tasks()
             ->accessibleBy($project->user_id)
             ->where('user_id', $project->user_id)

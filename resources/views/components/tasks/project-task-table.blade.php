@@ -17,7 +17,16 @@
                     <td data-label="Labels">@forelse ($task->labels as $label)<span class="my-work-label">{{ $label->name }}</span>@empty<span class="my-work-muted">None</span>@endforelse</td>
                     <td data-label="Subtasks">@if ($task->eligible_children_count > 0){{ $task->completed_children_count }} of {{ $task->eligible_children_count }} done @elseif ($task->children_count > 0)No active subtasks @else None @endif</td>
                     <td data-label="Updated"><time datetime="{{ $task->updated_at?->toIso8601String() }}">{{ $task->updated_at?->format('M j, Y · H:i') }}</time></td>
-                    <td data-label="Actions"><div class="my-work-actions"><form method="POST" action="{{ route('tasks.status', $task) }}?{{ $returnQuery }}" class="my-work-quick-form">@csrf<label for="project-task-status-{{ $task->id }}">Change status for {{ $displayKey }}</label><select id="project-task-status-{{ $task->id }}" name="status">@foreach ($statuses as $status)<option value="{{ $status->value }}" @selected($task->status === $status)>{{ str($status->value)->replace('_', ' ')->title() }}</option>@endforeach</select><button type="submit" class="planops-button planops-button-secondary">Save</button></form><form method="POST" action="{{ route('tasks.priority', $task) }}?{{ $returnQuery }}" class="my-work-quick-form">@csrf @method('PATCH')<label for="project-task-priority-{{ $task->id }}">Change priority for {{ $displayKey }}</label><select id="project-task-priority-{{ $task->id }}" name="priority">@foreach ($priorities as $priority)<option value="{{ $priority->value }}" @selected($task->priority === $priority)>{{ str($priority->value)->replace('_', ' ')->title() }}</option>@endforeach</select><button type="submit" class="planops-button planops-button-secondary">Save</button></form></div></td>
+                    <td data-label="Actions"><div class="my-work-actions">
+                        @can('changeStatus', $task)
+                            <form method="POST" action="{{ route('tasks.status', $task) }}?{{ $returnQuery }}" class="my-work-quick-form">@csrf<label for="project-task-status-{{ $task->id }}">Change status for {{ $displayKey }}</label><select id="project-task-status-{{ $task->id }}" name="status">@foreach ($statuses as $status)<option value="{{ $status->value }}" @selected($task->status === $status)>{{ str($status->value)->replace('_', ' ')->title() }}</option>@endforeach</select><button type="submit" class="planops-button planops-button-secondary">Save</button></form>
+                        @else
+                            <span class="my-work-muted">Read-only</span>
+                        @endcan
+                        @can('changePriority', $task)
+                            <form method="POST" action="{{ route('tasks.priority', $task) }}?{{ $returnQuery }}" class="my-work-quick-form">@csrf @method('PATCH')<label for="project-task-priority-{{ $task->id }}">Change priority for {{ $displayKey }}</label><select id="project-task-priority-{{ $task->id }}" name="priority">@foreach ($priorities as $priority)<option value="{{ $priority->value }}" @selected($task->priority === $priority)>{{ str($priority->value)->replace('_', ' ')->title() }}</option>@endforeach</select><button type="submit" class="planops-button planops-button-secondary">Save</button></form>
+                        @endcan
+                    </div></td>
                 </tr>
             @endforeach
         </tbody>

@@ -65,7 +65,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/invitations/{token}/accept', [ProjectInvitationController::class, 'accept'])->name('invitations.accept');
     Route::patch('/projects/{project}/team/members/{membership}', [ProjectMemberController::class, 'update'])->name('projects.team.members.update');
     Route::delete('/projects/{project}/team/members/{membership}', [ProjectMemberController::class, 'destroy'])->name('projects.team.members.destroy');
-    Route::post('/projects/{project}/team/members/{membership}/transfer', [ProjectMemberController::class, 'transfer'])->name('projects.team.members.transfer');
     Route::get('/projects/{project}/analytics', [ProjectAnalyticsController::class, 'index'])->name('projects.analytics');
     Route::get('/projects/{project}/tasks/create', [TaskController::class, 'create'])
         ->name('projects.tasks.create');
