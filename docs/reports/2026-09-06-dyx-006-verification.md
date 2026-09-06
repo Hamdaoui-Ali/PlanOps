@@ -46,5 +46,6 @@ git diff --check              PASS
 DYX-006 implementation evidence is present for notification contracts,
 after-commit behavior, retry/failure handling, reauthorization, notification
 center scope, assignee filters, exports, dashboard counts, and pending
-invitation UI. The overall Sprint 2 release gate remains open until the two
-baseline failures are either accepted as known issues or corrected.
+invitation UI. The scoped DYX-006 verification gate is green; the broader
+Sprint 2 release decision remains governed by the separate full-suite baseline
+and DYX-007 release checklist.
