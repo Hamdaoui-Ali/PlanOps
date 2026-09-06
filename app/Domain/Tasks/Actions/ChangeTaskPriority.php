@@ -40,6 +40,8 @@ class ChangeTaskPriority
                 'priority',
                 $oldPriority,
                 $priority,
+                [],
+                $user,
             );
 
             return $ownedTask;

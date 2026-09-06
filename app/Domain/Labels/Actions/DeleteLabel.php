@@ -40,6 +40,7 @@ class DeleteLabel
                     $ownedLabel->getKey(),
                     null,
                     ['label' => ['id' => $ownedLabel->getKey(), 'name' => $ownedLabel->name]],
+                    $user,
                 );
             }
 

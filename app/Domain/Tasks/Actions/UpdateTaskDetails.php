@@ -115,6 +115,8 @@ class UpdateTaskDetails
                     $field,
                     $oldValues[$field],
                     $newValue,
+                    [],
+                    $user,
                 );
             }
 

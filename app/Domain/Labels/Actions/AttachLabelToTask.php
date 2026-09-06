@@ -30,6 +30,7 @@ class AttachLabelToTask
                     null,
                     $ownedLabel->getKey(),
                     ['label' => ['id' => $ownedLabel->getKey(), 'name' => $ownedLabel->name]],
+                    $user,
                 );
             }
 

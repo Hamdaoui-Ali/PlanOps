@@ -34,6 +34,8 @@ class DeleteTask
                 null,
                 null,
                 null,
+                [],
+                $user,
             );
 
             return $ownedTask;

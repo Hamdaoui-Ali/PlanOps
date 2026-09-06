@@ -8,6 +8,7 @@ use App\Domain\Tasks\Models\Task;
 use BackedEnum;
 use DateTimeInterface;
 use Illuminate\Support\Carbon;
+use App\Models\User;
 use LogicException;
 
 final class TaskActivityRecorder
@@ -21,6 +22,7 @@ final class TaskActivityRecorder
         mixed $oldValue,
         mixed $newValue,
         array $metadata = [],
+        ?User $actor = null,
     ): TaskActivity {
         if (! $task->exists || ! $task->getKey()) {
             throw new LogicException('Task activity requires a persisted task.');
@@ -31,6 +33,7 @@ final class TaskActivityRecorder
 
         return TaskActivity::query()->create([
             'user_id' => $task->user_id,
+            'actor_user_id' => $actor?->getKey() ?? $task->user_id,
             'project_id' => $task->project_id,
             'task_id' => $task->getKey(),
             'event_type' => $type,

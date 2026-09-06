@@ -1,0 +1,79 @@
+<?php
+
+use App\Domain\Activity\Enums\TaskActivityType;
+use App\Domain\Collaboration\Enums\ProjectRole;
+use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Projects\Models\Project;
+use App\Domain\Tasks\Actions\AssignTask;
+use App\Domain\Tasks\Actions\ChangeTaskStatus;
+use App\Domain\Tasks\Enums\TaskStatus;
+use App\Domain\Tasks\Models\Task;
+use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Validation\ValidationException;
+
+function assignmentProject(User $owner): Project
+{
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    return $project;
+}
+
+it('assigns, reassigns, and unassigns only active members of the task project', function (): void {
+    $owner = User::factory()->create();
+    $project = assignmentProject($owner);
+    $first = User::factory()->create();
+    $second = User::factory()->create();
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $first->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $second->id]);
+    $task = Task::factory()->forProject($project)->create(['user_id' => $owner->id, 'assignee_id' => null]);
+
+    (new AssignTask)->handle($owner, $task, $first);
+    (new AssignTask)->handle($owner, $task->fresh(), $second);
+    (new AssignTask)->handle($owner, $task->fresh(), null);
+
+    expect($task->fresh()->assignee_id)->toBeNull()
+        ->and($task->activities()->where('event_type', TaskActivityType::ASSIGNEE_CHANGED->value)->count())->toBe(3)
+        ->and($task->activities()->latest('id')->first()->actor_user_id)->toBe($owner->id)
+        ->and($task->activities()->latest('id')->first()->metadata)->toMatchArray(['old_assignee_id' => $second->id, 'new_assignee_id' => null]);
+});
+
+it('rejects non-members, removed members, members assigning, and archived projects', function (): void {
+    $owner = User::factory()->create();
+    $project = assignmentProject($owner);
+    $member = User::factory()->create();
+    $outsider = User::factory()->create();
+    $membership = ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $task = Task::factory()->forProject($project)->create(['user_id' => $owner->id]);
+
+    expect(fn () => (new AssignTask)->handle($owner, $task, $outsider))->toThrow(ValidationException::class);
+    $membership->update(['removed_at' => now()]);
+    expect(fn () => (new AssignTask)->handle($owner, $task, $member))->toThrow(ValidationException::class);
+    expect(fn () => (new AssignTask)->handle($member, $task, $owner))->toThrow(AuthorizationException::class);
+    $project->update(['archived_at' => now()]);
+    expect(fn () => (new AssignTask)->handle($owner, $task->fresh(), $owner))->toThrow(AuthorizationException::class);
+});
+
+it('does not record a no-op assignment event', function (): void {
+    $owner = User::factory()->create();
+    $project = assignmentProject($owner);
+    $member = User::factory()->create();
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $task = Task::factory()->forProject($project)->create(['user_id' => $owner->id, 'assignee_id' => $member->id]);
+
+    (new AssignTask)->handle($owner, $task, $member);
+
+    expect($task->activities()->where('event_type', TaskActivityType::ASSIGNEE_CHANGED->value)->count())->toBe(0);
+});
+
+it('records the authenticated actor for task mutations', function (): void {
+    $owner = User::factory()->create();
+    $project = assignmentProject($owner);
+    $member = User::factory()->create();
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $task = Task::factory()->forProject($project)->create(['user_id' => $owner->id, 'assignee_id' => $member->id]);
+
+    (new ChangeTaskStatus)->handle($member, $task, TaskStatus::IN_PROGRESS);
+
+    expect($task->activities()->latest('id')->first()->actor_user_id)->toBe($member->id);
+});

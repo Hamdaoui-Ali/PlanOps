@@ -61,6 +61,8 @@ class UpdateTask
                     $field,
                     $oldValues[$field],
                     $value,
+                    [],
+                    $user,
                 );
             }
 

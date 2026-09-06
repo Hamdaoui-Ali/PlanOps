@@ -40,6 +40,8 @@ class RestoreTask
                 null,
                 null,
                 null,
+                [],
+                $user,
             );
 
             return $ownedTask;

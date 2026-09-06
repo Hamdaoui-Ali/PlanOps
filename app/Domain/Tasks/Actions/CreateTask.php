@@ -95,6 +95,7 @@ class CreateTask
                     'status' => $task->status,
                     'priority' => $task->priority,
                 ],
+                $user,
             );
 
             return $task;

@@ -15,4 +15,5 @@ enum TaskActivityType: string
     case TASK_MOVED_PROJECT = 'TASK_MOVED_PROJECT';
     case TASK_DELETED = 'TASK_DELETED';
     case TASK_RESTORED = 'TASK_RESTORED';
+    case ASSIGNEE_CHANGED = 'ASSIGNEE_CHANGED';
 }

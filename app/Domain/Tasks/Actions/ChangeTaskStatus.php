@@ -67,6 +67,8 @@ class ChangeTaskStatus
                 'status',
                 $previousStatus,
                 $nextStatus,
+                [],
+                $user,
             );
 
             return $ownedTask->refresh();

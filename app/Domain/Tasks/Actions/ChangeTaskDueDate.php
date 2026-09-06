@@ -41,6 +41,8 @@ class ChangeTaskDueDate
                 'due_on',
                 $oldDueOn,
                 $newDueOn,
+                [],
+                $user,
             );
 
             return $ownedTask;

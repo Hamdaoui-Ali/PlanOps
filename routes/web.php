@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/tasks/{task}/details', [TaskController::class, 'updateDetails'])->name('tasks.details.update');
     Route::patch('/tasks/{task}/priority', [TaskController::class, 'changePriority'])->name('tasks.priority');
     Route::patch('/tasks/{task}/due-date', [TaskController::class, 'changeDueDate'])->name('tasks.due-date');
+    Route::patch('/tasks/{task}/assignee', [TaskController::class, 'assign'])->name('tasks.assignee');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
     Route::get('/tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
