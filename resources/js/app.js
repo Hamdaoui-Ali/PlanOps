@@ -52,15 +52,21 @@ if (notificationToast) {
     const closeButton = notificationToast.querySelector('[data-notification-toast-close]');
     const endpoint = notificationToast.dataset.notificationUrl;
     let knownCount = Number(notificationToast.dataset.notificationCount || 0);
+    let dismissTimer;
 
     const showNotificationToast = (count) => {
         knownCount = count;
         if (countLabel) countLabel.textContent = count;
         if (pluralLabel) pluralLabel.textContent = count === 1 ? '' : 's';
         notificationToast.hidden = false;
+        window.clearTimeout(dismissTimer);
+        dismissTimer = window.setTimeout(() => {
+            notificationToast.hidden = true;
+        }, 3000);
     };
 
     closeButton?.addEventListener('click', () => {
+        window.clearTimeout(dismissTimer);
         notificationToast.hidden = true;
     });
 

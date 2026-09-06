@@ -200,6 +200,10 @@ body {
     padding: 0.9rem 1rem;
 }
 
+.notification-toast[hidden] {
+    display: none;
+}
+
 .notification-toast > i {
     color: var(--planops-accent);
     font-size: 1.4rem;
