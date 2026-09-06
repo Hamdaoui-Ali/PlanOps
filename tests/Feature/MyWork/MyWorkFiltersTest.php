@@ -85,7 +85,7 @@ test('the My Work route exposes only owned filter options and a useful empty sta
         ->assertSee('Project')
         ->assertSee('Due')
         ->assertSee('Recently updated')
-        ->assertSee('No tracked work yet.')
+        ->assertSee('No assigned work yet.')
         ->assertSee('Owned project')
         ->assertSee('Owned label')
         ->assertDontSee('Foreign project')
@@ -105,4 +105,16 @@ test('the cancelled status filter keeps its empty result instead of redirecting 
         ->assertSee('Reset filters')
         ->assertSee('value="CANCELLED" selected', false)
         ->assertDontSee('value="IN_REVIEW" selected', false);
+});
+
+test('the empty state explains how to reach assigned backlog work', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    Task::factory()->forProject($project)->backlog()->create(['assignee_id' => $owner->id]);
+
+    $this->actingAs($owner)->get('/my-work')
+        ->assertOk()
+        ->assertSee('No tasks in your current focus.')
+        ->assertSee('Your assigned Backlog, Done, and Cancelled tasks are available from the Status filter.')
+        ->assertSee('Show Backlog');
 });

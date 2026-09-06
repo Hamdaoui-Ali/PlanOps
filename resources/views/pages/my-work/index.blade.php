@@ -19,13 +19,17 @@
             @if ($tasks->total() === 0)
                 <div class="projects-empty-state my-work-empty" role="status">
                     <i class="ph ph-clipboard-text" aria-hidden="true"></i>
-                    @if ($hasAnyTasks && count($filters) > 0)
+                    @if ($hasAnyAssignedTasks && count($filters) > 0)
                         <h2>No tasks match these filters.</h2>
                         <p>Clear the filters to return to your current focus.</p>
                         <a href="{{ route('my-work') }}" class="planops-button planops-button-primary">Reset filters</a>
+                    @elseif ($hasAnyAssignedTasks)
+                        <h2>No tasks in your current focus.</h2>
+                        <p>Your assigned Backlog, Done, and Cancelled tasks are available from the Status filter.</p>
+                        <a href="{{ route('my-work', ['status' => 'BACKLOG']) }}" class="planops-button planops-button-primary">Show Backlog</a>
                     @else
-                        <h2>No tracked work yet.</h2>
-                        <p>Create a project and task to start tracking work here.</p>
+                        <h2>No assigned work yet.</h2>
+                        <p>Tasks appear here when they are assigned to you. Ask a project Owner or Admin to assign work.</p>
                         <a href="{{ route('projects.index') }}" class="planops-button planops-button-primary">View projects</a>
                     @endif
                 </div>

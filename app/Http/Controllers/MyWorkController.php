@@ -10,6 +10,7 @@ use App\Domain\Tasks\Models\Task;
 use App\Domain\Tasks\Queries\MyWorkQuery;
 use App\Domain\Tasks\Queries\TaskKeyQuery;
 use App\Http\Requests\MyWorkFiltersRequest;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 
 final class MyWorkController extends Controller
@@ -22,7 +23,16 @@ final class MyWorkController extends Controller
         return view('pages.my-work.index', [
             'tasks' => $tasks->paginate($owner, $filters),
             'keys' => $keys,
-            'hasAnyTasks' => Task::query()->accessibleBy($owner)->exists(),
+            'hasAnyAssignedTasks' => Task::query()
+                ->accessibleBy($owner)
+                ->where(function (Builder $tasks) use ($owner): void {
+                    $tasks->where('assignee_id', $owner->getKey())
+                        ->orWhere(function (Builder $legacy) use ($owner): void {
+                            $legacy->whereNull('assignee_id')->where('user_id', $owner->getKey())
+                                ->whereHas('project', fn (Builder $projects): Builder => $projects->whereDoesntHave('memberships'));
+                        });
+                })
+                ->exists(),
             'filters' => $filters,
             'projects' => Project::query()->accessibleBy($owner)->orderBy('name')->get(['id', 'name', 'key']),
             'labels' => Label::query()->accessibleBy($owner)->orderBy('normalized_name')->get(['id', 'name']),
