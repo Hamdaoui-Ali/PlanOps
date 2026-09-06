@@ -25,7 +25,20 @@
                     <h2 id="pending-invitations-heading">Pending invitations</h2>
                     <ul>
                         @foreach ($project->invitations as $invitation)
-                            <li><span>{{ $invitation->email }}</span> <span>Pending</span> <span>{{ $invitation->role->value }}</span></li>
+                            <li>
+                                <span>{{ $invitation->email }}</span>
+                                <span>Pending</span>
+                                <span>{{ $invitation->role->value }}</span>
+                                @can('manageMembers', $project)
+                                    @if ($invitation->isPending())
+                                        <form method="POST" action="{{ route('invitations.revoke', $invitation, absolute: false) }}" style="display:inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="planops-button planops-button-secondary">Cancel invitation</button>
+                                        </form>
+                                    @endif
+                                @endcan
+                            </li>
                         @endforeach
                     </ul>
                 </section>

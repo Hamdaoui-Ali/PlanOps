@@ -1,7 +1,8 @@
 <?php
 
-use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Actions\InviteProjectMember;
+use App\Domain\Collaboration\Enums\ProjectRole;
+use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Models\Project;
 use App\Models\User;
@@ -22,7 +23,7 @@ it('accepts a matching invitation through the HTTP endpoint', function (): void 
     $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
     ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
 
-    $invitation = app(\App\Domain\Collaboration\Actions\InviteProjectMember::class)
+    $invitation = app(InviteProjectMember::class)
         ->handle($owner, $project, $invitee->email, ProjectRole::MEMBER);
 
     $response = $this->actingAs($invitee)->post(route('invitations.accept', $invitation->plain_token));
@@ -42,4 +43,21 @@ it('shows pending invitations on the project team surface', function (): void {
         ->assertSee('Pending invitations')
         ->assertSee('pending@example.com')
         ->assertSee('Pending');
+});
+
+it('allows a project manager to cancel a pending invitation', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    $invitation = (new InviteProjectMember)->handle($owner, $project, 'cancel@example.com', ProjectRole::MEMBER);
+
+    $this->actingAs($owner)->get(route('projects.team', $project))
+        ->assertOk()
+        ->assertSee('Cancel invitation')
+        ->assertSee(route('invitations.revoke', $invitation, absolute: false), false);
+
+    $this->actingAs($owner)->delete(route('invitations.revoke', $invitation))
+        ->assertRedirect();
+
+    expect(ProjectInvitation::findOrFail($invitation->id)->revoked_at)->not->toBeNull();
 });
