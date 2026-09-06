@@ -71,6 +71,19 @@ it('keeps the project creator visible after another user accepts an invitation',
         ->and($owner->can('update', $project))->toBeTrue();
 });
 
+it('keeps recovered project creators fully operational without an owner membership row', function (): void {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $task = Task::factory()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+
+    expect($owner->can('update', $task))->toBeTrue()
+        ->and($owner->can('changePriority', $task))->toBeTrue()
+        ->and($owner->can('assign', $task))->toBeTrue()
+        ->and($owner->can('delete', $task))->toBeTrue();
+});
+
 it('returns tasks only from projects with active membership', function (): void {
     $owner = User::factory()->create();
     $member = User::factory()->create();

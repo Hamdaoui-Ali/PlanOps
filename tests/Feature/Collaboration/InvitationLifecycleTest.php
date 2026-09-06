@@ -2,12 +2,13 @@
 
 use App\Domain\Collaboration\Actions\AcceptProjectInvitation;
 use App\Domain\Collaboration\Actions\InviteProjectMember;
-use App\Domain\Collaboration\Actions\RevokeProjectInvitation;
 use App\Domain\Collaboration\Actions\ResendProjectInvitation;
+use App\Domain\Collaboration\Actions\RevokeProjectInvitation;
 use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Models\Project;
+use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\ValidationException;
@@ -16,6 +17,7 @@ function invitationProject(User $owner): Project
 {
     $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
     ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+
     return $project;
 }
 
@@ -57,6 +59,23 @@ it('accepts an invitation once and reactivates an existing membership', function
         ->and(ProjectInvitation::find($invitation->id)->accepted_at)->not->toBeNull()
         ->and(fn () => (new AcceptProjectInvitation)->handle($member, $invitation->plain_token))
         ->toThrow(ValidationException::class);
+});
+
+it('preserves an admin invitation role and keeps the creator fully operational', function (): void {
+    $owner = User::factory()->create();
+    $project = invitationProject($owner);
+    $admin = User::factory()->create(['email' => 'admin@example.com']);
+    $invitation = (new InviteProjectMember)->handle($owner, $project, $admin->email, ProjectRole::ADMIN);
+    $task = Task::factory()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+
+    (new AcceptProjectInvitation)->handle($admin, $invitation->plain_token);
+
+    expect(ProjectMembership::query()->where('project_id', $project->id)->where('user_id', $admin->id)->value('role'))
+        ->toBe(ProjectRole::ADMIN)
+        ->and($admin->can('update', $task))->toBeTrue()
+        ->and($admin->can('assign', $task))->toBeTrue()
+        ->and($owner->can('update', $task))->toBeTrue()
+        ->and($owner->can('delete', $task))->toBeTrue();
 });
 
 it('revokes and resends invitations by rotating the token', function (): void {
