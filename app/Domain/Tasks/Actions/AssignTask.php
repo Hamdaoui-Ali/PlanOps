@@ -28,8 +28,12 @@ final class AssignTask
                 ->whereNull('removed_at')
                 ->lockForUpdate()
                 ->first();
+            $project = $lockedTask->project()->first();
+            $assigneeIsProjectOwner = $assignee !== null && $project !== null
+                && ((string) $project->owner_id === (string) $assignee->getKey()
+                    || (string) $project->user_id === (string) $assignee->getKey());
 
-            if ($assignee !== null && $membership === null) {
+            if ($assignee !== null && $membership === null && ! $assigneeIsProjectOwner) {
                 throw ValidationException::withMessages(['assignee_id' => 'Choose an active member of this project.']);
             }
 

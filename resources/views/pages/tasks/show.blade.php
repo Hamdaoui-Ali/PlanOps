@@ -50,8 +50,9 @@
                                 <label for="task-assignee">Assign task to</label>
                                 <select id="task-assignee" name="assignee_id">
                                     <option value="">Unassigned</option>
-                                    @foreach ($task->project->activeMemberships as $membership)
-                                        <option value="{{ $membership->user_id }}" @selected($task->assignee_id === $membership->user_id)>{{ $membership->user->name }}</option>
+                                    @php($assigneeOptions = $task->project->activeMemberships->pluck('user')->merge([$task->project->owner, $task->project->user])->filter()->unique('id')->sortBy('name'))
+                                    @foreach ($assigneeOptions as $assignee)
+                                        <option value="{{ $assignee->id }}" @selected($task->assignee_id === $assignee->id)>{{ $assignee->name }}</option>
                                     @endforeach
                                 </select>
                                 <button type="submit" class="planops-button planops-button-secondary">Save assignee</button>

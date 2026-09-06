@@ -96,6 +96,23 @@ it('shows an assignee selector to managers and a read-only assignee to members',
     $this->actingAs($owner)->get(route('projects.board', $project))->assertOk()->assertSee($member->name);
 });
 
+it('includes the project creator in the assignee selector and allows self-assignment', function (): void {
+    $owner = User::factory()->create(['name' => 'Project creator']);
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    $member = User::factory()->create(['name' => 'Teammate']);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $task = Task::factory()->forProject($project)->create(['user_id' => $owner->id, 'assignee_id' => null]);
+
+    $this->actingAs($owner)->get(route('tasks.show', $task))
+        ->assertOk()
+        ->assertSee('Project creator')
+        ->assertSee('Teammate');
+
+    (new AssignTask)->handle($owner, $task, $owner);
+
+    expect($task->fresh()->assignee_id)->toBe($owner->id);
+});
+
 it('shows members only their assigned work in My Work', function (): void {
     $owner = User::factory()->create();
     $project = assignmentProject($owner);
