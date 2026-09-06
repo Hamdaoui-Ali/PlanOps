@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\Collaboration\Actions\InviteProjectMember;
+use App\Domain\Collaboration\Actions\ResendProjectInvitation;
 use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
@@ -62,4 +63,19 @@ it('releases assignment notification only after the task transaction commits', f
     Queue::assertPushed(DeliverNotificationOutcome::class, function (DeliverNotificationOutcome $job) use ($member, $task): bool {
         return $job->outcome->recipientId === $member->id && $job->outcome->targetId === $task->id;
     });
+});
+
+it('notifies an existing account when a pending invitation is resent', function (): void {
+    Queue::fake();
+    $owner = User::factory()->create();
+    $invitee = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    $invitation = (new InviteProjectMember)->handle($owner, $project, $invitee->email, ProjectRole::MEMBER);
+    Queue::fake();
+
+    (new ResendProjectInvitation)->handle($owner, $invitation);
+
+    expect(PlanOpsNotification::query()->where('recipient_id', $invitee->id)->count())->toBe(1);
+    Queue::assertPushed(DeliverNotificationOutcome::class);
 });
