@@ -6,6 +6,7 @@ use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Actions\AssignTask;
 use App\Domain\Tasks\Actions\ChangeTaskStatus;
+use App\Domain\Collaboration\Actions\RemoveProjectMember;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
@@ -106,4 +107,20 @@ it('shows members only their assigned work in My Work', function (): void {
     $response = $this->actingAs($member)->get(route('my-work'));
 
     $response->assertOk()->assertSee($assigned->title)->assertDontSee('Unassigned item');
+});
+
+it('records actor-aware unassignment when a member is removed', function (): void {
+    $owner = User::factory()->create();
+    $project = assignmentProject($owner);
+    $member = User::factory()->create();
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $task = Task::factory()->forProject($project)->create(['user_id' => $owner->id, 'assignee_id' => $member->id]);
+
+    (new RemoveProjectMember)->handle($owner, $project, $member);
+
+    $activity = $task->activities()->latest('id')->first();
+    expect($task->fresh()->assignee_id)->toBeNull()
+        ->and($activity->event_type)->toBe(TaskActivityType::ASSIGNEE_CHANGED)
+        ->and($activity->actor_user_id)->toBe($owner->id)
+        ->and($activity->metadata)->toMatchArray(['old_assignee_id' => $member->id, 'new_assignee_id' => null]);
 });
