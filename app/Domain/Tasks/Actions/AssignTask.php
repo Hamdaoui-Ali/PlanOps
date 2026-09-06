@@ -5,6 +5,8 @@ namespace App\Domain\Tasks\Actions;
 use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Activity\Services\TaskActivityRecorder;
 use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Notifications\Data\NotificationOutcome;
+use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +19,7 @@ final class AssignTask
     {
         Gate::forUser($actor)->authorize('assign', $task);
 
-        return DB::transaction(function () use ($actor, $task, $assignee): Task {
+        $updatedTask = DB::transaction(function () use ($actor, $task, $assignee): Task {
             $lockedTask = Task::query()->accessibleBy($actor)->whereKey($task->getKey())->lockForUpdate()->firstOrFail();
             $membership = $assignee === null ? null : ProjectMembership::query()
                 ->where('project_id', $lockedTask->project_id)
@@ -49,5 +51,20 @@ final class AssignTask
 
             return $lockedTask->refresh();
         });
+
+        if ($assignee !== null && (string) $updatedTask->assignee_id !== (string) $task->assignee_id) {
+            $outcome = NotificationOutcome::assigneeChanged(
+                $updatedTask->getKey(),
+                $updatedTask->project_id,
+                $assignee->getKey(),
+                $task->assignee_id,
+                $assignee->getKey(),
+                $actor->getKey(),
+                $updatedTask->title,
+            );
+            DB::afterCommit(fn (): mixed => DeliverNotificationOutcome::dispatch($outcome));
+        }
+
+        return $updatedTask;
     }
 }

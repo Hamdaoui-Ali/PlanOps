@@ -7,12 +7,15 @@ use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectEvent;
 use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Notifications\Data\NotificationOutcome;
+use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
 use App\Domain\Projects\Models\Project;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
+use App\Models\User as UserModel;
 
 final class InviteProjectMember
 {
@@ -28,7 +31,7 @@ final class InviteProjectMember
             throw new AuthorizationException('This role cannot be invited by the current project member.');
         }
 
-        return DB::transaction(function () use ($actor, $project, $email, $normalized, $role): ProjectInvitation {
+        $invitation = DB::transaction(function () use ($actor, $project, $email, $normalized, $role): ProjectInvitation {
             $project->newQuery()->whereKey($project->getKey())->lockForUpdate()->firstOrFail();
             if (ProjectMembership::query()->where('project_id', $project->getKey())->whereHas('user', fn ($users) => $users->whereRaw('LOWER(email) = ?', [$normalized]))->whereNull('removed_at')->exists()) {
                 throw ValidationException::withMessages(['email' => 'That person is already a project member.']);
@@ -47,6 +50,19 @@ final class InviteProjectMember
             ProjectEvent::create(['project_id' => $project->getKey(), 'actor_user_id' => $actor->getKey(), 'event_type' => ProjectEventType::INVITATION_CREATED, 'metadata' => ['email' => $normalized, 'role' => $role->value]]);
             return $invitation;
         });
+
+        $recipient = UserModel::query()->whereRaw('LOWER(email) = ?', [$normalized])->first();
+        if ($recipient !== null) {
+            $outcome = NotificationOutcome::invitationCreated(
+                $invitation->getKey(),
+                $project->getKey(),
+                $recipient->getKey(),
+                $project->name,
+            );
+            DB::afterCommit(fn (): mixed => DeliverNotificationOutcome::dispatch($outcome));
+        }
+
+        return $invitation;
     }
 
     private function roleFor(User $user, Project $project): ?ProjectRole
