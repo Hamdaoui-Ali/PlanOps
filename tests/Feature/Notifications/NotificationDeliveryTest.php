@@ -10,6 +10,7 @@ use App\Domain\Tasks\Models\Task;
 use App\Domain\Projects\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -62,4 +63,23 @@ it('removes a task target when the recipient is no longer an active member', fun
     (new DeliverNotificationOutcome($outcome))->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
 
     expect(PlanOpsNotification::query()->sole()->target_id)->toBeNull();
+});
+
+it('delivers a mail notification only for a still-authorized target', function (): void {
+    Notification::fake();
+    $recipient = User::factory()->create();
+    $project = Project::factory()->create();
+    $invitation = ProjectInvitation::factory()->create([
+        'project_id' => $project->id,
+        'email' => $recipient->email,
+        'normalized_email' => strtolower($recipient->email),
+        'accepted_at' => null,
+        'revoked_at' => null,
+        'expires_at' => now()->addDay(),
+    ]);
+    $outcome = NotificationOutcome::invitationCreated($invitation->id, $project->id, $recipient->id, $project->name);
+
+    (new DeliverNotificationOutcome($outcome))->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
+
+    Notification::assertSentTo($recipient, \App\Notifications\PlanOpsNotificationMail::class);
 });

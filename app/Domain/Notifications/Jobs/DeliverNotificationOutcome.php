@@ -9,6 +9,7 @@ use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Notifications\Enums\NotificationEventType;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
+use App\Notifications\PlanOpsNotificationMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -42,7 +43,12 @@ class DeliverNotificationOutcome implements ShouldQueue
 
     public function handle(PersistNotificationOutcome $persist): void
     {
-        $persist->handle($this->authorizedOutcome());
+        $outcome = $this->authorizedOutcome();
+        $persist->handle($outcome);
+
+        if ($outcome->targetId !== null && ($recipient = User::query()->find($outcome->recipientId)) !== null) {
+            $recipient->notify(new PlanOpsNotificationMail($outcome));
+        }
     }
 
     private function authorizedOutcome(): NotificationOutcome
