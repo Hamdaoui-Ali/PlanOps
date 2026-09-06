@@ -87,6 +87,19 @@ test('an owner can view the project task list with owned filter options and empt
         ->assertSee('This project has no tracked work yet.');
 });
 
+test('project task list exposes only labels from the current project', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create(['name' => 'Plan project', 'key' => 'PLAN']);
+    $foreignProject = Project::factory()->for($owner)->create(['name' => 'Other project', 'key' => 'OTHER']);
+    Label::factory()->forProject($project)->create(['name' => 'Local label']);
+    Label::factory()->forProject($foreignProject)->create(['name' => 'Foreign project label']);
+
+    $this->actingAs($owner)->get(route('projects.tasks.index', $project))
+        ->assertOk()
+        ->assertSee('Local label')
+        ->assertDontSee('Foreign project label');
+});
+
 test('a foreign project task list is unavailable', function (): void {
     $owner = User::factory()->create();
     $foreignProject = Project::factory()->for(User::factory())->create();

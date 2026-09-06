@@ -25,7 +25,13 @@ final class ProjectTaskListController extends Controller
             'keys' => $keys,
             'filters' => $filters,
             'hasAnyTasks' => Task::query()->accessibleBy($owner)->where('project_id', $project->getKey())->exists(),
-            'labels' => Label::query()->accessibleBy($owner)->orderBy('normalized_name')->get(['id', 'name']),
+            'labels' => Label::query()
+                ->where(function ($labels) use ($owner, $project): void {
+                    $labels->where('project_id', $project->getKey())
+                        ->orWhere(fn ($legacy) => $legacy->whereNull('project_id')->where('user_id', $owner->getKey()));
+                })
+                ->orderBy('normalized_name')
+                ->get(['id', 'name']),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
         ]);
