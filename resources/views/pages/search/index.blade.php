@@ -13,6 +13,7 @@
         @elseif ($projects->isEmpty() && $tasks->isEmpty())
             <div class="projects-empty-state my-work-empty" role="status"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><h2>No results for “{{ $term }}”.</h2><p>Try a different key, title, or label.</p></div>
         @else
+            <h2>Search results</h2>
             <div class="search-results" aria-live="polite"><p class="planops-eyebrow">Results for “{{ $term }}”</p>@if ($projects->isNotEmpty())<section class="search-result-group" aria-labelledby="search-projects-heading"><h2 id="search-projects-heading">Projects <span>{{ $projects->count() }}</span></h2><x-search.result-list :items="$projects" type="Projects" /></section>@endif @if ($tasks->isNotEmpty())<section class="search-result-group" aria-labelledby="search-tasks-heading"><h2 id="search-tasks-heading">Tasks <span>{{ $tasks->count() }}</span></h2><x-search.result-list :items="$tasks" type="Tasks" /></section>@endif</div>
         @endif
     </section></div>
