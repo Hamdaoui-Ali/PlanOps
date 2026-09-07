@@ -46,8 +46,8 @@ class CreateTask
 
         return DB::transaction(function () use ($user, $project, $values): Task {
             $lockedProject = Project::query()
+                ->accessibleBy($user)
                 ->whereKey($project->getKey())
-                ->where('user_id', $user->getKey())
                 ->lockForUpdate()
                 ->firstOrFail();
 
@@ -60,8 +60,8 @@ class CreateTask
             $parentId = $values['parent_task_id'] ?? null;
             if ($parentId !== null) {
                 $parent = Task::query()
+                    ->accessibleBy($user)
                     ->whereKey($parentId)
-                    ->where('user_id', $user->getKey())
                     ->where('project_id', $lockedProject->getKey())
                     ->whereNull('parent_task_id')
                     ->first();
@@ -76,6 +76,7 @@ class CreateTask
             $task = Task::query()->create([
                 ...$values,
                 'user_id' => $user->getKey(),
+                'created_by_user_id' => $user->getKey(),
                 'project_id' => $lockedProject->getKey(),
                 'number' => $number,
                 'parent_task_id' => $parent?->getKey(),

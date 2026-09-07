@@ -2,6 +2,7 @@
 
 use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Activity\Models\TaskActivity;
+use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Tasks\Actions\CreateTask;
 use App\Domain\Tasks\Enums\TaskPriority;
 use App\Domain\Tasks\Enums\TaskStatus;
@@ -258,26 +259,42 @@ test('the task creation route renders the required labels', function (): void {
         ->assertSee('Due date');
 });
 
-test('the task creation route exposes only owner-scoped top-level non-deleted parent options', function (): void {
+test('the task creation route exposes only project-scoped top-level non-deleted parent options', function (): void {
     $owner = User::factory()->create();
-    $other = User::factory()->create();
+    $admin = User::factory()->create();
     $project = Project::factory()->for($owner)->create(['key' => 'PLAN']);
     $otherProject = Project::factory()->for($owner)->create(['key' => 'OTHER']);
+    ProjectMembership::factory()->admin()->create([
+        'project_id' => $project->id,
+        'user_id' => $admin->id,
+    ]);
     $visibleParent = Task::factory()->forProject($project)->create(['number' => 2, 'title' => 'Visible parent']);
+    $adminParent = Task::factory()->forProject($project)->create([
+        'user_id' => $admin->id,
+        'created_by_user_id' => $admin->id,
+        'number' => 3,
+        'title' => 'Admin-created parent',
+    ]);
     Task::factory()->forProject($otherProject)->create(['number' => 1, 'title' => 'Cross-project parent']);
-    Task::factory()->forProject($project)->create(['user_id' => $other->id, 'number' => 3, 'title' => 'Foreign-owner parent']);
     Task::factory()->forProject($project)->withParent($visibleParent)->create(['number' => 4, 'title' => 'Nested parent']);
     Task::factory()->forProject($project)->deleted()->create(['number' => 5, 'title' => 'Deleted parent']);
 
     $this->actingAs($owner)
         ->get(route('projects.tasks.create', $project))
         ->assertOk()
-        ->assertViewHas('parentOptions', function ($parentOptions) use ($visibleParent): bool {
-            return $parentOptions->all() === [[
-                'id' => $visibleParent->getKey(),
-                'display_key' => 'PLAN-2',
-                'title' => 'Visible parent',
-            ]];
+        ->assertViewHas('parentOptions', function ($parentOptions) use ($visibleParent, $adminParent): bool {
+            return $parentOptions->all() === [
+                [
+                    'id' => $visibleParent->getKey(),
+                    'display_key' => 'PLAN-2',
+                    'title' => 'Visible parent',
+                ],
+                [
+                    'id' => $adminParent->getKey(),
+                    'display_key' => 'PLAN-3',
+                    'title' => 'Admin-created parent',
+                ],
+            ];
         });
 });
 

@@ -15,15 +15,13 @@ class TaskKeyQuery
 
         $project = $task->relationLoaded('project')
             ? $task->project
-            : $task->project()->where('user_id', $task->user_id)->first();
+            : $task->project;
 
         if (
             $task->user_id === null
             || $task->project_id === null
             || $project === null
             || (string) $project->getKey() !== (string) $task->project_id
-            || $project->user_id === null
-            || (string) $project->user_id !== (string) $task->user_id
             || blank($project->key)
             || (int) $task->number < 1
         ) {

@@ -176,8 +176,7 @@ class TaskController extends Controller
     {
         Gate::forUser($request->user())->authorize('create', [Task::class, $project]);
         $parentOptions = $project->tasks()
-            ->accessibleBy($project->user_id)
-            ->where('user_id', $project->user_id)
+            ->accessibleBy($request->user())
             ->whereNull('parent_task_id')
             ->with('project')
             ->orderBy('number')
