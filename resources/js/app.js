@@ -52,13 +52,18 @@ if (notificationToast) {
     const closeButton = notificationToast.querySelector('[data-notification-toast-close]');
     const endpoint = notificationToast.dataset.notificationUrl;
     let knownCount = Number(notificationToast.dataset.notificationCount || 0);
+    const lastNotifiedCountKey = 'planops-notification-toast-count';
+    sessionStorage.removeItem('planops-notification-toast-seen');
+    let lastNotifiedCount = Number(sessionStorage.getItem(lastNotifiedCountKey) || 0);
     let dismissTimer;
 
     const showNotificationToast = (count) => {
         knownCount = count;
+        lastNotifiedCount = count;
         if (countLabel) countLabel.textContent = count;
         if (pluralLabel) pluralLabel.textContent = count === 1 ? '' : 's';
         notificationToast.hidden = false;
+        sessionStorage.setItem(lastNotifiedCountKey, String(count));
         window.clearTimeout(dismissTimer);
         dismissTimer = window.setTimeout(() => {
             notificationToast.hidden = true;
@@ -70,9 +75,11 @@ if (notificationToast) {
         notificationToast.hidden = true;
     });
 
-    if (knownCount > 0 && !sessionStorage.getItem('planops-notification-toast-seen')) {
+    if (knownCount > 0 && knownCount > lastNotifiedCount) {
         showNotificationToast(knownCount);
-        sessionStorage.setItem('planops-notification-toast-seen', '1');
+    } else if (knownCount < lastNotifiedCount) {
+        lastNotifiedCount = knownCount;
+        sessionStorage.setItem(lastNotifiedCountKey, String(knownCount));
     }
 
     if (endpoint) {
@@ -80,9 +87,12 @@ if (notificationToast) {
             fetch(endpoint, { headers: { Accept: 'application/json' } })
                 .then((response) => response.ok ? response.json() : null)
                 .then((payload) => {
-                    if (!payload || Number(payload.count) <= knownCount) return;
-                    showNotificationToast(Number(payload.count));
-                    if (notificationBadge) notificationBadge.textContent = payload.count > 99 ? '99+' : payload.count;
+                    if (!payload) return;
+
+                    const count = Number(payload.count);
+                    if (count <= knownCount) return;
+                    showNotificationToast(count);
+                    if (notificationBadge) notificationBadge.textContent = count > 99 ? '99+' : count;
                 })
                 .catch(() => {});
         }, 30000);
