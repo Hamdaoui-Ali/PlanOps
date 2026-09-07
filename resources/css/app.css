@@ -918,6 +918,132 @@ body {
     margin-top: 0.7rem;
 }
 
+.pending-invitations-panel {
+    margin: 0.5rem 0 2rem;
+    border: 1px solid var(--planops-border);
+    background: var(--planops-surface);
+}
+
+.pending-invitations-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--planops-border);
+    padding: 1.35rem 1.5rem;
+}
+
+.pending-invitations-header h2 {
+    margin: 0;
+    color: var(--planops-text);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+}
+
+.pending-invitations-header p:last-child {
+    margin: 0.45rem 0 0;
+    color: var(--planops-muted);
+    font-size: 0.8rem;
+}
+
+.pending-invitations-count,
+.pending-invitation-role,
+.pending-invitation-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid var(--planops-border);
+    border-radius: 999px;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.pending-invitations-count {
+    background: var(--planops-input-selected);
+    color: var(--planops-accent);
+}
+
+.pending-invitations-list {
+    display: grid;
+    gap: 0.7rem;
+    margin: 0;
+    padding: 1rem;
+    list-style: none;
+}
+
+.pending-invitation-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.9rem;
+    border: 1px solid var(--planops-border);
+    background: var(--planops-surface-raised);
+    padding: 0.85rem 0.95rem;
+}
+
+.pending-invitation-icon {
+    display: grid;
+    width: 2.35rem;
+    height: 2.35rem;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(104, 184, 192, 0.12);
+    color: var(--planops-accent);
+    font-size: 1.1rem;
+}
+
+.pending-invitation-details {
+    display: grid;
+    min-width: 0;
+    gap: 0.25rem;
+}
+
+.pending-invitation-details strong {
+    overflow: hidden;
+    color: var(--planops-text);
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pending-invitation-details span {
+    color: var(--planops-muted);
+    font-size: 0.72rem;
+}
+
+.pending-invitation-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.45rem;
+}
+
+.pending-invitation-status {
+    border-color: rgba(233, 182, 106, 0.35);
+    background: rgba(233, 182, 106, 0.1);
+    color: var(--planops-warning);
+}
+
+.pending-invitation-role {
+    background: var(--planops-surface);
+    color: var(--planops-muted);
+}
+
+.pending-invitation-action {
+    margin: 0;
+}
+
+.pending-invitation-action .planops-button {
+    min-height: 2.25rem;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.72rem;
+}
+
 .project-overview-tasks {
     border-top: 1px solid var(--planops-border);
     padding-top: 1.35rem;
@@ -1197,6 +1323,24 @@ body {
 
     .project-overview-summary {
         grid-template-columns: 1fr;
+    }
+
+    .pending-invitations-header {
+        flex-direction: column;
+    }
+
+    .pending-invitation-row {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .pending-invitation-meta,
+    .pending-invitation-action {
+        grid-column: 2;
+        justify-content: flex-start;
+    }
+
+    .pending-invitation-action .planops-button {
+        width: 100%;
     }
 
     .project-overview-progress-value {
