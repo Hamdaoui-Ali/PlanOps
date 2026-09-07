@@ -21,20 +21,33 @@
             </td></tr>@endforeach
             </tbody></table></div>
             @if ($project->invitations->isNotEmpty())
-                <section aria-labelledby="pending-invitations-heading" class="project-overview-summary">
-                    <h2 id="pending-invitations-heading">Pending invitations</h2>
-                    <ul>
+                <section aria-labelledby="pending-invitations-heading" class="pending-invitations-panel">
+                    <header class="pending-invitations-header">
+                        <div>
+                            <p class="planops-eyebrow">Awaiting response</p>
+                            <h2 id="pending-invitations-heading">Pending invitations</h2>
+                            <p>Keep track of collaborators who have not joined yet.</p>
+                        </div>
+                        <span class="pending-invitations-count">{{ $project->invitations->count() }} {{ $project->invitations->count() === 1 ? 'invite' : 'invites' }}</span>
+                    </header>
+                    <ul class="pending-invitations-list">
                         @foreach ($project->invitations as $invitation)
-                            <li>
-                                <span>{{ $invitation->email }}</span>
-                                <span>Pending</span>
-                                <span>{{ $invitation->role->value }}</span>
+                            <li class="pending-invitation-row">
+                                <span class="pending-invitation-icon" aria-hidden="true"><i class="ph ph-envelope-simple"></i></span>
+                                <div class="pending-invitation-details">
+                                    <strong>{{ $invitation->email }}</strong>
+                                    <span>Awaiting acceptance</span>
+                                </div>
+                                <div class="pending-invitation-meta">
+                                    <span class="pending-invitation-status"><i class="ph ph-clock" aria-hidden="true"></i>Pending</span>
+                                    <span class="pending-invitation-role">{{ $invitation->role->value }}</span>
+                                </div>
                                 @can('manageMembers', $project)
                                     @if ($invitation->isPending())
-                                        <form method="POST" action="{{ route('invitations.revoke', $invitation, absolute: false) }}" style="display:inline">
+                                        <form method="POST" action="{{ route('invitations.revoke', $invitation, absolute: false) }}" class="pending-invitation-action">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="planops-button planops-button-secondary">Cancel invitation</button>
+                                            <button type="submit" class="planops-button planops-button-secondary"><i class="ph ph-x" aria-hidden="true"></i>Cancel</button>
                                         </form>
                                     @endif
                                 @endcan

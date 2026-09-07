@@ -41,7 +41,9 @@ it('shows pending invitations on the project team surface', function (): void {
     $this->actingAs($owner)->get(route('projects.team', $project))
         ->assertOk()
         ->assertSee('Pending invitations')
+        ->assertSee('pending-invitations-panel', false)
         ->assertSee('pending@example.com')
+        ->assertSee('Awaiting acceptance')
         ->assertSee('Pending');
 });
 
@@ -53,7 +55,7 @@ it('allows a project manager to cancel a pending invitation', function (): void 
 
     $this->actingAs($owner)->get(route('projects.team', $project))
         ->assertOk()
-        ->assertSee('Cancel invitation')
+        ->assertSee('Cancel')
         ->assertSee(route('invitations.revoke', $invitation, absolute: false), false);
 
     $this->actingAs($owner)->delete(route('invitations.revoke', $invitation))
