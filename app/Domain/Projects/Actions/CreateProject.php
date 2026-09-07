@@ -2,9 +2,11 @@
 
 namespace App\Domain\Projects\Actions;
 
+use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Projects\Models\Project;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -39,11 +41,22 @@ class CreateProject
 
         $values['status'] = ProjectStatus::from($values['status']);
 
-        return Project::query()->create([
-            ...$values,
-            'user_id' => $user->getKey(),
-            'next_task_number' => 1,
-        ]);
+        return DB::transaction(function () use ($user, $values): Project {
+            $project = Project::query()->create([
+                ...$values,
+                'user_id' => $user->getKey(),
+                'owner_id' => $user->getKey(),
+                'next_task_number' => 1,
+            ]);
+
+            $project->memberships()->create([
+                'user_id' => $user->getKey(),
+                'role' => ProjectRole::OWNER,
+                'joined_at' => $project->created_at,
+            ]);
+
+            return $project;
+        });
     }
 
     private function trimmed(mixed $value): mixed
