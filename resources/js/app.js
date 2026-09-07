@@ -90,6 +90,13 @@ if (notificationToast) {
                     if (!payload) return;
 
                     const count = Number(payload.count);
+                    if (count < knownCount) {
+                        knownCount = count;
+                        lastNotifiedCount = count;
+                        sessionStorage.setItem(lastNotifiedCountKey, String(count));
+                        return;
+                    }
+
                     if (count <= knownCount) return;
                     showNotificationToast(count);
                     if (notificationBadge) notificationBadge.textContent = count > 99 ? '99+' : count;
