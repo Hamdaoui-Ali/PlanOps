@@ -3,6 +3,7 @@
 namespace App\Domain\Projects\Models;
 
 use App\Domain\Activity\Models\TaskActivity;
+use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectEvent;
 use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Collaboration\Models\ProjectMembership;
@@ -99,6 +100,23 @@ class Project extends Model
                 ->orWhereHas('memberships', fn (Builder $memberships): Builder => $memberships
                     ->where('user_id', $viewerId)
                     ->whereNull('removed_at'));
+        });
+    }
+
+    public function scopeExportableBy(Builder $query, User|int $viewer): Builder
+    {
+        $viewerId = $viewer instanceof User ? $viewer->getKey() : $viewer;
+        $table = $query->getModel()->getTable();
+
+        return $query->where(function (Builder $projects) use ($viewerId, $table): void {
+            $projects->whereHas('memberships', fn (Builder $memberships): Builder => $memberships
+                ->where('user_id', $viewerId)
+                ->whereIn('role', [ProjectRole::OWNER->value, ProjectRole::ADMIN->value])
+                ->whereNull('removed_at'))
+                ->orWhere(fn (Builder $legacy): Builder => $legacy->whereDoesntHave('memberships')
+                    ->where(fn (Builder $owners): Builder => $owners
+                        ->where($table.'.owner_id', $viewerId)
+                        ->orWhere($table.'.user_id', $viewerId)));
         });
     }
 

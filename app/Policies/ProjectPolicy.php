@@ -55,10 +55,7 @@ class ProjectPolicy
 
     public function exportAny(User $user): bool
     {
-        return Project::query()->accessibleBy($user)->where(function ($projects): void {
-            $projects->whereHas('memberships', fn ($memberships) => $memberships->whereIn('role', [ProjectRole::OWNER->value, ProjectRole::ADMIN->value])->whereNull('removed_at'))
-                ->orWhere(fn ($legacy) => $legacy->whereDoesntHave('memberships'));
-        })->exists();
+        return Project::query()->exportableBy($user)->exists();
     }
 
     public function manageMembers(User $user, Project $project): bool

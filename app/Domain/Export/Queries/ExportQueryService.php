@@ -6,13 +6,14 @@ use App\Domain\Activity\Models\TaskActivity;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\LazyCollection;
 
 final class ExportQueryService
 {
     public function projects(User $owner): LazyCollection
     {
-        return Project::query()->accessibleBy($owner)->withCount([
+        return Project::query()->exportableBy($owner)->withCount([
             'tasks as eligible_task_count' => fn ($tasks) => $tasks->whereNull('parent_task_id')->where('status', '!=', 'CANCELLED'),
             'tasks as completed_task_count' => fn ($tasks) => $tasks->whereNull('parent_task_id')->where('status', 'DONE'),
         ])->orderBy('id')->lazyById(100);
@@ -20,11 +21,17 @@ final class ExportQueryService
 
     public function tasks(User $owner): LazyCollection
     {
-        return Task::query()->accessibleBy($owner)->with(['project:id,name,key', 'parent:id,project_id,number', 'labels:id,name'])->orderBy('id')->lazyById(100);
+        return Task::query()->whereHas('project', fn (Builder $projects): Builder => $projects->exportableBy($owner))
+            ->with(['project:id,name,key', 'parent:id,project_id,number', 'labels:id,name'])
+            ->orderBy('id')
+            ->lazyById(100);
     }
 
     public function activity(User $owner): LazyCollection
     {
-        return TaskActivity::query()->whereIn('task_id', Task::query()->accessibleBy($owner)->select('id'))->with(['project:id,name,key', 'task:id,project_id,number,title,deleted_at'])->orderBy('id')->lazyById(100);
+        return TaskActivity::query()->whereHas('project', fn (Builder $projects): Builder => $projects->exportableBy($owner))
+            ->with(['project:id,name,key', 'task:id,project_id,number,title,deleted_at'])
+            ->orderBy('id')
+            ->lazyById(100);
     }
 }

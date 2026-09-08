@@ -13,19 +13,19 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('scopes member task exports to accessible projects', function (): void {
+it('excludes member-only projects from complete task exports', function (): void {
     $owner = User::factory()->create();
     $member = User::factory()->create();
     $shared = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
     $foreign = Project::factory()->create();
     ProjectMembership::factory()->owner()->create(['project_id' => $shared->id, 'user_id' => $owner->id]);
     ProjectMembership::factory()->create(['project_id' => $shared->id, 'user_id' => $member->id]);
-    $visible = Task::factory()->forProject($shared)->create(['title' => 'Visible member task']);
+    Task::factory()->forProject($shared)->create(['title' => 'Member only task']);
     Task::factory()->forProject($foreign)->create(['title' => 'Hidden foreign task']);
 
     $titles = (new ExportQueryService)->tasks($member)->collect()->pluck('title')->all();
 
-    expect($titles)->toBe([$visible->title]);
+    expect($titles)->toBe([]);
 });
 
 it('scopes member dashboard counts to accessible projects', function (): void {
