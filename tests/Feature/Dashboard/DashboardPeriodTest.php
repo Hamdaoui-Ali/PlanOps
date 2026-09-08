@@ -12,6 +12,7 @@ test('dashboard renders the selected week period', function (): void {
 
     $this->actingAs($user)->get(route('dashboard', ['period' => 'week']))
         ->assertOk()
+        ->assertSee('action="'.route('dashboard').'"', false)
         ->assertSee('Dashboard')
         ->assertSee('Week of');
 });

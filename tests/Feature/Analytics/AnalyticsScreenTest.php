@@ -12,6 +12,7 @@ test('an owner can open global analytics with a selected period', function (): v
 
     $this->actingAs($owner)->get(route('analytics', ['period' => 'month']))
         ->assertOk()
+        ->assertSee('action="'.route('analytics').'"', false)
         ->assertSee('Analytics')
         ->assertSee('Throughput')
         ->assertSee('Lead time')
@@ -26,6 +27,7 @@ test('an owner can open analytics for an owned project but not a foreign project
 
     $this->actingAs($owner)->get(route('projects.analytics', $project))
         ->assertOk()
+        ->assertSee('action="'.route('projects.analytics', $project).'"', false)
         ->assertSee('Owned analytics');
 
     $this->actingAs($owner)->get(route('projects.analytics', $foreign))->assertNotFound();
