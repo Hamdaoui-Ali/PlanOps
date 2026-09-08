@@ -17,7 +17,12 @@ final class AnalyticsQueryService
 {
     public function for(User $user, ReportPeriod $period, ?Project $project = null): AnalyticsSnapshot
     {
-        $tasks = Task::query()->accessibleBy($user)->whereNull('parent_task_id')->when($project, fn ($query) => $query->where('project_id', $project->getKey()))->with('project')->get();
+        $tasks = Task::query()
+            ->whereHas('project', fn ($query) => $query->detailedReportsVisibleTo($user))
+            ->whereNull('parent_task_id')
+            ->when($project, fn ($query) => $query->where('project_id', $project->getKey()))
+            ->with('project')
+            ->get();
         $taskIds = $tasks->modelKeys();
         $activities = TaskActivity::query()->whereIn('task_id', $taskIds)->where('created_at', '>=', $period->start)->where('created_at', '<', $period->end)->with('task')->orderBy('created_at')->orderBy('id')->get();
         $activities = $activities->filter(fn (TaskActivity $activity): bool => $activity->task !== null && ! $activity->task->trashed());

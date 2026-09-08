@@ -13,9 +13,7 @@ class TaskKeyQuery
             throw new LogicException('Cannot derive a display key for an unsaved task.');
         }
 
-        $project = $task->relationLoaded('project')
-            ? $task->project
-            : $task->project;
+        $project = $task->project;
 
         if (
             $task->user_id === null

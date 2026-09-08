@@ -2,15 +2,55 @@
 
 use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Activity\Models\TaskActivity;
+use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Actions\CreateTask;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
 
 uses(RefreshDatabase::class);
+
+test('a member cannot create tasks directly or change task activity and numbering', function (): void {
+    $member = User::factory()->create();
+    $project = Project::factory()->create(['next_task_number' => 7]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+
+    expect(fn () => (new CreateTask)->handle($member, $project, ['title' => 'Denied task']))
+        ->toThrow(AuthorizationException::class);
+    expect(Task::query()->count())->toBe(0)
+        ->and(TaskActivity::query()->count())->toBe(0)
+        ->and($project->fresh()->next_task_number)->toBe(7);
+});
+
+test('task creation rechecks the admin role inside its transaction before allocating or writing', function (): void {
+    $admin = User::factory()->create();
+    $project = Project::factory()->create(['next_task_number' => 7]);
+    $membership = ProjectMembership::factory()->admin()->create([
+        'project_id' => $project->id,
+        'user_id' => $admin->id,
+    ]);
+    $demoted = false;
+    // Change real persisted authorization state after the preliminary gate passes.
+    Event::listen(TransactionBeginning::class, function () use ($membership, &$demoted): void {
+        if (! $demoted) {
+            $demoted = true;
+            $membership->forceFill(['role' => ProjectRole::MEMBER])->save();
+        }
+    });
+
+    expect(fn () => (new CreateTask)->handle($admin, $project, ['title' => 'Stale admin task']))
+        ->toThrow(AuthorizationException::class);
+    expect($demoted)->toBeTrue()
+        ->and(Task::query()->count())->toBe(0)
+        ->and(TaskActivity::query()->count())->toBe(0)
+        ->and($project->fresh()->next_task_number)->toBe(7);
+});
 
 test('an active project admin can create a task with explicit creator and actor attribution', function (): void {
     $owner = User::factory()->create();

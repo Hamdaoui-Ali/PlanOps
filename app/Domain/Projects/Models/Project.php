@@ -105,6 +105,11 @@ class Project extends Model
 
     public function scopeExportableBy(Builder $query, User|int $viewer): Builder
     {
+        return $query->detailedReportsVisibleTo($viewer);
+    }
+
+    public function scopeDetailedReportsVisibleTo(Builder $query, User|int $viewer): Builder
+    {
         $viewerId = $viewer instanceof User ? $viewer->getKey() : $viewer;
         $table = $query->getModel()->getTable();
 

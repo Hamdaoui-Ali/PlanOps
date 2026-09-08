@@ -51,6 +51,12 @@ class CreateTask
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            $lockedProject->memberships()
+                ->where('user_id', $user->getKey())
+                ->lockForUpdate()
+                ->first();
+            Gate::forUser($user)->authorize('create', [Task::class, $lockedProject]);
+
             $number = (int) $lockedProject->next_task_number;
             if ($number < 1) {
                 throw new LogicException('Project task numbering must start at 1.');
