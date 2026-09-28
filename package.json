@@ -5,6 +5,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
+        "pretest:browser": "npm run build",
         "test:browser": "playwright test"
     },
     "devDependencies": {

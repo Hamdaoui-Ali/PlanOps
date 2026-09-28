@@ -20,7 +20,7 @@ export default defineConfig({
         video: 'retain-on-failure',
     },
     webServer: {
-        command: 'php artisan serve --host=127.0.0.1 --port=8001',
+        command: 'php artisan serve --no-reload --host=127.0.0.1 --port=8001',
         url: 'http://127.0.0.1:8001',
         timeout: 120_000,
         reuseExistingServer: false,
@@ -32,7 +32,7 @@ export default defineConfig({
             DB_DATABASE: browserDatabase,
             MAIL_MAILER: 'array',
             QUEUE_CONNECTION: 'sync',
-            SESSION_DRIVER: 'array',
+            SESSION_DRIVER: 'cookie',
         },
     },
 });

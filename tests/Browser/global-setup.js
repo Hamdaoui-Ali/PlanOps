@@ -17,7 +17,7 @@ export default async function globalSetup() {
         DB_DATABASE: databasePath,
         MAIL_MAILER: 'array',
         QUEUE_CONNECTION: 'sync',
-        SESSION_DRIVER: 'array',
+        SESSION_DRIVER: 'cookie',
     };
     const php = process.env.PHP_BINARY || 'php';
 
