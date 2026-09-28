@@ -157,6 +157,16 @@ body {
     color: var(--planops-focus);
 }
 
+html.theme-light .planops-nav-link.is-active {
+    color: var(--planops-text);
+}
+
+@media (prefers-color-scheme: light) {
+    html.theme-system .planops-nav-link.is-active {
+        color: var(--planops-text);
+    }
+}
+
 .planops-nav-link i,
 .planops-account-link i {
     flex: 0 0 1.25rem;
@@ -3276,6 +3286,42 @@ kbd { padding: 0.1rem 0.35rem; border: 1px solid var(--planops-border); border-r
 .auth-switch { margin: 1.5rem 0 0; color: var(--planops-muted); text-align: center; font-size: 0.75rem; }
 .auth-status { margin: -0.8rem 0 1rem; color: var(--planops-focus); font-size: 0.75rem; }
 .auth-card [role="alert"], .auth-card .text-red-600 { color: var(--planops-danger); font-size: 0.7rem; }
+
+.team-work-page { display: grid; gap: 1rem; }
+.team-work-summary, .team-work-table-panel { border: 1px solid var(--planops-border); background: var(--planops-surface); }
+.team-work-summary { display: grid; grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.8fr); gap: 1rem; padding: 1.4rem; }
+.team-work-summary-heading h2, .team-work-section-heading h2 { margin: 0; color: var(--planops-text); font-size: 1.45rem; letter-spacing: -0.035em; }
+.team-work-summary-heading p:last-child { max-width: 34rem; margin: 0.55rem 0 0; color: var(--planops-muted); font-size: 0.82rem; line-height: 1.55; }
+.team-work-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
+.team-work-metric { display: grid; gap: 0.25rem; min-height: 7.2rem; padding: 1rem; border-left: 3px solid var(--planops-focus); background: var(--planops-canvas); }
+.team-work-metric span, .team-work-metric small { color: var(--planops-muted); font-size: 0.68rem; }
+.team-work-metric strong { color: var(--planops-text); font-size: 2rem; font-weight: 650; line-height: 1; }
+.team-work-table-panel { padding: 1.4rem; }
+.team-work-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.team-work-section-heading > span { color: var(--planops-muted); font-size: 0.7rem; }
+.team-work-table-wrap { overflow-x: auto; border: 1px solid var(--planops-border); }
+.team-work-table { width: 100%; min-width: 44rem; border-collapse: collapse; }
+.team-work-table th, .team-work-table td { padding: 0.9rem 1rem; border-bottom: 1px solid var(--planops-border); color: var(--planops-muted); font-size: 0.76rem; text-align: left; vertical-align: middle; }
+.team-work-table thead th { background: var(--planops-canvas); color: var(--planops-text); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.team-work-table tbody tr:last-child th, .team-work-table tbody tr:last-child td { border-bottom: 0; }
+.team-work-table tbody th { width: 34%; color: var(--planops-text); font-weight: 700; }
+.team-work-member-name, .team-work-member-meta { display: block; }
+.team-work-member-meta { margin-top: 0.25rem; color: var(--planops-muted); font-size: 0.66rem; font-weight: 500; }
+.team-work-empty { display: grid; justify-items: start; gap: 0.45rem; padding: 1.4rem 0 0.25rem; color: var(--planops-muted); }
+.team-work-empty i { color: var(--planops-focus); font-size: 1.4rem; }
+.team-work-empty h3, .team-work-empty p { margin: 0; }
+.team-work-empty h3 { color: var(--planops-text); font-size: 0.95rem; }
+.team-work-empty p { font-size: 0.78rem; }
+
+@media (max-width: 800px) {
+    .team-work-summary { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+    .team-work-summary, .team-work-table-panel { padding: 1rem; }
+    .team-work-metrics { grid-template-columns: 1fr 1fr; }
+    .team-work-section-heading { align-items: start; flex-direction: column; }
+}
 
 @media (max-width: 1100px) {
     .public-hero { grid-template-columns: 1fr; gap: 3rem; padding-top: 3.5rem; }
