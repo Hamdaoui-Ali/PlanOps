@@ -53,6 +53,11 @@ class ProjectPolicy
         return in_array($this->role($user, $project), [ProjectRole::OWNER, ProjectRole::ADMIN], true);
     }
 
+    public function viewTeamWork(User $user, Project $project): bool
+    {
+        return in_array($this->role($user, $project), [ProjectRole::OWNER, ProjectRole::ADMIN], true);
+    }
+
     public function exportAny(User $user): bool
     {
         return Project::query()->exportableBy($user)->exists();
