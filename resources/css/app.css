@@ -157,6 +157,16 @@ body {
     color: var(--planops-focus);
 }
 
+html.theme-light .planops-nav-link.is-active {
+    color: var(--planops-text);
+}
+
+@media (prefers-color-scheme: light) {
+    html.theme-system .planops-nav-link.is-active {
+        color: var(--planops-text);
+    }
+}
+
 .planops-nav-link i,
 .planops-account-link i {
     flex: 0 0 1.25rem;
