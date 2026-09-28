@@ -26,6 +26,9 @@
                     <a href="{{ route('projects.tasks.index', $project) }}" class="planops-button planops-button-secondary">View tasks</a>
                     <a href="{{ route('projects.board', $project) }}" class="planops-button planops-button-secondary">Open board</a>
                     <a href="{{ route('projects.team', $project) }}" class="planops-button planops-button-secondary">Team</a>
+                    @can('viewTeamWork', $project)
+                        <a href="{{ route('projects.team.work', $project) }}" class="planops-button planops-button-secondary">Team Work</a>
+                    @endcan
                     @can('update', $project)
                         <a href="{{ route('projects.edit', $project) }}" class="planops-button planops-button-secondary">Edit project</a>
                     @endcan

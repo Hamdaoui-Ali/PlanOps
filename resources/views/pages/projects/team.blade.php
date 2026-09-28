@@ -4,7 +4,12 @@
             @if (session('status')) <div class="planops-flash" role="status">{{ session('status') }}</div> @endif
             <header class="project-overview-header">
                 <div><p class="planops-eyebrow">Project / team</p><h1 id="team-heading">{{ $project->name }} team</h1><p>Manage who can access this project.</p></div>
-                <a href="{{ route('projects.show', $project) }}" class="planops-button planops-button-secondary">Back to project</a>
+                <div class="project-overview-actions">
+                    <a href="{{ route('projects.show', $project) }}" class="planops-button planops-button-secondary">Back to project</a>
+                    @can('viewTeamWork', $project)
+                        <a href="{{ route('projects.team.work', $project) }}" class="planops-button planops-button-primary">Team Work</a>
+                    @endcan
+                </div>
             </header>
             @can('manageMembers', $project)
                 <form method="POST" action="{{ route('projects.team.invitations.store', $project) }}" class="project-overview-summary">
