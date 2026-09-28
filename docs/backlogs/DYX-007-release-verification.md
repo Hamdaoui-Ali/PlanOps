@@ -32,7 +32,7 @@ concurrency, and complete P0/P1 release criteria are finished.
 
 - `tests/Feature/`
 - `tests/Browser/`
-- Playwright and axe configuration if present in the repository
+- Playwright and axe configuration
 - `docs/architecture/`
 - `docs/ui/`
 - `docs/PlanOps_Sprint_2.md`
