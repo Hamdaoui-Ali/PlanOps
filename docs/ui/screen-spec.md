@@ -13,6 +13,8 @@
 | `POST /projects/{project}/status` | Explicit project lifecycle status change. |
 | `POST /projects/{project}/archive` | Archive project without deleting its history. |
 | `POST /projects/{project}/restore` | Restore an archived project. |
+| `GET /projects/{project}/team` | Team membership, invitations, and role management. |
+| `GET /projects/{project}/team/work` | Owner/Admin workload visibility for the project team. |
 | `GET /projects/{project}/board` | Project Board. |
 | `GET /projects/{project}/tasks` | Project Tasks list. |
 | `GET /projects/{project}/analytics` | Project analytics. |
@@ -26,7 +28,10 @@
 | `GET /search` | Global Search. |
 | `GET /settings`, `PATCH /settings/preferences` | Personal Settings. |
 
-All routes authorize ownership and scope every result to the authenticated user; resources owned by another user may resolve as 404.
+Every route authorizes through its policy and scopes results through the applicable
+active project membership or user-owned query. Inaccessible resources do not
+expose project data; resource lookup may resolve as 404, while an authenticated
+member without the required action receives the policy-defined denial.
 
 ## Required screens
 
@@ -45,6 +50,24 @@ Show project cards or rows with name, key, manual status, derived progress, done
 ### Project Overview — `/projects/{project}`
 
 Required sections: project header (name, key, status, target date, progress); Current Work (In Progress, In Review, Blocked); Progress Summary (Done/total, Not Started, status distribution); Recent Activity; Upcoming / Overdue. If it has no tasks: `This project has no tracked work yet. Add the first task.` Progress with no eligible tasks reads `0%` and `No active scope`.
+
+### Team — `/projects/{project}/team`
+
+Show active project members, their project roles, invitation state, and the
+authorized membership actions. The page may link to Team Work only when the
+viewer can open that manager surface. Removed memberships do not regain access,
+and invitation tokens are never rendered as project data.
+
+### Team Work — `/projects/{project}/team/work`
+
+Team Work is an Owner/Admin manager surface for project-scoped workload
+visibility. Authorization requires the `viewTeamWork` policy ability and the
+query reuses active project membership and assignment scope. Show active-member
+counts, active work, blocked work, overdue work, completed-this-week counts, and
+unassigned open work in a keyboard-accessible table with a horizontal-scroll
+alternative on small screens. The page provides no productivity ranking and
+must not expose member performance scores. Members without the required ability
+receive the policy-defined denial and see no workload data.
 
 ### Board — `/projects/{project}/board`
 
@@ -76,4 +99,4 @@ Manage IANA timezone, week start (Monday or Sunday), theme (System, Light, Dark)
 
 ## Interaction, accessibility, and responsive acceptance contract
 
-Every core action is operable without a mouse: sidebar navigation, opening tasks, filters, changing status/priority, creating tasks, submitting forms, closing dialogs, and Search. Focus is visible in light and dark themes; status is text plus color, never color alone; reduced motion is respected. Desktop keeps sidebar, multi-column board, drawer, and full charts; tablet collapses navigation and permits horizontal board scrolling; mobile becomes list-first while preserving the status-control alternative and numeric chart summaries. P2 features are out of scope for all screens.
+Every core action is operable without a mouse: sidebar navigation, opening tasks, filters, changing status/priority, creating tasks, submitting forms, closing dialogs, and Search. Focus is visible in light and dark themes; status is text plus color, never color alone; reduced motion is respected. Desktop keeps sidebar, multi-column board, drawer, and full charts; tablet collapses navigation and permits horizontal board scrolling; mobile becomes list-first while preserving the status-control alternative and numeric chart summaries. Team Work keeps its workload table keyboard-accessible and exposes a focusable horizontal-scroll region on narrow screens. Remaining P2 surfaces are out of scope; the implemented Team and Team Work surfaces follow the collaboration contract above.
