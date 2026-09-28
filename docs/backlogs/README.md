@@ -10,7 +10,7 @@
 
 **Baseline evidence:** [2026-09-05 Sprint 2 baseline](../baselines/2026-09-05-sprint-2-baseline.md)
 
-**Current gate:** DYX-007 application release verification is approved. The fresh full suite reports 301 passed and 2 environment-scoped skips; the PostgreSQL assignment race is verified separately. No browser/axe suite is configured, so browser automation remains a documented follow-up.
+**Current gate:** DYX-007 verification is in progress. The current branch reports 336 passed, 3 environment-scoped skips, and 1616 assertions from `php artisan test --compact`; `npm.cmd run test:browser` reports 5 passed. Browser evidence covers the public landing/login journeys and the authenticated Team Work journey. The remaining PostgreSQL, concurrency, and broader P0/P1 release criteria stay open. See the [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md).
 
 This folder is an execution tracker. It does not replace the authority document. If a backlog item and the authority document disagree, stop and reconcile the documents before writing code.
 
@@ -22,9 +22,9 @@ The release is split into three boundaries:
 | --- | --- | --- |
 | P0 — Collaboration Foundation | DYX-000 through DYX-005 | Secure membership access, invitations, ownership transfer, assignment, My Work, actor history, and project-scoped labels |
 | P1 — Collaboration Experience | DYX-006 plus the P1 companion items below | After-commit notifications, notification center, assignee filters, collaboration-aware exports, dashboard counts, and pending-invitation UI |
-| P2 — Deferred | P2 items below | Team Work, team analytics, additional activity notifications, and realtime delivery |
+| P2 — Deferred / staged | P2 items below | Initial Team Work workload slice delivered; team analytics, additional activity notifications, and realtime delivery remain deferred |
 
-P1 work starts only after the P0 security and migration gates are green. P2 work must not start while P0 remains incomplete or while the release gate has unapproved failures.
+P1 work starts only after the P0 security and migration gates are green. Remaining P2 work must not start while P0 remains incomplete or while the release gate has unapproved failures. The initial Owner/Admin-only Team Work workload slice is recorded as a scoped follow-up and is not part of the P0/P1 release approval.
 
 ## Backlog map
 
@@ -88,8 +88,15 @@ P2 is not part of the P0/P1 release gate. Create implementation plans only after
 
 ### S2-P2-001 — Team Work
 
-- [ ] Define the Team Work information architecture and member visibility rules.
-- [ ] Reuse assignment and membership scopes; do not introduce a second authorization model.
+- [x] Define the Team Work information architecture and member visibility rules.
+- [x] Reuse assignment and membership scopes; do not introduce a second authorization model.
+
+The initial Owner/Admin-only Team Work workload slice is delivered at
+`/projects/{project}/team/work`. It reports workload visibility without member
+rankings or productivity scores. Broader team analytics remain deferred. See the
+[Team Work design](../superpowers/specs/2026-09-28-team-work-design.md),
+[implementation plan](../superpowers/plans/2026-09-28-team-work-implementation.md),
+and [browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md).
 
 ### S2-P2-002 — Role-change activity
 
@@ -153,4 +160,4 @@ A backlog item is done when:
 3. Keep P0 implementation and security tests ahead of P1 polish.
 4. Use [DYX-007](DYX-007-release-verification.md) as the release checklist, not as a substitute for earlier tests.
 
-**Next action:** execute DYX-000 by recording the current test, build, route, and document baselines.
+**Next action:** complete DYX-007.4 by reconciling the architecture and UI contracts, then rerun the documentation and release checks.
