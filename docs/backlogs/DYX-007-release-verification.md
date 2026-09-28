@@ -1,6 +1,6 @@
 # DYX-007 — Release verification and contract reconciliation
 
-**Status:** Approved for application release; browser/axe automation is a documented follow-up
+**Status:** Verification in progress; browser/axe evidence is recorded for the currently covered public and Team Work journeys, while the full release gate remains open
 
 **Priority:** Release gate
 
@@ -12,11 +12,27 @@
 
 Prove that the collaboration foundation is safe, complete, and documented before release. This backlog is the final evidence gate; it does not replace the tests owned by DYX-001 through DYX-006.
 
+## Current branch evidence — 2026-09-28
+
+- `php artisan test --compact`: 336 passed, 3 environment-scoped skips, 1616 assertions.
+- `npm.cmd run test:browser`: 5 passed.
+- `php artisan view:cache`: pass.
+- `npm.cmd run build`: pass.
+- `git diff --check`: pass.
+- The known environment-scoped skips are:
+  `tests/Feature/Collaboration/AssignmentConcurrencyTest.php`,
+  `tests/Feature/Tasks/TaskNumberConcurrencyTest.php`, and
+  `tests/Feature/Collaboration/TaskCreationConcurrencyTest.php`.
+- Detailed evidence: [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md).
+
+These results are branch evidence, not proof that the PostgreSQL migration,
+concurrency, and complete P0/P1 release criteria are finished.
+
 ## Files
 
 - `tests/Feature/`
 - `tests/Browser/`
-- Playwright and axe configuration if present in the repository
+- Playwright and axe configuration
 - `docs/architecture/`
 - `docs/ui/`
 - `docs/PlanOps_Sprint_2.md`
@@ -46,11 +62,11 @@ Goal: Verify browser, keyboard, and accessibility contracts.
 
 Files: `tests/Browser/`, Playwright/axe configuration, Team/invitation/task/My Work/notification views, and UI tests.
 
-Action: Exercise the primary user journeys for Owner, Admin, and Member: invite, accept, assign, update assigned task, view My Work, manage labels, and read notifications. Check keyboard navigation, focus after errors, live status messages, mobile Team cards, and hidden Member-ineligible controls.
+Action: Exercise the primary user journeys for Owner, Admin, and Member: invite, accept, assign, update assigned task, view My Work, manage labels, and read notifications. Check keyboard navigation, focus after errors, live status messages, mobile Team cards, and hidden Member-ineligible controls. The current configured coverage verifies public landing/login accessibility, authenticated Owner Team Work, Member-forbidden Team Work, keyboard-visible navigation, and serious/critical axe checks; the other collaboration journeys remain follow-up coverage.
 
 Why: a server-correct collaboration flow can still be unusable or misleading if the UI hides state or loses focus.
 
-Verification: Run the configured browser and axe checks. If no browser suite is configured, record that as a release gap rather than claiming the gate passed.
+Verification: Run `npm.cmd run test:browser` and record the configured Playwright/axe result. Do not generalize the current public and Team Work coverage to invitation, assignment, My Work, labels, or notifications until those journeys have their own evidence.
 
 Expected result: Core collaboration journeys are usable by keyboard and expose authorization/state changes clearly.
 
@@ -100,7 +116,7 @@ Expected result: The release is approved, or the checklist identifies a specific
 
 - [ ] PostgreSQL fresh/legacy migration and rollback evidence is recorded.
 - [ ] Full P0/P1 Pest verification has zero unapproved failures and no skipped security/concurrency tests.
-- [x] Browser, keyboard, and axe evidence is present or its absence is recorded as a release gap.
+- [x] Browser, keyboard, and axe evidence is present for the currently covered public and Team Work journeys; broader collaboration coverage remains open.
 - [ ] Cross-project, removed-member, deactivated-user, archived-project, direct-URL, and concurrent-race cases are covered.
 - [ ] No stale owner-only, unscoped query, raw-token, or contract-drift claim remains without an explicit exception.
 - [ ] Build and documentation checks pass.
@@ -112,6 +128,7 @@ Expected result: The release is approved, or the checklist identifies a specific
 ```text
 php artisan test --no-ansi --compact
 npm.cmd run build
+npm.cmd run test:browser
 php artisan route:list --except-vendor
 rg -n "ownedBy\(|user_id|accessibleBy\(|assignee_id|actor_user_id|project_events|token" app routes tests docs
 ```
