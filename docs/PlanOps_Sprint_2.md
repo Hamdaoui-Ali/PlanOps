@@ -2998,13 +2998,18 @@ Execution tracking is split into the issue-ready backlog files in [`docs/backlog
 
 # 69. Sprint Backlog — P2 Stretch
 
-- [ ] Team Work screen.
+- [x] Team Work screen — initial Owner/Admin project-scoped workload slice.
 - [ ] Role-change activity feed.
 - [ ] Member-removal notification.
 - [ ] Team analytics first version.
 - [ ] Realtime notification delivery.
 
-If P0 work is not fully secure/tested, P2 must not be started.
+The initial Team Work slice is a project-scoped Owner/Admin workload surface
+using active membership and assignment scope, without member rankings or
+productivity scores. See the [Team Work design](superpowers/specs/2026-09-28-team-work-design.md)
+and [browser verification report](reports/2026-09-28-planops-team-work-browser-verification.md).
+
+Remaining P2 work remains blocked until the P0 security and migration gates are green.
 
 ---
 
