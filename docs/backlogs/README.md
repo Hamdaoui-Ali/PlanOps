@@ -10,7 +10,7 @@
 
 **Baseline evidence:** [2026-09-05 Sprint 2 baseline](../baselines/2026-09-05-sprint-2-baseline.md)
 
-**Current gate:** DYX-007 verification is in progress. The current branch reports 336 passed, 3 environment-scoped skips, and 1616 assertions from `php artisan test --compact`; `npm.cmd run test:browser` reports 5 passed. Browser evidence covers the public landing/login journeys and the authenticated Team Work journey. The remaining PostgreSQL, concurrency, and broader P0/P1 release criteria stay open. See the [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md).
+**Current gate:** DYX-007 verification is in progress. The current branch reports 343 passed, 3 environment-scoped skips, and 1661 assertions from `php artisan test --compact`; the focused collaboration browser run reports 4 passed. Browser evidence covers the public landing/login journeys plus authenticated Owner and Member Team Work and Team Analytics journeys. The remaining PostgreSQL, concurrency, and broader P0/P1 release criteria stay open. See the [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
 
 This folder is an execution tracker. It does not replace the authority document. If a backlog item and the authority document disagree, stop and reconcile the documents before writing code.
 
@@ -22,9 +22,9 @@ The release is split into three boundaries:
 | --- | --- | --- |
 | P0 — Collaboration Foundation | DYX-000 through DYX-005 | Secure membership access, invitations, ownership transfer, assignment, My Work, actor history, and project-scoped labels |
 | P1 — Collaboration Experience | DYX-006 plus the P1 companion items below | After-commit notifications, notification center, assignee filters, collaboration-aware exports, dashboard counts, and pending-invitation UI |
-| P2 — Deferred / staged | P2 items below | Initial Team Work workload slice delivered; team analytics, additional activity notifications, and realtime delivery remain deferred |
+| P2 — Deferred / staged | P2 items below | Initial Team Work and first project-scoped Team Analytics slices delivered; role/activity notifications, deeper analytics, and realtime delivery remain deferred |
 
-P1 work starts only after the P0 security and migration gates are green. Remaining P2 work must not start while P0 remains incomplete or while the release gate has unapproved failures. The initial Owner/Admin-only Team Work workload slice is recorded as a scoped follow-up and is not part of the P0/P1 release approval.
+P1 work starts only after the P0 security and migration gates are green. Remaining P2 work must not start while P0 remains incomplete or while the release gate has unapproved failures. The initial Owner/Admin-only Team Work and first Team Analytics slices are recorded as scoped follow-ups and are not part of the P0/P1 release approval.
 
 ## Backlog map
 
@@ -93,10 +93,14 @@ P2 is not part of the P0/P1 release gate. Create implementation plans only after
 
 The initial Owner/Admin-only Team Work workload slice is delivered at
 `/projects/{project}/team/work`. It reports workload visibility without member
-rankings or productivity scores. Broader team analytics remain deferred. See the
+rankings or productivity scores. The first project-scoped Team Analytics slice is
+also delivered at `/projects/{project}/team/analytics`; deeper, member-level, and
+cross-project analytics remain deferred. See the
 [Team Work design](../superpowers/specs/2026-09-28-team-work-design.md),
 [implementation plan](../superpowers/plans/2026-09-28-team-work-implementation.md),
 and [browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md).
+The Team Analytics contract is in the [design spec](../superpowers/specs/2026-09-29-team-analytics-design.md)
+and [implementation plan](../superpowers/plans/2026-09-29-team-analytics-implementation.md).
 
 ### S2-P2-002 — Role-change activity
 
@@ -110,8 +114,16 @@ and [browser verification report](../reports/2026-09-28-planops-team-work-browse
 
 ### S2-P2-004 — Team analytics
 
-- [ ] Define aggregate-only metrics and an explicit Owner/Admin permission boundary.
-- [ ] Prohibit member-level performance rankings unless separately approved.
+- [x] Define aggregate-only metrics and an explicit Owner/Admin permission boundary.
+- [x] Prohibit member-level performance rankings unless separately approved.
+
+The first project-scoped aggregate slice is delivered at
+`/projects/{project}/team/analytics` through `viewAnalytics`. It separates
+selected-period flow from current workload and excludes member breakdowns,
+productivity scores, realtime data, and cross-project totals. See the [design
+spec](../superpowers/specs/2026-09-29-team-analytics-design.md), [implementation
+plan](../superpowers/plans/2026-09-29-team-analytics-implementation.md), and
+[browser journey](../../tests/Browser/collaboration.spec.js).
 
 ### S2-P2-005 — Realtime notification delivery
 
@@ -160,4 +172,4 @@ A backlog item is done when:
 3. Keep P0 implementation and security tests ahead of P1 polish.
 4. Use [DYX-007](DYX-007-release-verification.md) as the release checklist, not as a substitute for earlier tests.
 
-**Next action:** complete DYX-007.4 by reconciling the architecture and UI contracts, then rerun the documentation and release checks.
+**Next action:** complete DYX-007.5 final release verification while keeping the remaining P0/P1 exceptions explicit.

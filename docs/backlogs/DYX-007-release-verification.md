@@ -1,6 +1,6 @@
 # DYX-007 — Release verification and contract reconciliation
 
-**Status:** Verification in progress; browser/axe evidence is recorded for the currently covered public and Team Work journeys, while the full release gate remains open
+**Status:** Verification in progress; browser/axe evidence is recorded for the currently covered public, Team Work, and Team Analytics journeys, while the full release gate remains open
 
 **Priority:** Release gate
 
@@ -12,10 +12,10 @@
 
 Prove that the collaboration foundation is safe, complete, and documented before release. This backlog is the final evidence gate; it does not replace the tests owned by DYX-001 through DYX-006.
 
-## Current branch evidence — 2026-09-28
+## Current branch evidence — 2026-09-29
 
-- `php artisan test --compact`: 336 passed, 3 environment-scoped skips, 1616 assertions.
-- `npm.cmd run test:browser`: 5 passed.
+- `php artisan test --compact`: 343 passed, 3 environment-scoped skips, 1661 assertions.
+- `npm.cmd run test:browser -- tests/Browser/collaboration.spec.js`: 4 passed.
 - `php artisan view:cache`: pass.
 - `npm.cmd run build`: pass.
 - `git diff --check`: pass.
@@ -23,7 +23,7 @@ Prove that the collaboration foundation is safe, complete, and documented before
   `tests/Feature/Collaboration/AssignmentConcurrencyTest.php`,
   `tests/Feature/Tasks/TaskNumberConcurrencyTest.php`, and
   `tests/Feature/Collaboration/TaskCreationConcurrencyTest.php`.
-- Detailed evidence: [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md).
+- Detailed evidence: [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and the [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
 
 These results are branch evidence, not proof that the PostgreSQL migration,
 concurrency, and complete P0/P1 release criteria are finished.
@@ -60,13 +60,13 @@ Expected result: The P0/P1 test matrix has zero unapproved failures and no hidde
 
 Goal: Verify browser, keyboard, and accessibility contracts.
 
-Files: `tests/Browser/`, Playwright/axe configuration, Team/invitation/task/My Work/notification views, and UI tests.
+Files: `tests/Browser/`, Playwright/axe configuration, Team/Team Work/Team Analytics/invitation/task/My Work/notification views, and UI tests.
 
-Action: Exercise the primary user journeys for Owner, Admin, and Member: invite, accept, assign, update assigned task, view My Work, manage labels, and read notifications. Check keyboard navigation, focus after errors, live status messages, mobile Team cards, and hidden Member-ineligible controls. The current configured coverage verifies public landing/login accessibility, authenticated Owner Team Work, Member-forbidden Team Work, keyboard-visible navigation, and serious/critical axe checks; the other collaboration journeys remain follow-up coverage.
+Action: Exercise the primary user journeys for Owner, Admin, and Member: invite, accept, assign, update assigned task, view My Work, manage labels, read notifications, and open the aggregate Team Analytics surface. Check keyboard navigation, focus after errors, live status messages, mobile Team cards, aggregate metric/privacy copy, and hidden Member-ineligible controls. The current configured coverage verifies public landing/login accessibility, authenticated Owner Team Work and Team Analytics, Member-forbidden Team Work and Team Analytics, keyboard-visible navigation, and serious/critical axe checks; the other collaboration journeys remain follow-up coverage.
 
 Why: a server-correct collaboration flow can still be unusable or misleading if the UI hides state or loses focus.
 
-Verification: Run `npm.cmd run test:browser` and record the configured Playwright/axe result. Do not generalize the current public and Team Work coverage to invitation, assignment, My Work, labels, or notifications until those journeys have their own evidence.
+Verification: Run `npm.cmd run test:browser` and record the configured Playwright/axe result. Do not generalize the current public, Team Work, and Team Analytics coverage to invitation, assignment, My Work, labels, or notifications until those journeys have their own evidence.
 
 Expected result: Core collaboration journeys are usable by keyboard and expose authorization/state changes clearly.
 
@@ -88,7 +88,7 @@ Expected result: Every collaboration surface has an explicit, reviewed access pa
 
 Goal: Reconcile architecture, UI, implementation, and backlog contracts.
 
-Files: `docs/PlanOps_Sprint_2.md`, `docs/architecture/domain-contracts.md`, `docs/architecture/stack.md`, `docs/ui/screen-spec.md`, `docs/superpowers/plans/2026-08-20-planops-implementation.md`, the current collaboration plan, and `docs/backlogs/`.
+Files: `docs/PlanOps_Sprint_2.md`, `docs/architecture/domain-contracts.md`, `docs/architecture/stack.md`, `docs/ui/screen-spec.md`, `docs/superpowers/specs/2026-09-29-team-analytics-design.md`, `docs/superpowers/plans/2026-09-29-team-analytics-implementation.md`, `docs/superpowers/plans/2026-08-20-planops-implementation.md`, the current collaboration plan, and `docs/backlogs/`.
 
 Action: Update conflicting claims in the same change set or mark them superseded. Confirm role/event names, invitation rules, label scope, queue behavior, browser requirements, migration assumptions, and P0/P1/P2 boundaries.
 
@@ -116,7 +116,7 @@ Expected result: The release is approved, or the checklist identifies a specific
 
 - [ ] PostgreSQL fresh/legacy migration and rollback evidence is recorded.
 - [ ] Full P0/P1 Pest verification has zero unapproved failures and no skipped security/concurrency tests.
-- [x] Browser, keyboard, and axe evidence is present for the currently covered public and Team Work journeys; broader collaboration coverage remains open.
+- [x] Browser, keyboard, and axe evidence is present for the currently covered public, Team Work, and Team Analytics journeys; broader collaboration coverage remains open.
 - [ ] Cross-project, removed-member, deactivated-user, archived-project, direct-URL, and concurrent-race cases are covered.
 - [ ] No stale owner-only, unscoped query, raw-token, or contract-drift claim remains without an explicit exception.
 - [ ] Build and documentation checks pass.
