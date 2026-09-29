@@ -2999,7 +2999,7 @@ Execution tracking is split into the issue-ready backlog files in [`docs/backlog
 # 69. Sprint Backlog — P2 Stretch
 
 - [x] Team Work screen — initial Owner/Admin project-scoped workload slice.
-- [ ] Role-change activity feed.
+- [x] Role-change activity feed — project-overview `MEMBER_ROLE_CHANGED` history with active-membership scope and append-only actor/subject identity.
 - [ ] Member-removal notification.
 - [x] Team Analytics first version — project-scoped Owner/Admin aggregate dashboard.
 - [ ] Realtime notification delivery.
@@ -3016,6 +3016,12 @@ project data only: no member breakdowns, rankings, productivity scores, realtime
 data, or cross-project totals. See the [Team Analytics design](superpowers/specs/2026-09-29-team-analytics-design.md),
 [implementation plan](superpowers/plans/2026-09-29-team-analytics-implementation.md),
 and [browser journey](../tests/Browser/collaboration.spec.js).
+
+The first role-change activity slice is delivered on `/projects/{project}` in
+the Project activity panel. It reads only `MEMBER_ROLE_CHANGED` events through
+active project membership, displays actor and subject names with safe role
+labels, and leaves the global task-activity feed and other project event types
+unchanged.
 
 Remaining P2 work remains blocked until the P0 security and migration gates are green.
 

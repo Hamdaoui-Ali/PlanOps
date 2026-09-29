@@ -104,8 +104,18 @@ and [implementation plan](../superpowers/plans/2026-09-29-team-analytics-impleme
 
 ### S2-P2-002 — Role-change activity
 
-- [ ] Render `MEMBER_ROLE_CHANGED` in the project activity surface.
-- [ ] Preserve actor identity and append-only history.
+- [x] Render `MEMBER_ROLE_CHANGED` in the project activity surface.
+- [x] Preserve actor identity and append-only history.
+
+The first role-change activity slice is delivered on the project overview. It
+uses `ProjectActivityFeedQuery` with active-membership access scope, shows the
+actor, subject, role transition, and timestamp without exposing raw metadata,
+and keeps the existing append-only `ProjectEvent` contract. It intentionally
+does not merge project events into the global task-activity feed or render the
+other project event types yet. See
+[`ProjectRoleChangeActivityTest`](../../tests/Feature/Projects/ProjectRoleChangeActivityTest.php),
+the collaboration role-history test, and the browser journey in
+[`collaboration.spec.js`](../../tests/Browser/collaboration.spec.js).
 
 ### S2-P2-003 — Member-removal notification
 
