@@ -8,7 +8,7 @@ Date: 2026-09-29
 - Added a Project activity panel to the project overview for active project members.
 - Rendered actor, subject, old role, new role, and timestamp without raw metadata.
 - Preserved the existing append-only `ProjectEvent` model and role-change action contract.
-- Added focused feature, domain, browser, and serious/critical axe coverage.
+- Added focused feature, domain, browser, removed-viewer, timestamp, and serious/critical axe coverage.
 - Corrected the existing light/system theme contrast for project attention indicators.
 
 The slice does not merge project events into the global task-activity feed and does
@@ -20,7 +20,7 @@ not render the remaining project event types.
 php artisan test --no-ansi --compact
 ```
 
-Result: 345 passed, 3 skipped, 1,678 assertions.
+Result: 346 passed, 3 skipped, 1,681 assertions.
 
 The three existing skips are environment-scoped concurrency checks:
 
