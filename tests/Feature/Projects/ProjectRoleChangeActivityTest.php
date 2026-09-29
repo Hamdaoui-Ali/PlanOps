@@ -99,5 +99,25 @@ test('active project members can read role changes on the project overview', fun
         ->assertSee('Project activity')
         ->assertSee('Project Owner changed the role of Historical Member')
         ->assertSee('From Member to Admin')
+        ->assertSee('2026-09-29T10:00:00+00:00', false)
+        ->assertSee('Sep 29, 2026')
         ->assertDontSee(json_encode($event->metadata), false);
+});
+
+test('removed project members cannot open the project activity surface', function (): void {
+    $owner = User::factory()->create();
+    $removed = User::factory()->create();
+    $project = Project::factory()->create([
+        'user_id' => $owner->id,
+        'owner_id' => $owner->id,
+    ]);
+
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    ProjectMembership::factory()->create([
+        'project_id' => $project->id,
+        'user_id' => $removed->id,
+        'removed_at' => Carbon::parse('2026-09-29 11:00:00 UTC'),
+    ]);
+
+    $this->actingAs($removed)->get(route('projects.show', $project))->assertNotFound();
 });
