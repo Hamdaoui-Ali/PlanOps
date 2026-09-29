@@ -91,6 +91,10 @@
                             @endforeach
                         </tbody>
                     </table>
+
+                    @if ($statusTotal === 0)
+                        <p class="team-analytics-empty" role="status">No active team workload in this project yet. <a href="{{ route('projects.team.work', $project) }}">Open Team Work.</a></p>
+                    @endif
                 </section>
 
                 <section class="dashboard-panel team-analytics-panel" aria-labelledby="team-analytics-flow-heading">

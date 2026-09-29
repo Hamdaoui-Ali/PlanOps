@@ -10,7 +10,7 @@
 
 **Baseline evidence:** [2026-09-05 Sprint 2 baseline](../baselines/2026-09-05-sprint-2-baseline.md)
 
-**Current gate:** DYX-007 verification is in progress. The current branch reports 343 passed, 3 environment-scoped skips, and 1661 assertions from `php artisan test --compact`; the focused collaboration browser run reports 4 passed. Browser evidence covers the public landing/login journeys plus authenticated Owner and Member Team Work and Team Analytics journeys. The remaining PostgreSQL, concurrency, and broader P0/P1 release criteria stay open. See the [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
+**Current gate:** DYX-007 verification is in progress. The current branch reports 343 passed, 3 environment-scoped skips, and 1662 assertions from `php artisan test --compact`; `npm.cmd run test:browser` reports 7 passed. Browser evidence covers the public landing/login journeys plus authenticated Owner and Member Team Work and Team Analytics journeys. The remaining PostgreSQL, concurrency, and broader P0/P1 release criteria stay open. See the [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
 
 This folder is an execution tracker. It does not replace the authority document. If a backlog item and the authority document disagree, stop and reconcile the documents before writing code.
 
