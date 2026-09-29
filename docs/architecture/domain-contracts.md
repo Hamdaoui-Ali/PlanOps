@@ -84,3 +84,12 @@ project_progress = completed_tasks / eligible_tasks × 100
 When no eligible tasks exist, display `0%` and `No active scope`. Subtasks have their own non-cancelled completion ratio and never automatically change the parent or project status.
 
 Period analytics are user-timezone bounded. `Created`, `Completed`, `Started`, `Moved to Review`, `Became Blocked`, and `Reopened` count distinct top-level tasks according to creation or `STATUS_CHANGED` events. Created-vs-completed balance is scope flow, never a productivity score. The heatmap is labeled `Tracked Work Activity`, not Productivity; no metric may claim hours worked or productivity without an actual-effort source.
+
+Project Team Analytics is an Owner/Admin-only read surface at
+`GET /projects/{project}/team/analytics`, authorized by `viewAnalytics` and
+scoped through the same active project membership boundary. Its first version
+combines aggregate selected-period flow with separate current active, blocked,
+overdue, and unassigned workload. It never groups results by member, ranks
+members, scores productivity, aggregates across projects, or claims realtime
+state. Members retain Overview progress but do not receive this detailed team
+analytics surface.

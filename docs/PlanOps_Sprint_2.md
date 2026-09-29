@@ -301,7 +301,7 @@ left ambiguous:
 
 - P0: active membership, invitation acceptance, Owner protection and minimal ownership transfer, role enforcement, assignment, actor-aware task history, project-scoped labels, My Work, and membership-aware reads.
 - P1: database notifications, invitation/assignment email delivery, notification center, assignee filters, and collaboration-aware dashboard counts.
-- P2: team workload views, team analytics, realtime delivery, saved views, productivity scoring, role-change feed polish, and broader planning features.
+- P2: team workload views, the first project-scoped Team Analytics slice (delivered), realtime delivery, saved views, productivity scoring, role-change feed polish, and broader planning features.
 
 ---
 
@@ -3001,13 +3001,21 @@ Execution tracking is split into the issue-ready backlog files in [`docs/backlog
 - [x] Team Work screen — initial Owner/Admin project-scoped workload slice.
 - [ ] Role-change activity feed.
 - [ ] Member-removal notification.
-- [ ] Team analytics first version.
+- [x] Team Analytics first version — project-scoped Owner/Admin aggregate dashboard.
 - [ ] Realtime notification delivery.
 
 The initial Team Work slice is a project-scoped Owner/Admin workload surface
 using active membership and assignment scope, without member rankings or
 productivity scores. See the [Team Work design](superpowers/specs/2026-09-28-team-work-design.md)
 and [browser verification report](reports/2026-09-28-planops-team-work-browser-verification.md).
+
+The first Team Analytics slice is delivered at
+`/projects/{project}/team/analytics`. It requires the `viewAnalytics` ability,
+keeps selected-period flow separate from current workload, and exposes aggregate
+project data only: no member breakdowns, rankings, productivity scores, realtime
+data, or cross-project totals. See the [Team Analytics design](superpowers/specs/2026-09-29-team-analytics-design.md),
+[implementation plan](superpowers/plans/2026-09-29-team-analytics-implementation.md),
+and [browser journey](../tests/Browser/collaboration.spec.js).
 
 Remaining P2 work remains blocked until the P0 security and migration gates are green.
 

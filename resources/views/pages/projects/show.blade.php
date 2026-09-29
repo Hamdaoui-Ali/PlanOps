@@ -29,6 +29,9 @@
                     @can('viewTeamWork', $project)
                         <a href="{{ route('projects.team.work', $project) }}" class="planops-button planops-button-secondary">Team Work</a>
                     @endcan
+                    @can('viewAnalytics', $project)
+                        <a href="{{ route('projects.team.analytics', $project) }}" class="planops-button planops-button-secondary">Team Analytics</a>
+                    @endcan
                     @can('update', $project)
                         <a href="{{ route('projects.edit', $project) }}" class="planops-button planops-button-secondary">Edit project</a>
                     @endcan

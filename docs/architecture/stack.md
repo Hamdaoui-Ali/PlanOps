@@ -31,10 +31,14 @@ and unassigned open work without productivity scores or member rankings. It
 reuses the assignment and membership scopes rather than introducing a second
 authorization model.
 
-The remaining team analytics and realtime delivery remain deferred. The current
-collaboration surface uses normal HTTP navigation and the database/email
-notification contract; it does not claim WebSockets, realtime transport, or
-productivity scoring.
+The first Team Analytics slice is an Owner/Admin-only, project-scoped aggregate
+view at `GET /projects/{project}/team/analytics`. It uses the `viewAnalytics`
+ability and a dedicated query/read model to separate selected-period flow from
+current active, blocked, overdue, and unassigned workload. It does not expose
+member breakdowns, rankings, productivity scores, realtime data, or
+cross-project totals. The collaboration surface still uses normal HTTP
+navigation and the database/email notification contract; realtime delivery
+remains deferred.
 
 ## Feature priority boundaries
 
@@ -50,9 +54,10 @@ Deferred depth includes richer saved filters, further analytics drill-down, task
 
 Only after real demand: custom workflows, milestones, task dependencies,
 attachments, comments/notes timeline, recurring tasks, reminders, GitHub/GitLab
-integrations, external calendar links, AI summaries/suggestions, team analytics,
-additional collaboration notifications, realtime delivery, and a public API.
-These remaining P2 items are not part of the P0/P1 release gate.
+integrations, external calendar links, AI summaries/suggestions, additional
+collaboration notifications, realtime delivery, and a public API. Deeper team
+analytics beyond the first project-scoped aggregate slice remain optional
+expansion. These remaining P2 items are not part of the P0/P1 release gate.
 
 ## Domain module boundary
 

@@ -45,6 +45,27 @@ test.describe('authenticated collaboration', () => {
         await expectNoSeriousOrCriticalViolations(page);
     });
 
+    test('owner can inspect aggregate Team Analytics and reach Team Work by keyboard', async ({ page }) => {
+        await loginAs(page, 'browser-owner@example.test');
+
+        const projectPath = await browserProjectPath(page);
+        await page.goto(projectPath);
+        await page.getByRole('link', { name: 'Team Analytics', exact: true }).click();
+
+        await expect(page).toHaveURL(new RegExp(`${projectPath}/team/analytics$`));
+        await expect(page.getByRole('heading', { name: 'Team Analytics', exact: true })).toBeVisible();
+        await expect(page.locator('[data-metric="completed"] strong')).toHaveText('1');
+        await expect(page.locator('[data-metric="blocked"] strong')).toHaveText('1');
+        await expect(page.locator('[data-metric="overdue"] strong')).toHaveText('1');
+        await expect(page.locator('[data-metric="unassigned"] strong')).toHaveText('1');
+        await expect(page.locator('[data-team-analytics-privacy]')).toContainText('Aggregate project data only');
+
+        await page.getByRole('link', { name: 'Team Work', exact: true }).focus();
+        await expect(page.locator(':focus')).toHaveText('Team Work');
+
+        await expectNoSeriousOrCriticalViolations(page);
+    });
+
     test('member receives a forbidden response for Team Work', async ({ page }) => {
         await loginAs(page, 'browser-member@example.test');
 
@@ -54,5 +75,16 @@ test.describe('authenticated collaboration', () => {
         expect(response).not.toBeNull();
         expect(response.status()).toBe(403);
         await expect(page.getByRole('heading', { name: 'Team Work', exact: true })).toHaveCount(0);
+    });
+
+    test('member receives a forbidden response for Team Analytics', async ({ page }) => {
+        await loginAs(page, 'browser-member@example.test');
+
+        const projectPath = await browserProjectPath(page);
+        const response = await page.goto(`${projectPath}/team/analytics`);
+
+        expect(response).not.toBeNull();
+        expect(response.status()).toBe(403);
+        await expect(page.getByRole('heading', { name: 'Team Analytics', exact: true })).toHaveCount(0);
     });
 });

@@ -14,6 +14,9 @@
                 <div class="project-overview-actions">
                     <a href="{{ route('projects.show', $snapshot->project) }}" class="planops-button planops-button-secondary">Project overview</a>
                     <a href="{{ route('projects.team', $snapshot->project) }}" class="planops-button planops-button-secondary">Team</a>
+                    @can('viewAnalytics', $snapshot->project)
+                        <a href="{{ route('projects.team.analytics', $snapshot->project) }}" class="planops-button planops-button-secondary">Team Analytics</a>
+                    @endcan
                 </div>
             </header>
 

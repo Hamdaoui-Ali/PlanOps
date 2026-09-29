@@ -15,6 +15,7 @@
 | `POST /projects/{project}/restore` | Restore an archived project. |
 | `GET /projects/{project}/team` | Team membership, invitations, and role management. |
 | `GET /projects/{project}/team/work` | Owner/Admin workload visibility for the project team. |
+| `GET /projects/{project}/team/analytics` | Owner/Admin aggregate analytics for the project team. |
 | `GET /projects/{project}/board` | Project Board. |
 | `GET /projects/{project}/tasks` | Project Tasks list. |
 | `GET /projects/{project}/analytics` | Project analytics. |
@@ -54,9 +55,9 @@ Required sections: project header (name, key, status, target date, progress); Cu
 ### Team — `/projects/{project}/team`
 
 Show active project members, their project roles, invitation state, and the
-authorized membership actions. The page may link to Team Work only when the
-viewer can open that manager surface. Removed memberships do not regain access,
-and invitation tokens are never rendered as project data.
+authorized membership actions. The page may link to Team Work or Team Analytics
+only when the viewer can open those manager surfaces. Removed memberships do not
+regain access, and invitation tokens are never rendered as project data.
 
 ### Team Work — `/projects/{project}/team/work`
 
@@ -68,6 +69,22 @@ unassigned open work in a keyboard-accessible table with a horizontal-scroll
 alternative on small screens. The page provides no productivity ranking and
 must not expose member performance scores. Members without the required ability
 receive the policy-defined denial and see no workload data.
+
+### Team Analytics — `/projects/{project}/team/analytics`
+
+Team Analytics is an Owner/Admin manager surface for aggregate project flow and
+current workload attention. Authorization requires the `viewAnalytics` policy
+ability, and the query reuses the active project membership scope. The selected
+user-timezone period controls created/completed/started/reviewed/blocked/reopened
+flow and weekly throughput; current active, blocked, overdue, and unassigned
+workload is shown separately from that period flow. Use semantic tables with
+visible text values and a focusable horizontal-scroll alternative on narrow
+screens.
+
+This first version exposes aggregate project data only. It does not show member
+names, member-level breakdowns, rankings, productivity scores, realtime data, or
+cross-project totals. Members without the required ability receive the
+policy-defined denial and see no detailed team analytics.
 
 ### Board — `/projects/{project}/board`
 
@@ -99,4 +116,4 @@ Manage IANA timezone, week start (Monday or Sunday), theme (System, Light, Dark)
 
 ## Interaction, accessibility, and responsive acceptance contract
 
-Every core action is operable without a mouse: sidebar navigation, opening tasks, filters, changing status/priority, creating tasks, submitting forms, closing dialogs, and Search. Focus is visible in light and dark themes; status is text plus color, never color alone; reduced motion is respected. Desktop keeps sidebar, multi-column board, drawer, and full charts; tablet collapses navigation and permits horizontal board scrolling; mobile becomes list-first while preserving the status-control alternative and numeric chart summaries. Team Work keeps its workload table keyboard-accessible and exposes a focusable horizontal-scroll region on narrow screens. Remaining P2 surfaces are out of scope; the implemented Team and Team Work surfaces follow the collaboration contract above.
+Every core action is operable without a mouse: sidebar navigation, opening tasks, filters, changing status/priority, creating tasks, submitting forms, closing dialogs, and Search. Focus is visible in light and dark themes; status is text plus color, never color alone; reduced motion is respected. Desktop keeps sidebar, multi-column board, drawer, and full charts; tablet collapses navigation and permits horizontal board scrolling; mobile becomes list-first while preserving the status-control alternative and numeric chart summaries. Team Work and Team Analytics keep their tables keyboard-accessible and expose a focusable horizontal-scroll region on narrow screens. Remaining P2 surfaces are out of scope; the implemented Team, Team Work, and first Team Analytics surfaces follow the collaboration contract above.
