@@ -61,6 +61,7 @@ test('renders aggregate team analytics without member identifiers', function ():
         ->assertSee('team-analytics-privacy', false)
         ->assertSee('Aggregate project data only')
         ->assertSee('No recorded team movement in this period.')
+        ->assertSee('No active team workload in this project yet.')
         ->assertDontSee($member->name)
         ->assertDontSee($member->email);
 
