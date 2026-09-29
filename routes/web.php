@@ -16,6 +16,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectAnalyticsController;
 use App\Http\Controllers\ProjectBoardController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectTeamAnalyticsController;
 use App\Http\Controllers\ProjectTaskListController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
@@ -62,6 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     Route::get('/projects/{project}/team', [ProjectTeamController::class, 'show'])->name('projects.team');
     Route::get('/projects/{project}/team/work', [ProjectTeamWorkController::class, 'show'])->name('projects.team.work');
+    Route::get('/projects/{project}/team/analytics', [ProjectTeamAnalyticsController::class, 'index'])->name('projects.team.analytics');
     Route::post('/projects/{project}/team/invitations', [ProjectInvitationController::class, 'store'])->name('projects.team.invitations.store');
     Route::delete('/invitations/{invitation}', [ProjectInvitationController::class, 'revoke'])->name('invitations.revoke');
     Route::post('/invitations/{invitation}/resend', [ProjectInvitationController::class, 'resend'])->name('invitations.resend');
