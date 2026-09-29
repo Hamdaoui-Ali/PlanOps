@@ -70,3 +70,34 @@ test('project role-change activity is scoped, ordered, and keeps historical iden
             'new_role' => ProjectRole::MEMBER->value,
         ]);
 });
+
+test('active project members can read role changes on the project overview', function (): void {
+    $owner = User::factory()->create(['name' => 'Project Owner']);
+    $viewer = User::factory()->create(['name' => 'Active Viewer']);
+    $subject = User::factory()->create(['name' => 'Historical Member']);
+    $project = Project::factory()->create([
+        'user_id' => $owner->id,
+        'owner_id' => $owner->id,
+        'name' => 'PlanOps rollout',
+        'key' => 'PLAN',
+    ]);
+
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $viewer->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $subject->id]);
+    $event = ProjectEvent::factory()->create([
+        'project_id' => $project->id,
+        'actor_user_id' => $owner->id,
+        'subject_user_id' => $subject->id,
+        'event_type' => ProjectEventType::MEMBER_ROLE_CHANGED,
+        'metadata' => ['old_role' => ProjectRole::MEMBER->value, 'new_role' => ProjectRole::ADMIN->value],
+        'created_at' => Carbon::parse('2026-09-29 10:00:00 UTC'),
+    ]);
+
+    $this->actingAs($viewer)->get(route('projects.show', $project))
+        ->assertOk()
+        ->assertSee('Project activity')
+        ->assertSee("Project Owner changed Historical Member's role")
+        ->assertSee('From Member to Admin')
+        ->assertDontSee(json_encode($event->metadata), false);
+});
