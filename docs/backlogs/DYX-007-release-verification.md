@@ -14,7 +14,7 @@ Prove that the collaboration foundation is safe, complete, and documented before
 
 ## Current branch evidence — 2026-09-29
 
-- `php artisan test --compact`: 343 passed, 3 environment-scoped skips, 1661 assertions.
+- `php artisan test --compact`: 343 passed, 3 environment-scoped skips, 1662 assertions.
 - `npm.cmd run test:browser`: 7 passed, including the Team Work and Team Analytics Owner/Member journeys.
 - `php artisan view:cache`: pass.
 - `npm.cmd run build`: pass.
