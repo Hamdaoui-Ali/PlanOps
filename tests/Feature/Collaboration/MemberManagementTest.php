@@ -2,7 +2,9 @@
 
 use App\Domain\Collaboration\Actions\ChangeProjectMemberRole;
 use App\Domain\Collaboration\Actions\RemoveProjectMember;
+use App\Domain\Collaboration\Enums\ProjectEventType;
 use App\Domain\Collaboration\Enums\ProjectRole;
+use App\Domain\Collaboration\Models\ProjectEvent;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Models\Task;
@@ -43,7 +45,22 @@ it('allows only the owner to change collaborator roles while keeping ownership p
         ->toThrow(AuthorizationException::class);
 
     (new ChangeProjectMemberRole)->handle($owner, $memberMembership, ProjectRole::ADMIN);
+    $event = ProjectEvent::query()
+        ->where('project_id', $project->id)
+        ->where('event_type', ProjectEventType::MEMBER_ROLE_CHANGED)
+        ->sole();
+
     expect($memberMembership->fresh()->role)->toBe(ProjectRole::ADMIN)
         ->and($adminMembership->fresh()->role)->toBe(ProjectRole::ADMIN)
-        ->and($project->fresh()->owner_id)->toBe($owner->id);
+        ->and($project->fresh()->owner_id)->toBe($owner->id)
+        ->and($event->actor_user_id)->toBe($owner->id)
+        ->and($event->subject_user_id)->toBe($member->id)
+        ->and($event->metadata)->toBe([
+            'old_role' => ProjectRole::MEMBER->value,
+            'new_role' => ProjectRole::ADMIN->value,
+        ])
+        ->and(fn (): bool => (bool) $event->update(['metadata' => ['changed' => true]]))
+        ->toThrow(LogicException::class)
+        ->and(fn (): bool => (bool) $event->delete())
+        ->toThrow(LogicException::class);
 });
