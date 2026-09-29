@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Domain\Activity\Enums\TaskActivityType;
+use App\Domain\Activity\Models\TaskActivity;
 use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Models\Project;
@@ -51,6 +53,21 @@ final class BrowserSeeder extends Seeder
         Task::factory()->forProject($project)->create([
             'title' => 'Assign documentation owner',
             'status' => TaskStatus::NOT_STARTED,
+        ]);
+        $completed = Task::factory()->forProject($project)->done()->create([
+            'title' => 'Publish release notes',
+            'assignee_id' => $admin->id,
+        ]);
+        TaskActivity::factory()->forTask($completed)->create([
+            'event_type' => TaskActivityType::TASK_CREATED,
+            'created_at' => now()->subHour(),
+        ]);
+        TaskActivity::factory()->forTask($completed)->create([
+            'event_type' => TaskActivityType::STATUS_CHANGED,
+            'field' => 'status',
+            'old_value' => ['status' => TaskStatus::IN_REVIEW->value],
+            'new_value' => ['status' => TaskStatus::DONE->value],
+            'created_at' => now()->subMinutes(30),
         ]);
     }
 }
