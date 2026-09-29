@@ -2450,9 +2450,14 @@ html.density-compact .projects-ledger td {
     font-size: 0.8rem;
 }
 
-html.theme-dark .task-attention-indicator,
-html.theme-system .task-attention-indicator {
+html.theme-dark .task-attention-indicator {
     color: #fcd34d;
+}
+
+@media (prefers-color-scheme: dark) {
+    html.theme-system .task-attention-indicator {
+        color: #fcd34d;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
