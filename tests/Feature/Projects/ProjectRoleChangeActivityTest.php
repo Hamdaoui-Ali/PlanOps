@@ -97,7 +97,7 @@ test('active project members can read role changes on the project overview', fun
     $this->actingAs($viewer)->get(route('projects.show', $project))
         ->assertOk()
         ->assertSee('Project activity')
-        ->assertSee("Project Owner changed Historical Member's role")
+        ->assertSee('Project Owner changed the role of Historical Member')
         ->assertSee('From Member to Admin')
         ->assertDontSee(json_encode($event->metadata), false);
 });

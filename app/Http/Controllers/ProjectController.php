@@ -10,6 +10,7 @@ use App\Domain\Projects\Actions\RestoreProject;
 use App\Domain\Projects\Actions\UpdateProject;
 use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Projects\Models\Project;
+use App\Domain\Projects\Queries\ProjectActivityFeedQuery;
 use App\Domain\Projects\Queries\ProjectIndexQuery;
 use App\Domain\Projects\Queries\ProjectOverviewQuery;
 use App\Domain\Tasks\Enums\TaskStatus;
@@ -34,7 +35,13 @@ class ProjectController extends Controller
         return view('pages.projects.create', ['statuses' => ProjectStatus::cases()]);
     }
 
-    public function show(Request $request, Project $project, ProjectOverviewQuery $overview, AttentionQuery $attention): View
+    public function show(
+        Request $request,
+        Project $project,
+        ProjectOverviewQuery $overview,
+        AttentionQuery $attention,
+        ProjectActivityFeedQuery $activity,
+    ): View
     {
         $project = $overview->for($request->user(), $project);
 
@@ -42,6 +49,7 @@ class ProjectController extends Controller
             'project' => $project,
             'statuses' => TaskStatus::cases(),
             'attentionTasks' => $attention->for($request->user(), $project),
+            'activity' => $activity->for($request->user(), $project),
         ]);
     }
 
