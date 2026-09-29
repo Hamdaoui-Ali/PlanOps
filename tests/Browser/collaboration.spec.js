@@ -73,7 +73,7 @@ test.describe('authenticated collaboration', () => {
         await page.goto(projectPath);
 
         await expect(page.getByRole('heading', { name: 'Project activity', exact: true })).toBeVisible();
-        await expect(page.getByRole('list', { name: 'Project role-change events' })).toContainText('Browser Owner changed the role of Browser Member');
+        await expect(page.getByRole('list', { name: 'Project role-change events' })).toContainText('Browser Owner changed the role of Browser Admin');
         await expect(page.getByRole('list', { name: 'Project role-change events' })).toContainText('From Member to Admin');
 
         await expectNoSeriousOrCriticalViolations(page);
