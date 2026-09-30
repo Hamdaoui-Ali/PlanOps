@@ -14,10 +14,11 @@ Prove that the collaboration foundation is safe, complete, and documented before
 
 ## Current branch evidence — 2026-09-30
 
-- `php artisan test --compact`: 348 passed, 3 environment-scoped skips, 1686 assertions.
+- `php artisan test --no-ansi`: 352 passed, 3 environment-scoped skips, 1697 assertions.
 - `npm.cmd run test:browser`: 8 passed, including the Team Work, Team Analytics, and role-change activity journeys.
 - `php artisan view:cache`: pass.
 - `npm.cmd run build`: pass.
+- Documentation link validation: pass.
 - `git diff --check`: pass.
 - The known environment-scoped skips are:
   `tests/Feature/Collaboration/AssignmentConcurrencyTest.php`,
