@@ -9,6 +9,7 @@ use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectEvent;
 use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Labels\Models\Label;
 use App\Domain\Notifications\Data\NotificationOutcome;
 use App\Domain\Notifications\Enums\NotificationEventType;
 use App\Domain\Notifications\Models\PlanOpsNotification;
@@ -59,10 +60,22 @@ final class BrowserSeeder extends Seeder
             'created_at' => now()->subMinutes(15),
         ]);
 
-        Task::factory()->forProject($project)->active()->create([
+        $active = Task::factory()->forProject($project)->active()->create([
             'title' => 'Review launch checklist',
             'assignee_id' => $admin->id,
         ]);
+        $launchLabel = Label::factory()->forProject($project)->create([
+            'name' => 'Launch readiness',
+            'normalized_name' => 'launch readiness',
+            'color' => '#287e87',
+        ]);
+        $active->labels()->attach($launchLabel);
+        $memberTask = Task::factory()->forProject($project)->create([
+            'title' => 'Validate member handoff',
+            'assignee_id' => $member->id,
+            'status' => TaskStatus::NOT_STARTED,
+        ]);
+        $memberTask->labels()->attach($launchLabel);
         Task::factory()->forProject($project)->blocked()->create([
             'title' => 'Resolve release blocker',
             'assignee_id' => $owner->id,
