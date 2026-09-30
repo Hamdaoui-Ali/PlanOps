@@ -23,15 +23,17 @@ member-removal message. That product and privacy decision remains deferred.
 php artisan test tests/Feature/Notifications/NotificationDeliveryTest.php --no-ansi
 ```
 
-Result: 8 passed, 18 assertions.
+Result: 9 passed, 22 assertions.
 
 The focused tests cover revoked invitation target redaction, removed assignment
 recipients, delayed reassignment, deactivated recipients, retry-time target
-redaction, bounded failure metadata, and delivery to a still-authorized
-recipient.
+redaction, bounded failure metadata, mail-failure persistence, and delivery to
+a still-authorized recipient.
 
-The full PHP suite also passes with 352 tests, 3 environment-scoped skips, and
-1,697 assertions.
+The full PHP suite also passes with 353 tests, 3 environment-scoped skips, and
+1,701 assertions. The database seeder now supplies explicit fixture metadata so
+the release fixture reproducibility contract is not affected by shared Faker
+state from preceding tests.
 
 ## Release boundary
 
