@@ -8,6 +8,7 @@ use App\Domain\Notifications\Actions\PersistNotificationOutcome;
 use App\Domain\Notifications\Data\NotificationOutcome;
 use App\Domain\Notifications\Enums\NotificationEventType;
 use App\Domain\Notifications\Models\NotificationDeliveryFailure;
+use App\Domain\Notifications\Models\PlanOpsNotification;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use App\Notifications\PlanOpsNotificationMail;
@@ -74,7 +75,17 @@ class DeliverNotificationOutcome implements ShouldQueue
                 return;
             }
 
+            $notification = PlanOpsNotification::query()
+                ->where('idempotency_key', $this->outcome->idempotencyKey())
+                ->lockForUpdate()
+                ->first();
+
+            if ($notification?->email_sent_at !== null) {
+                return;
+            }
+
             $recipient->notify(new PlanOpsNotificationMail($outcome));
+            $notification?->forceFill(['email_sent_at' => now()])->save();
         });
     }
 
@@ -110,6 +121,7 @@ class DeliverNotificationOutcome implements ShouldQueue
             ->accessibleBy($recipient)
             ->where('project_id', $this->outcome->projectId)
             ->whereKey($this->outcome->targetId)
+            ->with('project')
             ->lockForUpdate()
             ->first();
 
@@ -120,7 +132,12 @@ class DeliverNotificationOutcome implements ShouldQueue
             ->lockForUpdate()
             ->first();
 
-        if ($activeMembership === null) {
+        $project = $task?->project;
+        $isProjectOwner = $project !== null
+            && ((string) $project->owner_id === (string) $recipient->getKey()
+                || (string) $project->user_id === (string) $recipient->getKey());
+
+        if ($activeMembership === null && ! $isProjectOwner) {
             return null;
         }
 

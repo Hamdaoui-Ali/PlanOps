@@ -15,7 +15,7 @@ class PlanOpsNotification extends Model
 
     protected $fillable = [
         'recipient_id', 'event_type', 'idempotency_key', 'project_id',
-        'target_type', 'target_id', 'data', 'read_at',
+        'target_type', 'target_id', 'data', 'read_at', 'email_sent_at',
     ];
 
     protected function casts(): array
@@ -24,6 +24,7 @@ class PlanOpsNotification extends Model
             'event_type' => NotificationEventType::class,
             'data' => 'array',
             'read_at' => 'immutable_datetime',
+            'email_sent_at' => 'immutable_datetime',
         ];
     }
 
