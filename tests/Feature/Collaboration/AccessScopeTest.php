@@ -99,6 +99,8 @@ it('deactivated members lose policy access while their history remains retained'
     expect($member->can('view', $project))->toBeFalse()
         ->and($member->can('view', $task))->toBeFalse()
         ->and($member->can('changeStatus', $task))->toBeFalse()
+        ->and(Project::query()->accessibleBy($member)->whereKey($project)->exists())->toBeFalse()
+        ->and(Task::query()->accessibleBy($member)->whereKey($task)->exists())->toBeFalse()
         ->and($task->fresh()->assignee_id)->toBe($member->id);
 });
 
