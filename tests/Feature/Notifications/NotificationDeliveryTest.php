@@ -51,7 +51,8 @@ it('removes a revoked invitation target before persisting a delayed notification
     expect(PlanOpsNotification::query()->sole()->target_id)->toBeNull();
 });
 
-it('removes a task target when the recipient is no longer an active member', function (): void {
+it('suppresses assignment notification delivery when the recipient is no longer active', function (): void {
+    Notification::fake();
     $owner = User::factory()->create();
     $recipient = User::factory()->create();
     $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
@@ -62,7 +63,29 @@ it('removes a task target when the recipient is no longer an active member', fun
 
     (new DeliverNotificationOutcome($outcome))->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
 
-    expect(PlanOpsNotification::query()->sole()->target_id)->toBeNull();
+    expect(PlanOpsNotification::query()->count())->toBe(0);
+    Notification::assertNothingSent();
+});
+
+it('suppresses notification delivery for a deactivated recipient', function (): void {
+    Notification::fake();
+    $recipient = User::factory()->create();
+    $recipient->forceFill(['deactivated_at' => now()])->save();
+    $project = Project::factory()->create();
+    $invitation = ProjectInvitation::factory()->create([
+        'project_id' => $project->id,
+        'email' => $recipient->email,
+        'normalized_email' => strtolower($recipient->email),
+        'accepted_at' => null,
+        'revoked_at' => null,
+        'expires_at' => now()->addDay(),
+    ]);
+    $outcome = NotificationOutcome::invitationCreated($invitation->id, $project->id, $recipient->id, $project->name);
+
+    (new DeliverNotificationOutcome($outcome))->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
+
+    expect(PlanOpsNotification::query()->count())->toBe(0);
+    Notification::assertNothingSent();
 });
 
 it('delivers a mail notification only for a still-authorized target', function (): void {
