@@ -2,6 +2,7 @@
 
 namespace App\Domain\Notifications\Jobs;
 
+use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Notifications\Actions\PersistNotificationOutcome;
 use App\Domain\Notifications\Data\NotificationOutcome;
@@ -43,21 +44,35 @@ class DeliverNotificationOutcome implements ShouldQueue
 
     public function handle(PersistNotificationOutcome $persist): void
     {
-        $outcome = $this->authorizedOutcome();
+        $recipient = User::query()->find($this->outcome->recipientId);
+        if (! $this->recipientCanReceive($recipient)) {
+            return;
+        }
+
+        $outcome = $this->authorizedOutcome($recipient);
         $persist->handle($outcome);
 
-        if ($outcome->targetId !== null && ($recipient = User::query()->find($outcome->recipientId)) !== null) {
+        if ($outcome->targetId !== null) {
             $recipient->notify(new PlanOpsNotificationMail($outcome));
         }
     }
 
-    private function authorizedOutcome(): NotificationOutcome
+    private function recipientCanReceive(?User $recipient): bool
     {
-        $recipient = User::query()->find($this->outcome->recipientId);
-        if ($recipient === null) {
-            return $this->outcome->withoutTarget();
+        if ($recipient === null || $recipient->deactivated_at !== null) {
+            return false;
         }
 
+        return $this->outcome->eventType !== NotificationEventType::ASSIGNEE_CHANGED
+            || ProjectMembership::query()
+                ->where('project_id', $this->outcome->projectId)
+                ->where('user_id', $recipient->getKey())
+                ->whereNull('removed_at')
+                ->exists();
+    }
+
+    private function authorizedOutcome(User $recipient): NotificationOutcome
+    {
         $targetIsSafe = match ($this->outcome->eventType) {
             NotificationEventType::INVITATION_CREATED => ProjectInvitation::query()
                 ->whereKey($this->outcome->targetId)
