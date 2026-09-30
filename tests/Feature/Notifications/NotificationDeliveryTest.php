@@ -11,6 +11,7 @@ use App\Domain\Tasks\Models\Task;
 use App\Domain\Projects\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
@@ -153,6 +154,28 @@ it('redacts an existing assignment target when the recipient is removed before r
 
     expect(PlanOpsNotification::query()->sole()->target_id)->toBeNull();
     Notification::assertNothingSent();
+});
+
+it('keeps the persisted notification when mail delivery fails', function (): void {
+    $recipient = User::factory()->create();
+    $project = Project::factory()->create();
+    $invitation = ProjectInvitation::factory()->create([
+        'project_id' => $project->id,
+        'email' => $recipient->email,
+        'normalized_email' => strtolower($recipient->email),
+        'accepted_at' => null,
+        'revoked_at' => null,
+        'expires_at' => now()->addDay(),
+    ]);
+    $outcome = NotificationOutcome::invitationCreated($invitation->id, $project->id, $recipient->id, $project->name);
+    $exception = new RuntimeException('smtp unavailable');
+
+    Mail::shouldReceive('mailer')->once()->andThrow($exception);
+
+    expect(fn (): mixed => (new DeliverNotificationOutcome($outcome))->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome))
+        ->toThrow($exception);
+
+    expect(PlanOpsNotification::query()->sole()->target_id)->toBe($invitation->id);
 });
 
 it('delivers a mail notification only for a still-authorized target', function (): void {
