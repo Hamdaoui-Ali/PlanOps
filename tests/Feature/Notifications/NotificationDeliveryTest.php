@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Collaboration\Actions\RemoveProjectMember;
 use App\Domain\Notifications\Data\NotificationOutcome;
 use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
 use App\Domain\Notifications\Models\NotificationDeliveryFailure;
@@ -103,6 +104,54 @@ it('suppresses notification delivery for a deactivated recipient', function (): 
     (new DeliverNotificationOutcome($outcome))->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
 
     expect(PlanOpsNotification::query()->count())->toBe(0);
+    Notification::assertNothingSent();
+});
+
+it('redacts an existing invitation target when the recipient deactivates before retry', function (): void {
+    Notification::fake();
+    $recipient = User::factory()->create();
+    $project = Project::factory()->create();
+    $invitation = ProjectInvitation::factory()->create([
+        'project_id' => $project->id,
+        'email' => $recipient->email,
+        'normalized_email' => strtolower($recipient->email),
+        'accepted_at' => null,
+        'revoked_at' => null,
+        'expires_at' => now()->addDay(),
+    ]);
+    $outcome = NotificationOutcome::invitationCreated($invitation->id, $project->id, $recipient->id, $project->name);
+    $job = new DeliverNotificationOutcome($outcome);
+
+    $job->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
+    expect(PlanOpsNotification::query()->sole()->target_id)->toBe($invitation->id);
+
+    $recipient->forceFill(['deactivated_at' => now()])->save();
+    Notification::fake();
+    $job->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
+
+    expect(PlanOpsNotification::query()->sole()->target_id)->toBeNull();
+    Notification::assertNothingSent();
+});
+
+it('redacts an existing assignment target when the recipient is removed before retry', function (): void {
+    Notification::fake();
+    $owner = User::factory()->create();
+    $recipient = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $recipient->id]);
+    $task = Task::factory()->forProject($project)->create(['assignee_id' => $recipient->id]);
+    $outcome = NotificationOutcome::assigneeChanged($task->id, $project->id, $recipient->id, null, $recipient->id, $owner->id, $task->title);
+    $job = new DeliverNotificationOutcome($outcome);
+
+    $job->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
+    expect(PlanOpsNotification::query()->sole()->target_id)->toBe($task->id);
+
+    (new RemoveProjectMember)->handle($owner, $project, $recipient);
+    Notification::fake();
+    $job->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
+
+    expect(PlanOpsNotification::query()->sole()->target_id)->toBeNull();
     Notification::assertNothingSent();
 });
 
