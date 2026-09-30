@@ -5,7 +5,6 @@ namespace App\Domain\Collaboration\Actions;
 use App\Domain\Collaboration\Enums\ProjectEventType;
 use App\Domain\Collaboration\Models\ProjectEvent;
 use App\Domain\Collaboration\Models\ProjectInvitation;
-use App\Domain\Notifications\Actions\PersistNotificationOutcome;
 use App\Domain\Notifications\Data\NotificationOutcome;
 use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
 use App\Models\User;
@@ -38,7 +37,6 @@ final class ResendProjectInvitation
                     $locked->project->name,
                 );
                 $dispatch = function () use ($outcome): void {
-                    app(PersistNotificationOutcome::class)->handle($outcome);
                     DeliverNotificationOutcome::dispatch($outcome);
                 };
                 if (DB::transactionLevel() > 0) {

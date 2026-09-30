@@ -5,7 +5,6 @@ namespace App\Domain\Tasks\Actions;
 use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Activity\Services\TaskActivityRecorder;
 use App\Domain\Collaboration\Models\ProjectMembership;
-use App\Domain\Notifications\Actions\PersistNotificationOutcome;
 use App\Domain\Notifications\Data\NotificationOutcome;
 use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
 use App\Domain\Tasks\Models\Task;
@@ -68,7 +67,6 @@ final class AssignTask
                 $updatedTask->title,
             );
             $dispatch = function () use ($outcome): void {
-                app(PersistNotificationOutcome::class)->handle($outcome);
                 DeliverNotificationOutcome::dispatch($outcome);
             };
             if (DB::transactionLevel() > 0) {
