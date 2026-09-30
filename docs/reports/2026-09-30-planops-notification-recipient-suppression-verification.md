@@ -7,12 +7,15 @@ Date: 2026-09-30
 - Re-fetch the notification recipient when the delivery job runs.
 - Suppress all delivery for deactivated or deleted recipients before
   persistence or mail delivery.
-- Require an active project membership before delivering an assignment outcome.
+- Require an active project membership or a validated legacy owner identity
+  before delivering an assignment outcome.
 - Preserve the existing safe-target redaction behavior for active recipients.
 - Redact an existing notification target when a retry discovers that the
   recipient is now deactivated or removed.
 - Persist successful mail delivery and suppress duplicate queued jobs for the
   same notification idempotency key.
+- Give every mail attempt a stable hashed `Message-ID` derived from the same
+  idempotency key.
 - Preserve assignment delivery for a valid legacy project owner before the
   collaboration backfill creates an owner membership.
 - Lock the recipient and relevant invitation, task, and membership rows while
@@ -40,9 +43,16 @@ The full PHP suite also passes with 355 tests, 3 environment-scoped skips, and
 the release fixture reproducibility contract is not affected by shared Faker
 state from preceding tests.
 
+The application suppresses duplicate queued jobs and emits a stable provider-
+visible mail identity. A generic SMTP timeout after provider acceptance remains
+inherently ambiguous; an end-to-end no-duplicate guarantee requires a mail
+provider that honors the stable message or an equivalent provider idempotency
+key.
+
 ## Release boundary
 
-This closes the notification recipient-suppression contract referenced by
-DYX-006. PostgreSQL migration evidence, broader deactivated-account access
-enforcement, and the separate P2 member-removal notification decision remain
-open in the release gate.
+This closes the application-side notification recipient-suppression contract
+referenced by DYX-006. PostgreSQL migration evidence, broader
+deactivated-account access enforcement, provider-level mail idempotency, and
+the separate P2 member-removal notification decision remain open in the release
+gate.

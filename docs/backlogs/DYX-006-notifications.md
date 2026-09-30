@@ -71,6 +71,12 @@ failure persistence, and legacy owner delivery before collaboration backfill.
 They pass with 17 tests and 39 assertions; the full branch suite passes with
 355 tests, 3 environment-scoped skips, and 1,705 assertions.
 
+The application persists a successful mail-delivery marker and emits a stable
+hashed `Message-ID` for each idempotency key. Generic SMTP cannot reveal
+whether a timeout happened before or after provider acceptance, so the
+end-to-end no-duplicate guarantee depends on a provider honoring that stable
+identity or an equivalent provider idempotency key.
+
 ### Task DYX-006.4
 
 Goal: Deliver the notification center and unread state.
