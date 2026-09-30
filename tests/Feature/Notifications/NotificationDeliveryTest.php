@@ -67,6 +67,24 @@ it('suppresses assignment notification delivery when the recipient is no longer 
     Notification::assertNothingSent();
 });
 
+it('suppresses delayed assignment delivery when the recipient is no longer assigned', function (): void {
+    Notification::fake();
+    $owner = User::factory()->create();
+    $recipient = User::factory()->create();
+    $replacement = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $recipient->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $replacement->id]);
+    $task = Task::factory()->forProject($project)->create(['assignee_id' => $replacement->id]);
+    $outcome = NotificationOutcome::assigneeChanged($task->id, $project->id, $recipient->id, null, $recipient->id, $owner->id, $task->title);
+
+    (new DeliverNotificationOutcome($outcome))->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
+
+    expect(PlanOpsNotification::query()->sole()->target_id)->toBeNull();
+    Notification::assertNothingSent();
+});
+
 it('suppresses notification delivery for a deactivated recipient', function (): void {
     Notification::fake();
     $recipient = User::factory()->create();
