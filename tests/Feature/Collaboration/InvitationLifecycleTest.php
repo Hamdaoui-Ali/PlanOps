@@ -46,6 +46,15 @@ it('allows admins to invite members but not admins', function (): void {
         ->toThrow(AuthorizationException::class);
 });
 
+it('rejects invitations to a deactivated account', function (): void {
+    $owner = User::factory()->create();
+    $project = invitationProject($owner);
+    $recipient = User::factory()->create(['deactivated_at' => now()]);
+
+    expect(fn () => (new InviteProjectMember)->handle($owner, $project, $recipient->email, ProjectRole::MEMBER))
+        ->toThrow(ValidationException::class);
+});
+
 it('accepts an invitation once and reactivates an existing membership', function (): void {
     $owner = User::factory()->create();
     $project = invitationProject($owner);

@@ -55,6 +55,18 @@ it('rejects non-members, removed members, members assigning, and archived projec
     expect(fn () => (new AssignTask)->handle($owner, $task->fresh(), $owner))->toThrow(AuthorizationException::class);
 });
 
+it('rejects assigning work to a deactivated project member', function (): void {
+    $owner = User::factory()->create();
+    $project = assignmentProject($owner);
+    $member = User::factory()->create();
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $task = Task::factory()->forProject($project)->create(['user_id' => $owner->id]);
+    $member->forceFill(['deactivated_at' => now()])->save();
+
+    expect(fn () => (new AssignTask)->handle($owner, $task, $member))
+        ->toThrow(ValidationException::class);
+});
+
 it('does not record a no-op assignment event', function (): void {
     $owner = User::factory()->create();
     $project = assignmentProject($owner);

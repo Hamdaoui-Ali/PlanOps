@@ -31,6 +31,29 @@ test('users can not authenticate with invalid password', function () {
     $this->assertGuest();
 });
 
+test('deactivated users cannot authenticate with valid credentials', function () {
+    $user = User::factory()->create(['deactivated_at' => now()]);
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertGuest();
+});
+
+test('a stale session for a deactivated user is revoked before protected requests', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+    $user->forceFill(['deactivated_at' => now()])->save();
+
+    $this->get(route('dashboard'))
+        ->assertRedirect(route('login'));
+
+    $this->assertGuest();
+});
+
 test('users can logout', function () {
     $user = User::factory()->create();
 
