@@ -66,6 +66,7 @@ function seededFixtureSnapshot(): array
 }
 
 test('the database seeder produces reproducible persisted fixtures', function () {
+    resetPlanOpsFixtures();
     seedPlanOpsFixtures();
 
     $firstSeed = seededFixtureSnapshot();
