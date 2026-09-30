@@ -31,7 +31,7 @@ function seedPlanOpsFixtures(): void
 
 function resetPlanOpsFixtures(): void
 {
-    foreach ([
+    $tables = [
         'task_activities',
         'task_label',
         'tasks',
@@ -39,8 +39,16 @@ function resetPlanOpsFixtures(): void
         'projects',
         'user_preferences',
         'users',
-    ] as $table) {
-        DB::table($table)->truncate();
+    ];
+
+    if (DB::connection()->getDriverName() === 'pgsql') {
+        $quotedTables = implode(', ', array_map(fn (string $table): string => '"'.$table.'"', $tables));
+
+        DB::statement("TRUNCATE TABLE {$quotedTables} RESTART IDENTITY CASCADE");
+    } else {
+        foreach ($tables as $table) {
+            DB::table($table)->truncate();
+        }
     }
 }
 
