@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Domain\Activity\Enums\TaskActivityType;
 use App\Domain\Activity\Models\TaskActivity;
+use App\Domain\Collaboration\Enums\ProjectEventType;
 use App\Domain\Collaboration\Enums\ProjectRole;
+use App\Domain\Collaboration\Models\ProjectEvent;
 use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Projects\Enums\ProjectStatus;
@@ -40,6 +42,14 @@ final class BrowserSeeder extends Seeder
         ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
         ProjectMembership::factory()->admin()->create(['project_id' => $project->id, 'user_id' => $admin->id]);
         ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+        ProjectEvent::create([
+            'project_id' => $project->id,
+            'actor_user_id' => $owner->id,
+            'subject_user_id' => $admin->id,
+            'event_type' => ProjectEventType::MEMBER_ROLE_CHANGED,
+            'metadata' => ['old_role' => ProjectRole::MEMBER->value, 'new_role' => ProjectRole::ADMIN->value],
+            'created_at' => now()->subMinutes(15),
+        ]);
 
         Task::factory()->forProject($project)->active()->create([
             'title' => 'Review launch checklist',

@@ -2450,9 +2450,14 @@ html.density-compact .projects-ledger td {
     font-size: 0.8rem;
 }
 
-html.theme-dark .task-attention-indicator,
-html.theme-system .task-attention-indicator {
+html.theme-dark .task-attention-indicator {
     color: #fcd34d;
+}
+
+@media (prefers-color-scheme: dark) {
+    html.theme-system .task-attention-indicator {
+        color: #fcd34d;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2547,6 +2552,13 @@ html.theme-system .task-attention-indicator {
 .dashboard-activity-list li:last-child { border-bottom: 0; }
 .dashboard-activity-list strong { color: var(--planops-text); font-size: 0.8rem; }
 .dashboard-activity-list span, .dashboard-activity-list time { color: var(--planops-muted); font-size: 0.75rem; }
+.project-activity-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.project-activity-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.8rem; align-items: start; padding: 0.75rem 0; border-top: 1px solid var(--planops-border); }
+.project-activity-list li:first-child { border-top: 0; padding-top: 0; }
+.project-activity-list li > div { display: grid; gap: 0.25rem; }
+.project-activity-list strong { color: var(--planops-text); font-size: 0.8rem; }
+.project-activity-list span, .project-activity-list time { color: var(--planops-muted); font-size: 0.75rem; }
+@media (max-width: 640px) { .project-activity-list li { grid-template-columns: 1fr; gap: 0.25rem; } }
   .analytics-page { display: grid; gap: 1.25rem; max-width: 1400px; margin: 0 auto; }
   .analytics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
   .team-analytics-page { gap: 1.25rem; }

@@ -66,6 +66,19 @@ test.describe('authenticated collaboration', () => {
         await expectNoSeriousOrCriticalViolations(page);
     });
 
+    test('owner can inspect project role-change activity', async ({ page }) => {
+        await loginAs(page, 'browser-owner@example.test');
+
+        const projectPath = await browserProjectPath(page);
+        await page.goto(projectPath);
+
+        await expect(page.getByRole('heading', { name: 'Project activity', exact: true })).toBeVisible();
+        await expect(page.getByRole('list', { name: 'Project role-change events' })).toContainText('Browser Owner changed the role of Browser Admin');
+        await expect(page.getByRole('list', { name: 'Project role-change events' })).toContainText('From Member to Admin');
+
+        await expectNoSeriousOrCriticalViolations(page);
+    });
+
     test('member receives a forbidden response for Team Work', async ({ page }) => {
         await loginAs(page, 'browser-member@example.test');
 

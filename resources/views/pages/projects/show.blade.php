@@ -160,6 +160,40 @@
                     </div>
                 @endif
             </section>
+            <section class="dashboard-panel project-activity-panel" aria-labelledby="project-activity-heading">
+                @php
+                    $roleLabel = static fn (mixed $role): string => $role === null || $role === ''
+                        ? 'Unknown role'
+                        : str((string) $role)->replace('_', ' ')->title();
+                @endphp
+                <div class="project-overview-section-heading">
+                    <div>
+                        <p class="planops-eyebrow">History</p>
+                        <h2 id="project-activity-heading">Project activity</h2>
+                    </div>
+                    <span>Role changes</span>
+                </div>
+                @if ($activity->isEmpty())
+                    <p class="dashboard-empty">No role changes recorded yet.</p>
+                @else
+                    <ol class="project-activity-list" aria-label="Project role-change events">
+                        @foreach ($activity as $event)
+                            @php
+                                $metadata = $event->metadata ?? [];
+                                $actorName = $event->actor?->name ?? ($metadata['actor_name'] ?? 'Former collaborator');
+                                $subjectName = $event->subject?->name ?? ($metadata['subject_name'] ?? 'Historical member');
+                            @endphp
+                            <li>
+                                <div>
+                                    <strong>{{ $actorName }} changed the role of {{ $subjectName }}</strong>
+                                    <span>From {{ $roleLabel($metadata['old_role'] ?? null) }} to {{ $roleLabel($metadata['new_role'] ?? null) }}</span>
+                                </div>
+                                <time datetime="{{ $event->created_at?->toIso8601String() }}">{{ $event->created_at?->format('M j, Y · H:i') }}</time>
+                            </li>
+                        @endforeach
+                    </ol>
+                @endif
+            </section>
             @if ($attentionTasks->isNotEmpty())
                 <section class="dashboard-panel project-attention-panel" aria-labelledby="attention-heading">
                     <p class="planops-eyebrow">Suggestions</p><h2 id="attention-heading">Needs a look</h2>
