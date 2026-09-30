@@ -21,23 +21,28 @@ final class AssignTask
 
         $updatedTask = DB::transaction(function () use ($actor, $task, $assignee): Task {
             $lockedTask = Task::query()->accessibleBy($actor)->whereKey($task->getKey())->lockForUpdate()->firstOrFail();
-            $membership = $assignee === null ? null : ProjectMembership::query()
+            $lockedAssignee = $assignee === null ? null : User::query()->lockForUpdate()->find($assignee->getKey());
+            if ($assignee !== null && ($lockedAssignee === null || ! $lockedAssignee->isActive())) {
+                throw ValidationException::withMessages(['assignee_id' => 'Choose an active member of this project.']);
+            }
+
+            $membership = $lockedAssignee === null ? null : ProjectMembership::query()
                 ->where('project_id', $lockedTask->project_id)
-                ->where('user_id', $assignee->getKey())
+                ->where('user_id', $lockedAssignee->getKey())
                 ->whereNull('removed_at')
                 ->lockForUpdate()
                 ->first();
             $project = $lockedTask->project()->first();
-            $assigneeIsProjectOwner = $assignee !== null && $project !== null
-                && ((string) $project->owner_id === (string) $assignee->getKey()
-                    || (string) $project->user_id === (string) $assignee->getKey());
+            $assigneeIsProjectOwner = $lockedAssignee !== null && $project !== null
+                && ((string) $project->owner_id === (string) $lockedAssignee->getKey()
+                    || (string) $project->user_id === (string) $lockedAssignee->getKey());
 
             if ($assignee !== null && $membership === null && ! $assigneeIsProjectOwner) {
                 throw ValidationException::withMessages(['assignee_id' => 'Choose an active member of this project.']);
             }
 
             $oldAssigneeId = $lockedTask->assignee_id;
-            $newAssigneeId = $assignee?->getKey();
+            $newAssigneeId = $lockedAssignee?->getKey();
             if ((string) $oldAssigneeId === (string) $newAssigneeId) {
                 return $lockedTask;
             }

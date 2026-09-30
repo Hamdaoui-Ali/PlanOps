@@ -42,6 +42,10 @@ final class AcceptProjectInvitation
 
     private function acceptLockedInvitation(User $user, ProjectInvitation $invitation): ProjectMembership
     {
+        if (! $user->isActive()) {
+            throw ValidationException::withMessages(['email' => 'This account is deactivated.']);
+        }
+
         if (strtolower(trim($user->email)) !== $invitation->normalized_email) {
             throw ValidationException::withMessages(['email' => 'This invitation belongs to a different email address.']);
         }
