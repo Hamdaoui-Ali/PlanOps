@@ -1601,7 +1601,7 @@ html.theme-light .planops-nav-link.is-active {
     margin-bottom: 1.4rem;
     border: 1px solid rgba(183, 217, 107, 0.45);
     background: rgba(183, 217, 107, 0.08);
-    color: var(--planops-focus);
+    color: var(--planops-text);
     padding: 0.8rem 1rem;
     font-size: 0.85rem;
 }
