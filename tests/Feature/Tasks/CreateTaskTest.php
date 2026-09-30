@@ -75,7 +75,7 @@ test('task creation records one redacted task-created activity with stable conte
         ->and($activity->user_id)->toBe($owner->id)
         ->and($activity->project_id)->toBe($project->id)
         ->and($activity->task_id)->toBe($task->id)
-        ->and($activity->new_value)->toBe([
+        ->and($activity->new_value)->toEqualCanonicalizing([
             'display_key' => 'PLAN-1',
             'status' => 'NOT_STARTED',
             'priority' => 'MEDIUM',

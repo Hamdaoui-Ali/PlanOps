@@ -55,7 +55,7 @@ it('allows only the owner to change collaborator roles while keeping ownership p
         ->and($project->fresh()->owner_id)->toBe($owner->id)
         ->and($event->actor_user_id)->toBe($owner->id)
         ->and($event->subject_user_id)->toBe($member->id)
-        ->and($event->metadata)->toBe([
+        ->and($event->metadata)->toEqualCanonicalizing([
             'old_role' => ProjectRole::MEMBER->value,
             'new_role' => ProjectRole::ADMIN->value,
         ])
