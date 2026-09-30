@@ -294,7 +294,7 @@ html.theme-light .planops-nav-link.is-active {
 }
 
 .notification-card-type {
-    color: var(--planops-focus);
+    color: var(--planops-accent);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
