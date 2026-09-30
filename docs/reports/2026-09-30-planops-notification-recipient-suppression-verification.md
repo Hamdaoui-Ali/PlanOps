@@ -11,6 +11,10 @@ Date: 2026-09-30
 - Preserve the existing safe-target redaction behavior for active recipients.
 - Redact an existing notification target when a retry discovers that the
   recipient is now deactivated or removed.
+- Persist successful mail delivery and suppress duplicate queued jobs for the
+  same notification idempotency key.
+- Preserve assignment delivery for a valid legacy project owner before the
+  collaboration backfill creates an owner membership.
 - Lock the recipient and relevant invitation, task, and membership rows while
   authorizing and delivering the outcome.
 
@@ -23,15 +27,16 @@ member-removal message. That product and privacy decision remains deferred.
 php artisan test tests/Feature/Notifications/NotificationDeliveryTest.php --no-ansi
 ```
 
-Result: 9 passed, 22 assertions.
+Result: 11 passed, 26 assertions.
 
 The focused tests cover revoked invitation target redaction, removed assignment
 recipients, delayed reassignment, deactivated recipients, retry-time target
-redaction, bounded failure metadata, mail-failure persistence, and delivery to
-a still-authorized recipient.
+redaction, bounded failure metadata, mail-failure persistence, duplicate queued
+mail suppression, legacy owner delivery, and delivery to a still-authorized
+recipient.
 
-The full PHP suite also passes with 353 tests, 3 environment-scoped skips, and
-1,701 assertions. The database seeder now supplies explicit fixture metadata so
+The full PHP suite also passes with 355 tests, 3 environment-scoped skips, and
+1,705 assertions. The database seeder now supplies explicit fixture metadata so
 the release fixture reproducibility contract is not affected by shared Faker
 state from preceding tests.
 

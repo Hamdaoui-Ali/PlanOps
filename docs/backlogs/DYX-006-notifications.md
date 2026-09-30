@@ -65,6 +65,12 @@ Verification: Test duplicate jobs, retry exhaustion, removed recipient, deactiva
 
 Expected result: Delivery can be retried and diagnosed without duplicate spam, token leakage, or access resurrection.
 
+Current evidence (2026-09-30): the focused delivery and after-commit suites
+cover duplicate queued mail suppression, retry-time redaction, delivery
+failure persistence, and legacy owner delivery before collaboration backfill.
+They pass with 17 tests and 39 assertions; the full branch suite passes with
+355 tests, 3 environment-scoped skips, and 1,705 assertions.
+
 ### Task DYX-006.4
 
 Goal: Deliver the notification center and unread state.
