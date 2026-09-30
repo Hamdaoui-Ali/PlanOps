@@ -19,11 +19,11 @@ member-removal message. That product and privacy decision remains deferred.
 php artisan test tests/Feature/Notifications/NotificationDeliveryTest.php --no-ansi
 ```
 
-Result: 5 passed, 10 assertions.
+Result: 6 passed, 12 assertions.
 
 The focused tests cover revoked invitation target redaction, removed assignment
-recipients, deactivated recipients, bounded failure metadata, and delivery to a
-still-authorized recipient.
+recipients, delayed reassignment, deactivated recipients, bounded failure
+metadata, and delivery to a still-authorized recipient.
 
 ## Release boundary
 
