@@ -14,6 +14,6 @@ class ProjectTeamController extends Controller
     {
         Gate::forUser($request->user())->authorize('view', $project);
 
-        return view('pages.projects.team', ['project' => $project->load(['activeMemberships.user', 'invitations' => fn ($q) => $q->whereNull('accepted_at')->whereNull('revoked_at')->latest()])]);
+        return view('pages.projects.team', ['project' => $project->load(['activeMemberships.user', 'invitations' => fn ($q) => $q->whereNull('accepted_at')->whereNull('revoked_at')->where('expires_at', '>', now())->latest()])]);
     }
 }
