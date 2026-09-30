@@ -34,3 +34,25 @@ test('assigned member can inspect My Work and filter it by label', async ({ page
     await expect(page.locator('table.my-work-table').getByText('Review launch checklist', { exact: true })).toHaveCount(0);
     await expectNoSeriousOrCriticalViolations(page);
 });
+
+test('owner can reassign project work to an active member', async ({ page }) => {
+    await loginAs(page, 'browser-owner@example.test');
+
+    await page.goto('/projects');
+    const projectLink = page.getByRole('link', { name: 'Browser Collaboration', exact: true });
+    await expect(projectLink).toBeVisible();
+    const projectPath = new URL(await projectLink.getAttribute('href'), page.url()).pathname;
+
+    await page.goto(projectPath);
+    await page.getByRole('link', { name: 'Review launch checklist', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Review launch checklist', exact: true })).toBeVisible();
+
+    const assignee = page.locator('#task-assignee');
+    await expect(assignee.locator('option:checked')).toHaveText('Browser Admin');
+    await assignee.selectOption({ label: 'Browser Member' });
+    await page.getByRole('button', { name: 'Save assignee', exact: true }).click();
+
+    await expect(page.locator('.planops-flash[role="status"]')).toContainText('Task assignment updated.');
+    await expect(assignee.locator('option:checked')).toHaveText('Browser Member');
+    await expectNoSeriousOrCriticalViolations(page);
+});
