@@ -1,9 +1,11 @@
 <?php
 
 use App\Domain\Collaboration\Actions\InviteProjectMember;
+use App\Domain\Collaboration\Actions\RemoveProjectMember;
 use App\Domain\Collaboration\Actions\ResendProjectInvitation;
 use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Notifications\Actions\PersistNotificationOutcome;
 use App\Domain\Notifications\Jobs\DeliverNotificationOutcome;
 use App\Domain\Notifications\Models\PlanOpsNotification;
 use App\Domain\Projects\Models\Project;
@@ -12,6 +14,7 @@ use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
@@ -43,7 +46,25 @@ it('releases an invitation notification after the action-owned transaction commi
     (new InviteProjectMember)->handle($owner, $project, $invitee->email, ProjectRole::MEMBER);
 
     Queue::assertPushed(DeliverNotificationOutcome::class);
-    expect(PlanOpsNotification::query()->where('recipient_id', $invitee->id)->exists())->toBeTrue();
+    expect(PlanOpsNotification::query()->where('recipient_id', $invitee->id)->exists())->toBeFalse();
+});
+
+it('suppresses an invitation queued before recipient deactivation', function (): void {
+    Queue::fake();
+    Notification::fake();
+    $owner = User::factory()->create();
+    $invitee = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+
+    (new InviteProjectMember)->handle($owner, $project, $invitee->email, ProjectRole::MEMBER);
+    $invitee->forceFill(['deactivated_at' => now()])->save();
+    $job = Queue::pushed(DeliverNotificationOutcome::class)->sole();
+
+    $job->handle(new PersistNotificationOutcome);
+
+    expect(PlanOpsNotification::query()->where('recipient_id', $invitee->id)->exists())->toBeFalse();
+    Notification::assertNothingSent();
 });
 
 it('releases assignment notification only after the task transaction commits', function (): void {
@@ -63,6 +84,27 @@ it('releases assignment notification only after the task transaction commits', f
     Queue::assertPushed(DeliverNotificationOutcome::class, function (DeliverNotificationOutcome $job) use ($member, $task): bool {
         return $job->outcome->recipientId === $member->id && $job->outcome->targetId === $task->id;
     });
+    expect(PlanOpsNotification::query()->where('recipient_id', $member->id)->exists())->toBeFalse();
+});
+
+it('suppresses an assignment queued before member removal', function (): void {
+    Queue::fake();
+    Notification::fake();
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $task = Task::factory()->forProject($project)->create(['assignee_id' => null]);
+
+    (new AssignTask)->handle($owner, $task, $member);
+    $job = Queue::pushed(DeliverNotificationOutcome::class)->sole();
+    (new RemoveProjectMember)->handle($owner, $project, $member);
+
+    $job->handle(new PersistNotificationOutcome);
+
+    expect(PlanOpsNotification::query()->where('recipient_id', $member->id)->exists())->toBeFalse();
+    Notification::assertNothingSent();
 });
 
 it('notifies an existing account when a pending invitation is resent', function (): void {
@@ -76,6 +118,6 @@ it('notifies an existing account when a pending invitation is resent', function 
 
     (new ResendProjectInvitation)->handle($owner, $invitation);
 
-    expect(PlanOpsNotification::query()->where('recipient_id', $invitee->id)->count())->toBe(1);
+    expect(PlanOpsNotification::query()->where('recipient_id', $invitee->id)->count())->toBe(0);
     Queue::assertPushed(DeliverNotificationOutcome::class);
 });
