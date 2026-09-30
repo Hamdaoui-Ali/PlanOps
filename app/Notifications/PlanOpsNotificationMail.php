@@ -7,6 +7,7 @@ use App\Domain\Notifications\Enums\NotificationEventType;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Symfony\Component\Mime\Email;
 
 class PlanOpsNotificationMail extends Notification
 {
@@ -21,7 +22,14 @@ class PlanOpsNotificationMail extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $mail = (new MailMessage)->greeting('PlanOps notification');
+        $mail = (new MailMessage)
+            ->greeting('PlanOps notification')
+            ->withSymfonyMessage(function (Email $message): void {
+                $message->getHeaders()->addIdHeader(
+                    'Message-ID',
+                    'planops-'.hash('sha256', $this->outcome->idempotencyKey()).'@notifications.planops.invalid',
+                );
+            });
 
         if ($this->outcome->eventType === NotificationEventType::INVITATION_CREATED) {
             return $mail->subject('You have been invited to a PlanOps project')
