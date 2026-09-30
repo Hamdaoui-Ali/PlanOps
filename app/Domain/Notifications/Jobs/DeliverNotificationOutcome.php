@@ -83,6 +83,7 @@ class DeliverNotificationOutcome implements ShouldQueue
             NotificationEventType::ASSIGNEE_CHANGED => Task::query()
                 ->accessibleBy($recipient)
                 ->where('project_id', $this->outcome->projectId)
+                ->where('assignee_id', $recipient->getKey())
                 ->whereKey($this->outcome->targetId)->exists(),
         };
 
