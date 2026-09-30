@@ -9,6 +9,7 @@ use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
@@ -18,7 +19,7 @@ test('token hashes are unique and event history is append-only', function (): vo
     $project = Project::factory()->for($owner)->create();
     $invitation = ProjectInvitation::factory()->for($project)->create(['token_hash' => str_repeat('a', 64)]);
 
-    expect(fn (): ProjectInvitation => ProjectInvitation::factory()->for($project)->create(['token_hash' => $invitation->token_hash]))
+    expect(fn (): ProjectInvitation => DB::transaction(fn (): ProjectInvitation => ProjectInvitation::factory()->for($project)->create(['token_hash' => $invitation->token_hash])))
         ->toThrow(QueryException::class);
 
     $event = ProjectEvent::factory()->for($project)->create([
@@ -48,7 +49,7 @@ test('assignees use a nullable user foreign key and memberships retain history',
     if (Schema::getConnection()->getDriverName() === 'pgsql') {
         $ownerMembership = ProjectMembership::factory()->for($project)->for($owner, 'user')->owner()->create();
 
-        expect(fn (): ProjectMembership => ProjectMembership::factory()->for($project)->owner()->create())
+        expect(fn (): ProjectMembership => DB::transaction(fn (): ProjectMembership => ProjectMembership::factory()->for($project)->owner()->create()))
             ->toThrow(QueryException::class);
 
         $ownerMembership->delete();
