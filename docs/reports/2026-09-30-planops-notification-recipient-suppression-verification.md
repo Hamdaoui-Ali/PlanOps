@@ -9,6 +9,10 @@ Date: 2026-09-30
   persistence or mail delivery.
 - Require an active project membership before delivering an assignment outcome.
 - Preserve the existing safe-target redaction behavior for active recipients.
+- Redact an existing notification target when a retry discovers that the
+  recipient is now deactivated or removed.
+- Lock the recipient and relevant invitation, task, and membership rows while
+  authorizing and delivering the outcome.
 
 This change does not decide whether PlanOps should send a separate
 member-removal message. That product and privacy decision remains deferred.
@@ -19,11 +23,15 @@ member-removal message. That product and privacy decision remains deferred.
 php artisan test tests/Feature/Notifications/NotificationDeliveryTest.php --no-ansi
 ```
 
-Result: 6 passed, 12 assertions.
+Result: 8 passed, 18 assertions.
 
 The focused tests cover revoked invitation target redaction, removed assignment
-recipients, delayed reassignment, deactivated recipients, bounded failure
-metadata, and delivery to a still-authorized recipient.
+recipients, delayed reassignment, deactivated recipients, retry-time target
+redaction, bounded failure metadata, and delivery to a still-authorized
+recipient.
+
+The full PHP suite also passes with 352 tests, 3 environment-scoped skips, and
+1,697 assertions.
 
 ## Release boundary
 
