@@ -21,6 +21,7 @@ use App\Http\Controllers\ProjectTaskListController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
+use App\Http\Middleware\EnsureUserIsActive;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,10 +31,10 @@ Route::get('/', function () {
 Route::get('/invitations/{token}', [ProjectInvitationController::class, 'show'])->name('invitations.show');
 
 Route::get('/dashboard', DashboardController::class)
-    ->middleware('auth')
+    ->middleware(['auth', EnsureUserIsActive::class])
     ->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', EnsureUserIsActive::class])->group(function () {
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('/activity', [ActivityController::class, 'index'])->name('activity');
     Route::get('/search', [SearchController::class, 'index'])->name('search');
@@ -99,7 +100,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', EnsureUserIsActive::class])->group(function () {
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings/preferences', [SettingsController::class, 'update'])->name('settings.preferences.update');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
