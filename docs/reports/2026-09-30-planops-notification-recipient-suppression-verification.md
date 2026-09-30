@@ -38,8 +38,8 @@ redaction, bounded failure metadata, mail-failure persistence, duplicate queued
 mail suppression, legacy owner delivery, and delivery to a still-authorized
 recipient.
 
-The full PHP suite also passes with 355 tests, 3 environment-scoped skips, and
-1,705 assertions. The database seeder now supplies explicit fixture metadata so
+The full PHP suite also passes with 356 tests, 3 environment-scoped skips, and
+1,706 assertions. The database seeder now supplies explicit fixture metadata so
 the release fixture reproducibility contract is not affected by shared Faker
 state from preceding tests.
 

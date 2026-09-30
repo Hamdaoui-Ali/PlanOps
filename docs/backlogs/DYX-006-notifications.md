@@ -69,7 +69,7 @@ Current evidence (2026-09-30): the focused delivery and after-commit suites
 cover duplicate queued mail suppression, retry-time redaction, delivery
 failure persistence, and legacy owner delivery before collaboration backfill.
 They pass with 17 tests and 39 assertions; the full branch suite passes with
-355 tests, 3 environment-scoped skips, and 1,705 assertions.
+356 tests, 3 environment-scoped skips, and 1,706 assertions.
 
 The application persists a successful mail-delivery marker and emits a stable
 hashed `Message-ID` for each idempotency key. Generic SMTP cannot reveal
