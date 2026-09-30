@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
@@ -39,6 +40,16 @@ test('the PlanOps foundation contains the seven core tables', function () {
     ] as $table) {
         expect(Schema::hasTable($table))->toBeTrue();
     }
+});
+
+test('PostgreSQL timestamp sessions use UTC', function (): void {
+    if (! usesPostgresSchemaGrammar()) {
+        expect(true)->toBeTrue();
+
+        return;
+    }
+
+    expect(DB::scalar("select current_setting('TimeZone')"))->toBe('UTC');
 });
 
 test('the foundation contains required columns and lifecycle fields', function () {
