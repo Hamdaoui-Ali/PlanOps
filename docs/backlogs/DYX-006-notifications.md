@@ -128,7 +128,10 @@ npm.cmd run build
 
 ## Expected result
 
-P1 notification and collaboration-experience features are decoupled from P0 state changes, safe to retry, and scoped to current membership.
+P1 notification and collaboration-experience features are decoupled from P0
+state changes, safe to retry at the application boundary, and scoped to
+current active membership or a validated legacy owner identity during
+migration compatibility.
 
 ## Suggested commit boundaries
 
