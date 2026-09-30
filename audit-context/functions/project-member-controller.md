@@ -69,4 +69,3 @@ Checks project/membership nesting, obtains the validated role, delegates the rol
 ### Open Questions
 
 - The request authorizes the actor and the action authorizes again; this record does not establish whether both checks intentionally cover different state or are redundant (L24-L27; `app/Domain/Collaboration/Actions/ChangeProjectMemberRole.php:L18-L20`).
-
