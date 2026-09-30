@@ -84,6 +84,26 @@ it('keeps recovered project creators fully operational without an owner membersh
         ->and($owner->can('delete', $task))->toBeTrue();
 });
 
+it('deactivated members lose policy access while their history remains retained', function (): void {
+    $owner = User::factory()->create();
+    $member = User::factory()->create();
+    $project = collaborationProject($owner);
+    ProjectMembership::factory()->create(['project_id' => $project->id, 'user_id' => $member->id]);
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'user_id' => $owner->id,
+        'assignee_id' => $member->id,
+    ]);
+    $member->forceFill(['deactivated_at' => now()])->save();
+
+    expect($member->can('view', $project))->toBeFalse()
+        ->and($member->can('view', $task))->toBeFalse()
+        ->and($member->can('changeStatus', $task))->toBeFalse()
+        ->and(Project::query()->accessibleBy($member)->whereKey($project)->exists())->toBeFalse()
+        ->and(Task::query()->accessibleBy($member)->whereKey($task)->exists())->toBeFalse()
+        ->and($task->fresh()->assignee_id)->toBe($member->id);
+});
+
 it('returns tasks only from projects with active membership', function (): void {
     $owner = User::factory()->create();
     $member = User::factory()->create();

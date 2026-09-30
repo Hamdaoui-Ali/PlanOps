@@ -32,6 +32,38 @@ it('accepts a matching invitation through the HTTP endpoint', function (): void 
     expect($project->memberships()->where('user_id', $invitee->id)->where('role', ProjectRole::MEMBER->value)->exists())->toBeTrue();
 });
 
+it('keeps the public invitation preview generic', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->create([
+        'user_id' => $owner->id,
+        'owner_id' => $owner->id,
+        'name' => 'Confidential Launch Plan',
+    ]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    $invitation = (new InviteProjectMember)->handle($owner, $project, 'preview@example.com', ProjectRole::MEMBER);
+
+    $this->get(route('invitations.show', $invitation->plain_token))
+        ->assertOk()
+        ->assertSee('You have a project invitation.')
+        ->assertSee('Sign in with the invited email address to accept.')
+        ->assertDontSee($project->name)
+        ->assertDontSee('preview@example.com');
+});
+
+it('rate limits repeated public invitation previews', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    $invitation = (new InviteProjectMember)->handle($owner, $project, 'rate@example.com', ProjectRole::MEMBER);
+    $uri = route('invitations.show', $invitation->plain_token, absolute: false);
+
+    foreach (range(1, 6) as $_) {
+        $this->get($uri)->assertOk();
+    }
+
+    $this->get($uri)->assertTooManyRequests();
+});
+
 it('shows pending invitations on the project team surface', function (): void {
     $owner = User::factory()->create();
     $project = Project::factory()->for($owner)->create();
@@ -45,6 +77,19 @@ it('shows pending invitations on the project team surface', function (): void {
         ->assertSee('pending@example.com')
         ->assertSee('Awaiting acceptance')
         ->assertSee('Pending');
+});
+
+it('does not render expired invitations as pending', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    $invitation = (new InviteProjectMember)->handle($owner, $project, 'expired@example.com', ProjectRole::MEMBER);
+    ProjectInvitation::query()->whereKey($invitation->getKey())->update(['expires_at' => now()->subMinute()]);
+
+    $this->actingAs($owner)->get(route('projects.team', $project))
+        ->assertOk()
+        ->assertDontSee('Pending invitations')
+        ->assertDontSee('expired@example.com');
 });
 
 it('allows a project manager to cancel a pending invitation', function (): void {

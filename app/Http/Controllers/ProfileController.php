@@ -7,6 +7,7 @@ use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -56,13 +57,19 @@ class ProfileController extends Controller
             return back()->withErrors(['password' => 'Project owners cannot delete their account while they own a project.'], 'userDeletion');
         }
 
-        Auth::logout();
+        $user->forceFill(['deactivated_at' => now()])->save();
 
-        $user->delete();
+        if (config('session.driver') === 'database') {
+            DB::table(config('session.table', 'sessions'))
+                ->where('user_id', $user->getKey())
+                ->delete();
+        }
+
+        Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return Redirect::to('/')->with('status', 'Your account has been deactivated.');
     }
 }

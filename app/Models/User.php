@@ -81,6 +81,11 @@ class User extends Authenticatable
         return $this->hasMany(ProjectInvitation::class, 'invited_by_user_id');
     }
 
+    public function isActive(): bool
+    {
+        return $this->deactivated_at === null;
+    }
+
     public function projectEvents(): HasMany
     {
         return $this->hasMany(ProjectEvent::class, 'actor_user_id');

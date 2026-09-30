@@ -33,6 +33,13 @@ final class InviteProjectMember
 
         $invitation = DB::transaction(function () use ($actor, $project, $email, $normalized, $role): ProjectInvitation {
             $project->newQuery()->whereKey($project->getKey())->lockForUpdate()->firstOrFail();
+            $recipient = UserModel::query()
+                ->whereRaw('LOWER(email) = ?', [$normalized])
+                ->lockForUpdate()
+                ->first();
+            if ($recipient !== null && ! $recipient->isActive()) {
+                throw ValidationException::withMessages(['email' => 'That account is deactivated.']);
+            }
             if (ProjectMembership::query()->where('project_id', $project->getKey())->whereHas('user', fn ($users) => $users->whereRaw('LOWER(email) = ?', [$normalized]))->whereNull('removed_at')->exists()) {
                 throw ValidationException::withMessages(['email' => 'That person is already a project member.']);
             }

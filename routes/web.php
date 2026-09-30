@@ -21,19 +21,22 @@ use App\Http\Controllers\ProjectTaskListController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
+use App\Http\Middleware\EnsureUserIsActive;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/invitations/{token}', [ProjectInvitationController::class, 'show'])->name('invitations.show');
+Route::get('/invitations/{token}', [ProjectInvitationController::class, 'show'])
+    ->middleware('throttle:6,1')
+    ->name('invitations.show');
 
 Route::get('/dashboard', DashboardController::class)
-    ->middleware('auth')
+    ->middleware(['auth', EnsureUserIsActive::class])
     ->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', EnsureUserIsActive::class])->group(function () {
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('/activity', [ActivityController::class, 'index'])->name('activity');
     Route::get('/search', [SearchController::class, 'index'])->name('search');
@@ -64,10 +67,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}/team', [ProjectTeamController::class, 'show'])->name('projects.team');
     Route::get('/projects/{project}/team/work', [ProjectTeamWorkController::class, 'show'])->name('projects.team.work');
     Route::get('/projects/{project}/team/analytics', [ProjectTeamAnalyticsController::class, 'index'])->name('projects.team.analytics');
-    Route::post('/projects/{project}/team/invitations', [ProjectInvitationController::class, 'store'])->name('projects.team.invitations.store');
+    Route::post('/projects/{project}/team/invitations', [ProjectInvitationController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->name('projects.team.invitations.store');
     Route::delete('/invitations/{invitation}', [ProjectInvitationController::class, 'revoke'])->name('invitations.revoke');
-    Route::post('/invitations/{invitation}/resend', [ProjectInvitationController::class, 'resend'])->name('invitations.resend');
-    Route::post('/invitations/{token}/accept', [ProjectInvitationController::class, 'accept'])->name('invitations.accept');
+    Route::post('/invitations/{invitation}/resend', [ProjectInvitationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('invitations.resend');
+    Route::post('/invitations/{token}/accept', [ProjectInvitationController::class, 'accept'])
+        ->middleware('throttle:6,1')
+        ->name('invitations.accept');
     Route::patch('/projects/{project}/team/members/{membership}', [ProjectMemberController::class, 'update'])->name('projects.team.members.update');
     Route::delete('/projects/{project}/team/members/{membership}', [ProjectMemberController::class, 'destroy'])->name('projects.team.members.destroy');
     Route::get('/projects/{project}/analytics', [ProjectAnalyticsController::class, 'index'])->name('projects.analytics');
@@ -99,7 +108,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', EnsureUserIsActive::class])->group(function () {
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings/preferences', [SettingsController::class, 'update'])->name('settings.preferences.update');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
