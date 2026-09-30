@@ -14,7 +14,7 @@ Prove that the collaboration foundation is safe, complete, and documented before
 
 ## Current branch evidence — 2026-09-30
 
-- `php artisan test --no-ansi`: 356 passed, 3 environment-scoped skips, 1706 assertions.
+- `php artisan test --no-ansi`: 365 passed, 3 environment-scoped skips, 1735 assertions.
 - `npm.cmd run test:browser`: 13 passed, including narrow-viewport Team Work keyboard scrolling, Team Analytics, role-change activity, assignment mutation, assignment-based My Work, label-filtering, invitation-acceptance, and notification read-state journeys.
 - `php artisan view:cache`: pass.
 - `npm.cmd run build`: pass.
@@ -24,10 +24,17 @@ Prove that the collaboration foundation is safe, complete, and documented before
   `tests/Feature/Collaboration/AssignmentConcurrencyTest.php`,
   `tests/Feature/Tasks/TaskNumberConcurrencyTest.php`, and
   `tests/Feature/Collaboration/TaskCreationConcurrencyTest.php`.
-- Detailed evidence: [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [role-change activity verification report](../reports/2026-09-29-planops-role-change-activity-verification.md), [collaboration browser verification report](../reports/2026-09-30-planops-collaboration-browser-verification.md), [notification recipient suppression report](../reports/2026-09-30-planops-notification-recipient-suppression-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and the [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
+- Detailed evidence: [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [role-change activity verification report](../reports/2026-09-29-planops-role-change-activity-verification.md), [collaboration browser verification report](../reports/2026-09-30-planops-collaboration-browser-verification.md), [notification recipient suppression report](../reports/2026-09-30-planops-notification-recipient-suppression-verification.md), [account lifecycle and security-scope audit](../reports/2026-09-30-planops-account-lifecycle-scope-audit.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and the [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
 
 These results are branch evidence, not proof that the PostgreSQL migration,
 concurrency, and complete P0/P1 release criteria are finished.
+
+The DYX-007.3 application-side audit slice is now recorded in
+[`audit-context/DOSSIER.md`](../../audit-context/DOSSIER.md). It covers the
+account deactivation boundary, active-account scopes and policies, collaboration
+target guards, invitation-preview privacy, invitation route throttles, and
+expired-invitation state. PostgreSQL/concurrency evidence and the broader release
+decision remain open.
 
 ## Files
 
@@ -81,7 +88,7 @@ Action: Search for stale `ownedBy()` access, raw `user_id` ownership assumptions
 
 Why: access leaks often survive happy-path tests in a secondary surface.
 
-Verification: Review every search hit and add a test or documented intentional exception. Attempt direct requests with valid identifiers from another project and with removed/deactivated membership.
+Verification: Review every search hit and add a test or documented intentional exception. Attempt direct requests with valid identifiers from another project and with removed/deactivated membership. Use the context-only scope map in [`audit-context/DOSSIER.md`](../../audit-context/DOSSIER.md) and the [account lifecycle and security-scope audit](../reports/2026-09-30-planops-account-lifecycle-scope-audit.md) as the current evidence index.
 
 Expected result: Every collaboration surface has an explicit, reviewed access path or a named exception.
 
@@ -118,9 +125,9 @@ Expected result: The release is approved, or the checklist identifies a specific
 - [ ] PostgreSQL fresh/legacy migration and rollback evidence is recorded.
 - [ ] Full P0/P1 Pest verification has zero unapproved failures and no skipped security/concurrency tests.
 - [x] Browser, keyboard, and axe evidence is present for public, Team Work including narrow-viewport scrolling, Team Analytics, role-change activity, assignment mutation, assignment-based My Work with label filtering, invitation acceptance, and notification read-state journeys; other mobile-specific checks and broader collaboration coverage remain open.
-- [ ] Cross-project, removed-member, deactivated-user, archived-project, direct-URL, and concurrent-race cases are covered.
+- [ ] Cross-project, removed-member, deactivated-user, archived-project, direct-URL, and concurrent-race cases are covered; deactivated-user and direct-URL regressions are covered in the current application slice, while the concurrency cases remain environment-scoped skips.
 - [ ] No stale owner-only, unscoped query, raw-token, or contract-drift claim remains without an explicit exception.
-- [ ] Build and documentation checks pass.
+- [x] Build and documentation checks pass.
 - [ ] Every release exception has a named owner, follow-up ID, and release impact.
 - [ ] P2 remains blocked until the P0 security gate is green.
 
@@ -148,4 +155,4 @@ PlanOps can release the collaboration foundation with a traceable evidence set, 
 
 ## Next action
 
-Execute the verification matrix only after DYX-005 and DYX-006 have supplied their acceptance evidence.
+Run the PostgreSQL migration/rollback and concurrency matrix, then complete the remaining DYX-007.4/DYX-007.5 release decision with named exceptions.
