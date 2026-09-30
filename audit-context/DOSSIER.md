@@ -25,11 +25,6 @@ in normal source and test history.
 - `functions/request-boundaries.md`
 - `functions/assign-task.md`
 - `functions/reorder-tasks.md`
-- `functions/invitation-actions.md`
-- `functions/project-member-controller.md`
-- `functions/activity-recorder.md`
-- `functions/notification-delivery.md`
-- `functions/mutation-surface-map.md`
 
 ## Review boundary
 
