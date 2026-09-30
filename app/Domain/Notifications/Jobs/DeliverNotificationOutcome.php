@@ -45,21 +45,36 @@ class DeliverNotificationOutcome implements ShouldQueue
 
     public function handle(PersistNotificationOutcome $persist): void
     {
-        DB::transaction(function () use ($persist): void {
+        $outcome = DB::transaction(function () use ($persist): ?NotificationOutcome {
             $recipient = User::query()->lockForUpdate()->find($this->outcome->recipientId);
             $outcome = $this->outcomeForDelivery($recipient);
 
             if ($outcome === null) {
                 $persist->redactExisting($this->outcome);
 
-                return;
+                return null;
             }
 
             $persist->handle($outcome);
 
-            if ($outcome->targetId !== null) {
-                $recipient->notify(new PlanOpsNotificationMail($outcome));
+            return $outcome;
+        });
+
+        if ($outcome === null || $outcome->targetId === null) {
+            return;
+        }
+
+        DB::transaction(function () use ($persist): void {
+            $recipient = User::query()->lockForUpdate()->find($this->outcome->recipientId);
+            $outcome = $this->outcomeForDelivery($recipient);
+
+            if ($outcome === null || $outcome->targetId === null) {
+                $persist->redactExisting($this->outcome);
+
+                return;
             }
+
+            $recipient->notify(new PlanOpsNotificationMail($outcome));
         });
     }
 
