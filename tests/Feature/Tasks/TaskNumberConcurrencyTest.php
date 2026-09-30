@@ -49,22 +49,26 @@ test('PostgreSQL serializes independent task creation attempts through the proje
         $this->markTestSkipped('PostgreSQL is required to verify the independent-connection row-lock path.');
     }
 
-    expect(function_exists('pcntl_fork'))->toBeTrue()
-        ->and(function_exists('posix_kill'))->toBeTrue();
+    if (! function_exists('pcntl_fork') || ! function_exists('pcntl_waitpid') || ! function_exists('posix_kill')) {
+        $this->markTestSkipped('The independent task-allocation race requires the POSIX process-control extensions.');
+    }
 
     $parentConnection = 'task_concurrency_parent_'.getmypid();
     $childConnection = 'task_concurrency_child_'.getmypid();
     $connectionConfig = config("database.connections.{$defaultConnection}");
+    $parentConfig = [...$connectionConfig, 'name' => $parentConnection];
+    $childConfig = [...$connectionConfig, 'name' => $childConnection];
     config([
-        "database.connections.{$parentConnection}" => $connectionConfig,
-        "database.connections.{$childConnection}" => $connectionConfig,
+        "database.connections.{$parentConnection}" => $parentConfig,
+        "database.connections.{$childConnection}" => $childConfig,
+        'database.default' => $parentConnection,
     ]);
     DB::purge($parentConnection);
     DB::purge($childConnection);
     DB::setDefaultConnection($parentConnection);
 
-    $owner = User::factory()->create();
-    $project = Project::factory()->for($owner)->create(['key' => 'PLAN', 'next_task_number' => 1]);
+    $owner = User::factory()->connection($parentConnection)->create();
+    $project = Project::factory()->connection($parentConnection)->for($owner)->create(['key' => 'PLAN', 'next_task_number' => 1]);
     $ownerId = $owner->id;
     $projectId = $project->id;
 
@@ -188,6 +192,7 @@ test('PostgreSQL serializes independent task creation attempts through the proje
             // Preserve the assertion or setup failure that entered this cleanup path.
         }
 
+        config(['database.default' => $defaultConnection]);
         DB::setDefaultConnection($defaultConnection);
         DB::purge($parentConnection);
         DB::purge($childConnection);

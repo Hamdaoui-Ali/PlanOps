@@ -18,7 +18,11 @@ test('PostgreSQL denies task creation after an admin is demoted while waiting fo
     $defaultConnection = DB::getDefaultConnection();
     $connectionConfig = DB::connection()->getConfig();
     $raceConnection = 'task_creation_demotion_race';
-    config(["database.connections.$raceConnection" => $connectionConfig]);
+    $connectionConfig['name'] = $raceConnection;
+    config([
+        "database.connections.$raceConnection" => $connectionConfig,
+        'database.default' => $raceConnection,
+    ]);
     DB::setDefaultConnection($raceConnection);
     $process = null;
     $paths = [];
@@ -26,31 +30,35 @@ test('PostgreSQL denies task creation after an admin is demoted while waiting fo
 
     try {
         // Commit fixtures on an independent connection, outside RefreshDatabase's transaction.
-        $owner = User::factory()->create();
-        $admin = User::factory()->create();
-        $project = Project::factory()->for($owner)->create(['owner_id' => $owner->id, 'next_task_number' => 7]);
-        $membership = ProjectMembership::factory()->admin()->create(['project_id' => $project->id, 'user_id' => $admin->id]);
+        $owner = User::factory()->connection($raceConnection)->create();
+        $admin = User::factory()->connection($raceConnection)->create();
+        $project = Project::factory()->connection($raceConnection)->for($owner)->create(['owner_id' => $owner->id, 'next_task_number' => 7]);
+        $membership = ProjectMembership::factory()->connection($raceConnection)->admin()->create(['project_id' => $project->id, 'user_id' => $admin->id]);
         foreach (['pid', 'result', 'stdout', 'stderr'] as $name) {
             $paths[$name] = tempnam(sys_get_temp_dir(), 'planops-demotion-'.$name.'-');
         }
 
         DB::beginTransaction();
         Project::query()->whereKey($project->id)->lockForUpdate()->firstOrFail();
+        $childEnvironment = getenv();
+        if (! is_array($childEnvironment)) {
+            $childEnvironment = [];
+        }
+        $childEnvironment['APP_ENV'] = 'testing';
+        $childEnvironment['APP_KEY'] = (string) config('app.key');
+        $childEnvironment['DB_CONNECTION'] = 'pgsql';
+        $childEnvironment['DB_URL'] = '';
+        $childEnvironment['DB_HOST'] = (string) $connectionConfig['host'];
+        $childEnvironment['DB_PORT'] = (string) $connectionConfig['port'];
+        $childEnvironment['DB_DATABASE'] = (string) $connectionConfig['database'];
+        $childEnvironment['DB_USERNAME'] = (string) $connectionConfig['username'];
+        $childEnvironment['DB_PASSWORD'] = (string) $connectionConfig['password'];
+        $childEnvironment['DB_SSLMODE'] = (string) ($connectionConfig['sslmode'] ?? 'prefer');
+
         $process = proc_open([
             PHP_BINARY, base_path('tests/Support/task_creation_race_worker.php'),
             $project->id, $admin->id, $paths['pid'], $paths['result'],
-        ], [0 => ['pipe', 'r'], 1 => ['file', $paths['stdout'], 'a'], 2 => ['file', $paths['stderr'], 'a']], $pipes, base_path(), [
-            'APP_ENV' => 'testing',
-            'APP_KEY' => (string) config('app.key'),
-            'DB_CONNECTION' => 'pgsql',
-            'DB_URL' => '',
-            'DB_HOST' => (string) $connectionConfig['host'],
-            'DB_PORT' => (string) $connectionConfig['port'],
-            'DB_DATABASE' => (string) $connectionConfig['database'],
-            'DB_USERNAME' => (string) $connectionConfig['username'],
-            'DB_PASSWORD' => (string) $connectionConfig['password'],
-            'DB_SSLMODE' => (string) ($connectionConfig['sslmode'] ?? 'prefer'),
-        ]);
+        ], [0 => ['pipe', 'r'], 1 => ['file', $paths['stdout'], 'a'], 2 => ['file', $paths['stderr'], 'a']], $pipes, base_path(), $childEnvironment);
         expect(is_resource($process))->toBeTrue();
         fclose($pipes[0]);
 
@@ -101,6 +109,7 @@ test('PostgreSQL denies task creation after an admin is demoted while waiting fo
         foreach ($paths as $path) {
             @unlink($path);
         }
+        config(['database.default' => $defaultConnection]);
         DB::setDefaultConnection($defaultConnection);
         DB::purge($raceConnection);
         config(["database.connections.$raceConnection" => null]);
