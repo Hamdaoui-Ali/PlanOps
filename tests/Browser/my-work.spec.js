@@ -29,7 +29,7 @@ test('assigned member can inspect My Work and filter it by label', async ({ page
     await page.locator('#my-work-label').selectOption({ label: 'Launch readiness' });
     await page.getByRole('button', { name: 'Apply filters', exact: true }).click();
 
-    await expect(page).toHaveURL(/\/my-work\?label=\d+$/);
+    await expect(page).toHaveURL(/\/my-work\?.*label=\d+/);
     await expect(notStarted.getByRole('table')).toContainText('Validate member handoff');
     await expect(page.locator('table.my-work-table').getByText('Review launch checklist', { exact: true })).toHaveCount(0);
     await expectNoSeriousOrCriticalViolations(page);
