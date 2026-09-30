@@ -18,7 +18,7 @@ class ProjectInvitationController
 {
     public function show(string $token): View
     {
-        $invitation = ProjectInvitation::query()->with('project')->where('token_hash', hash('sha256', $token))->first();
+        $invitation = ProjectInvitation::query()->where('token_hash', hash('sha256', $token))->first();
 
         return view('pages.invitations.show', ['invitation' => $invitation]);
     }
