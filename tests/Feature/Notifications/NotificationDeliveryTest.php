@@ -156,6 +156,29 @@ it('redacts an existing assignment target when the recipient is removed before r
     Notification::assertNothingSent();
 });
 
+it('suppresses duplicate queued mail for one idempotency key', function (): void {
+    Notification::fake();
+    $recipient = User::factory()->create();
+    $project = Project::factory()->create();
+    $invitation = ProjectInvitation::factory()->create([
+        'project_id' => $project->id,
+        'email' => $recipient->email,
+        'normalized_email' => strtolower($recipient->email),
+        'accepted_at' => null,
+        'revoked_at' => null,
+        'expires_at' => now()->addDay(),
+    ]);
+    $outcome = NotificationOutcome::invitationCreated($invitation->id, $project->id, $recipient->id, $project->name);
+    $persist = new \App\Domain\Notifications\Actions\PersistNotificationOutcome;
+    $job = new DeliverNotificationOutcome($outcome);
+
+    $job->handle($persist);
+    $job->handle($persist);
+
+    expect(PlanOpsNotification::query()->sole()->target_id)->toBe($invitation->id);
+    Notification::assertSentToTimes($recipient, \App\Notifications\PlanOpsNotificationMail::class, 1);
+});
+
 it('keeps the persisted notification when mail delivery fails', function (): void {
     $recipient = User::factory()->create();
     $project = Project::factory()->create();
@@ -195,4 +218,28 @@ it('delivers a mail notification only for a still-authorized target', function (
     (new DeliverNotificationOutcome($outcome))->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
 
     Notification::assertSentTo($recipient, \App\Notifications\PlanOpsNotificationMail::class);
+});
+
+it('delivers an assignment notification to a legacy project owner without membership', function (): void {
+    Notification::fake();
+    $owner = User::factory()->create();
+    $project = Project::factory()->create(['user_id' => $owner->id, 'owner_id' => $owner->id]);
+    $task = Task::factory()->forProject($project)->create([
+        'user_id' => $owner->id,
+        'assignee_id' => $owner->id,
+    ]);
+    $outcome = NotificationOutcome::assigneeChanged(
+        $task->id,
+        $project->id,
+        $owner->id,
+        null,
+        $owner->id,
+        $owner->id,
+        $task->title,
+    );
+
+    (new DeliverNotificationOutcome($outcome))->handle(new \App\Domain\Notifications\Actions\PersistNotificationOutcome);
+
+    expect(PlanOpsNotification::query()->sole()->target_id)->toBe($task->id);
+    Notification::assertSentTo($owner, \App\Notifications\PlanOpsNotificationMail::class);
 });
