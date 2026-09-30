@@ -7,7 +7,11 @@ use App\Domain\Activity\Models\TaskActivity;
 use App\Domain\Collaboration\Enums\ProjectEventType;
 use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectEvent;
+use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Notifications\Data\NotificationOutcome;
+use App\Domain\Notifications\Enums\NotificationEventType;
+use App\Domain\Notifications\Models\PlanOpsNotification;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Tasks\Enums\TaskStatus;
@@ -30,6 +34,10 @@ final class BrowserSeeder extends Seeder
         $member = User::factory()->create([
             'name' => 'Browser Member',
             'email' => 'browser-member@example.test',
+        ]);
+        $invitee = User::factory()->create([
+            'name' => 'Browser Invitee',
+            'email' => 'browser-invitee@example.test',
         ]);
         $project = Project::factory()->create([
             'user_id' => $owner->id,
@@ -79,5 +87,41 @@ final class BrowserSeeder extends Seeder
             'new_value' => ['status' => TaskStatus::DONE->value],
             'created_at' => now()->subMinutes(30),
         ]);
+
+        PlanOpsNotification::query()->create([
+            'recipient_id' => $owner->id,
+            'event_type' => NotificationEventType::ASSIGNEE_CHANGED,
+            'idempotency_key' => 'BROWSER:ASSIGNEE_CHANGED:OWNER',
+            'project_id' => $project->id,
+            'target_type' => 'task',
+            'target_id' => $completed->id,
+            'data' => ['message' => 'Release review needs your attention.'],
+        ]);
+
+        $invitationProject = Project::factory()->create([
+            'user_id' => $owner->id,
+            'owner_id' => $owner->id,
+            'name' => 'Browser Invitations',
+            'key' => 'INVITE',
+            'status' => ProjectStatus::ACTIVE,
+        ]);
+        ProjectMembership::factory()->owner()->create([
+            'project_id' => $invitationProject->id,
+            'user_id' => $owner->id,
+        ]);
+        $invitation = ProjectInvitation::factory()->create([
+            'project_id' => $invitationProject->id,
+            'email' => $invitee->email,
+            'normalized_email' => strtolower($invitee->email),
+            'invited_by_user_id' => $owner->id,
+        ]);
+        PlanOpsNotification::query()->create(
+            PlanOpsNotification::fromOutcome(NotificationOutcome::invitationCreated(
+                $invitation->id,
+                $invitationProject->id,
+                $invitee->id,
+                $invitationProject->name,
+            )),
+        );
     }
 }

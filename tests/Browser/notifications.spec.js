@@ -39,7 +39,7 @@ test.describe('authenticated notifications', () => {
         await expect(notificationsLink.locator('#notification-count-badge')).toHaveText('1');
         await notificationsLink.click();
         await expect(page).toHaveURL(/\/notifications$/);
-        await expect(page.getByText('You have 1 unread notification.', { exact: true })).toBeVisible();
+        await expect(page.locator('#main-content').getByText('You have 1 unread notification.', { exact: true })).toBeVisible();
 
         const notification = page.locator('[data-notification-id]').first();
         await expect(notification.getByRole('heading', { name: 'Release review needs your attention.', exact: true })).toBeVisible();
@@ -48,7 +48,7 @@ test.describe('authenticated notifications', () => {
         await notification.getByRole('button', { name: 'Mark as read', exact: true }).click();
 
         await expect(page).toHaveURL(/\/notifications$/);
-        await expect(page.getByText('You have 0 unread notifications.', { exact: true })).toBeVisible();
+        await expect(page.locator('#main-content').getByText('You have 0 unread notifications.', { exact: true })).toBeVisible();
         await expect(notification.getByText('Read', { exact: true })).toBeVisible();
         await expect(notification.getByRole('button', { name: 'Mark as read', exact: true })).toHaveCount(0);
     });
