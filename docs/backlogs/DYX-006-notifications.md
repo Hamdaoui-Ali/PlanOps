@@ -65,6 +65,18 @@ Verification: Test duplicate jobs, retry exhaustion, removed recipient, deactiva
 
 Expected result: Delivery can be retried and diagnosed without duplicate spam, token leakage, or access resurrection.
 
+Current evidence (2026-09-30): the focused delivery and after-commit suites
+cover duplicate queued mail suppression, retry-time redaction, delivery
+failure persistence, and legacy owner delivery before collaboration backfill.
+They pass with 17 tests and 39 assertions; the full branch suite passes with
+356 tests, 3 environment-scoped skips, and 1,706 assertions.
+
+The application persists a successful mail-delivery marker and emits a stable
+hashed `Message-ID` for each idempotency key. Generic SMTP cannot reveal
+whether a timeout happened before or after provider acceptance, so the
+end-to-end no-duplicate guarantee depends on a provider honoring that stable
+identity or an equivalent provider idempotency key.
+
 ### Task DYX-006.4
 
 Goal: Deliver the notification center and unread state.
@@ -116,7 +128,10 @@ npm.cmd run build
 
 ## Expected result
 
-P1 notification and collaboration-experience features are decoupled from P0 state changes, safe to retry, and scoped to current membership.
+P1 notification and collaboration-experience features are decoupled from P0
+state changes, safe to retry at the application boundary, and scoped to
+current active membership or a validated legacy owner identity during
+migration compatibility.
 
 ## Suggested commit boundaries
 

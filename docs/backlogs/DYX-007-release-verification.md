@@ -12,18 +12,19 @@
 
 Prove that the collaboration foundation is safe, complete, and documented before release. This backlog is the final evidence gate; it does not replace the tests owned by DYX-001 through DYX-006.
 
-## Current branch evidence — 2026-09-29
+## Current branch evidence — 2026-09-30
 
-- `php artisan test --compact`: 343 passed, 3 environment-scoped skips, 1662 assertions.
-- `npm.cmd run test:browser`: 7 passed, including the Team Work and Team Analytics Owner/Member journeys.
+- `php artisan test --no-ansi`: 356 passed, 3 environment-scoped skips, 1706 assertions.
+- `npm.cmd run test:browser`: 8 passed, including the Team Work, Team Analytics, and role-change activity journeys.
 - `php artisan view:cache`: pass.
 - `npm.cmd run build`: pass.
+- Documentation link validation: pass.
 - `git diff --check`: pass.
 - The known environment-scoped skips are:
   `tests/Feature/Collaboration/AssignmentConcurrencyTest.php`,
   `tests/Feature/Tasks/TaskNumberConcurrencyTest.php`, and
   `tests/Feature/Collaboration/TaskCreationConcurrencyTest.php`.
-- Detailed evidence: [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and the [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
+- Detailed evidence: [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [role-change activity verification report](../reports/2026-09-29-planops-role-change-activity-verification.md), [notification recipient suppression report](../reports/2026-09-30-planops-notification-recipient-suppression-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and the [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
 
 These results are branch evidence, not proof that the PostgreSQL migration,
 concurrency, and complete P0/P1 release criteria are finished.

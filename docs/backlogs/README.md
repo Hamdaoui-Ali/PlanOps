@@ -10,7 +10,7 @@
 
 **Baseline evidence:** [2026-09-05 Sprint 2 baseline](../baselines/2026-09-05-sprint-2-baseline.md)
 
-**Current gate:** DYX-007 verification is in progress. The current branch reports 343 passed, 3 environment-scoped skips, and 1662 assertions from `php artisan test --compact`; `npm.cmd run test:browser` reports 7 passed. Browser evidence covers the public landing/login journeys plus authenticated Owner and Member Team Work and Team Analytics journeys. The remaining PostgreSQL, concurrency, and broader P0/P1 release criteria stay open. See the [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
+**Current gate:** DYX-007 verification is in progress. The current branch reports 356 passed, 3 environment-scoped skips, and 1706 assertions from `php artisan test --no-ansi`; `npm.cmd run test:browser` reports 8 passed. Browser evidence covers the public landing/login journeys plus authenticated Owner and Member Team Work, Team Analytics, and role-change activity journeys. The remaining PostgreSQL, concurrency, and broader P0/P1 release criteria stay open. See the [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [role-change activity verification report](../reports/2026-09-29-planops-role-change-activity-verification.md), [notification recipient suppression report](../reports/2026-09-30-planops-notification-recipient-suppression-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
 
 This folder is an execution tracker. It does not replace the authority document. If a backlog item and the authority document disagree, stop and reconcile the documents before writing code.
 
@@ -120,7 +120,13 @@ the collaboration role-history test, and the browser journey in
 ### S2-P2-003 — Member-removal notification
 
 - [ ] Decide whether removal notifications are required and what target data is safe.
-- [ ] Suppress delivery to deactivated or removed recipients.
+- [x] Suppress delivery to deactivated or removed recipients.
+
+Recipient suppression is covered by the existing notification delivery job:
+deactivated accounts and removed assignment recipients receive neither a
+persisted notification row nor mail. This closes the delivery-safety contract
+without deciding whether a separate member-removal message should exist. See
+the [notification recipient suppression verification report](../reports/2026-09-30-planops-notification-recipient-suppression-verification.md).
 
 ### S2-P2-004 — Team analytics
 

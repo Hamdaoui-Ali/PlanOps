@@ -54,20 +54,77 @@ class DatabaseSeeder extends Seeder
                 'density' => 'COMPACT',
             ]);
 
-            $activeProject = Project::factory()->for($owner)->active()->create(['name' => 'PlanOps Core', 'key' => 'PLAN']);
-            $plannedProject = Project::factory()->for($owner)->planned()->create(['name' => 'Future Work', 'key' => 'FUTURE']);
-            $onHoldProject = Project::factory()->for($owner)->onHold()->create(['name' => 'Discovery', 'key' => 'HOLD']);
-            $completedProject = Project::factory()->for($owner)->completed()->create(['name' => 'Foundation', 'key' => 'FOUND']);
-            $cancelledProject = Project::factory()->for($secondUser)->cancelled()->create(['name' => 'Retired Initiative', 'key' => 'RETIRE']);
+            $activeProject = Project::factory()->for($owner)->active()->create([
+                'name' => 'PlanOps Core',
+                'key' => 'PLAN',
+                'description' => 'Core delivery workspace.',
+                'color' => '#2563EB',
+            ]);
+            $plannedProject = Project::factory()->for($owner)->planned()->create([
+                'name' => 'Future Work',
+                'key' => 'FUTURE',
+                'description' => 'Planned delivery backlog.',
+                'color' => '#7C3AED',
+            ]);
+            $onHoldProject = Project::factory()->for($owner)->onHold()->create([
+                'name' => 'Discovery',
+                'key' => 'HOLD',
+                'description' => 'Discovery work awaiting a decision.',
+                'color' => '#D97706',
+            ]);
+            $completedProject = Project::factory()->for($owner)->completed()->create([
+                'name' => 'Foundation',
+                'key' => 'FOUND',
+                'description' => 'Completed foundation work.',
+                'color' => '#059669',
+            ]);
+            $cancelledProject = Project::factory()->for($secondUser)->cancelled()->create([
+                'name' => 'Retired Initiative',
+                'key' => 'RETIRE',
+                'description' => 'Cancelled initiative fixture.',
+                'color' => '#DC2626',
+            ]);
 
-            $doneTask = Task::factory()->forProject($activeProject)->done()->create(['number' => 1, 'title' => 'Model the core domain']);
-            $subtask = Task::factory()->forProject($activeProject)->withParent($doneTask)->done()->create(['number' => 2, 'title' => 'Verify the schema contract']);
-            $reopenedTask = Task::factory()->forProject($activeProject)->reopened()->create(['number' => 3, 'title' => 'Review the persistence foundation']);
-            $deletedTask = Task::factory()->forProject($activeProject)->deleted()->create(['number' => 4, 'title' => 'Removed exploratory task']);
-            Task::factory()->forProject($plannedProject)->backlog()->create(['number' => 1, 'title' => 'Prepare the next milestone']);
-            Task::factory()->forProject($onHoldProject)->blocked()->create(['number' => 1, 'title' => 'Await discovery decision']);
-            Task::factory()->forProject($completedProject)->done()->create(['number' => 1, 'title' => 'Close foundation work']);
-            Task::factory()->forProject($cancelledProject)->cancelled()->create(['number' => 1, 'title' => 'Record cancellation']);
+            $doneTask = Task::factory()->forProject($activeProject)->done()->create([
+                'number' => 1,
+                'title' => 'Model the core domain',
+                'description' => 'Capture the core domain model.',
+            ]);
+            $subtask = Task::factory()->forProject($activeProject)->withParent($doneTask)->done()->create([
+                'number' => 2,
+                'title' => 'Verify the schema contract',
+                'description' => 'Verify the persisted schema.',
+            ]);
+            $reopenedTask = Task::factory()->forProject($activeProject)->reopened()->create([
+                'number' => 3,
+                'title' => 'Review the persistence foundation',
+                'description' => 'Review the persistence foundation.',
+            ]);
+            $deletedTask = Task::factory()->forProject($activeProject)->deleted()->create([
+                'number' => 4,
+                'title' => 'Removed exploratory task',
+                'description' => 'Historical deleted task fixture.',
+            ]);
+            Task::factory()->forProject($plannedProject)->backlog()->create([
+                'number' => 1,
+                'title' => 'Prepare the next milestone',
+                'description' => 'Prepare the next planned milestone.',
+            ]);
+            Task::factory()->forProject($onHoldProject)->blocked()->create([
+                'number' => 1,
+                'title' => 'Await discovery decision',
+                'description' => 'Await a discovery decision.',
+            ]);
+            Task::factory()->forProject($completedProject)->done()->create([
+                'number' => 1,
+                'title' => 'Close foundation work',
+                'description' => 'Close the foundation workstream.',
+            ]);
+            Task::factory()->forProject($cancelledProject)->cancelled()->create([
+                'number' => 1,
+                'title' => 'Record cancellation',
+                'description' => 'Record the cancelled initiative.',
+            ]);
 
             foreach ([$activeProject, $plannedProject, $onHoldProject, $completedProject, $cancelledProject] as $project) {
                 $maximumTaskNumber = Task::withTrashed()

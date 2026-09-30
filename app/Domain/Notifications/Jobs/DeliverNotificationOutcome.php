@@ -2,11 +2,13 @@
 
 namespace App\Domain\Notifications\Jobs;
 
+use App\Domain\Collaboration\Models\ProjectMembership;
 use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Notifications\Actions\PersistNotificationOutcome;
 use App\Domain\Notifications\Data\NotificationOutcome;
 use App\Domain\Notifications\Enums\NotificationEventType;
 use App\Domain\Notifications\Models\NotificationDeliveryFailure;
+use App\Domain\Notifications\Models\PlanOpsNotification;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use App\Notifications\PlanOpsNotificationMail;
@@ -15,6 +17,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 
 class DeliverNotificationOutcome implements ShouldQueue
 {
@@ -43,34 +46,103 @@ class DeliverNotificationOutcome implements ShouldQueue
 
     public function handle(PersistNotificationOutcome $persist): void
     {
-        $outcome = $this->authorizedOutcome();
-        $persist->handle($outcome);
+        $outcome = DB::transaction(function () use ($persist): ?NotificationOutcome {
+            $recipient = User::query()->lockForUpdate()->find($this->outcome->recipientId);
+            $outcome = $this->outcomeForDelivery($recipient);
 
-        if ($outcome->targetId !== null && ($recipient = User::query()->find($outcome->recipientId)) !== null) {
-            $recipient->notify(new PlanOpsNotificationMail($outcome));
+            if ($outcome === null) {
+                $persist->redactExisting($this->outcome);
+
+                return null;
+            }
+
+            $persist->handle($outcome);
+
+            return $outcome;
+        });
+
+        if ($outcome === null || $outcome->targetId === null) {
+            return;
         }
+
+        DB::transaction(function () use ($persist): void {
+            $recipient = User::query()->lockForUpdate()->find($this->outcome->recipientId);
+            $outcome = $this->outcomeForDelivery($recipient);
+
+            if ($outcome === null || $outcome->targetId === null) {
+                $persist->redactExisting($this->outcome);
+
+                return;
+            }
+
+            $notification = PlanOpsNotification::query()
+                ->where('idempotency_key', $this->outcome->idempotencyKey())
+                ->lockForUpdate()
+                ->first();
+
+            if ($notification?->email_sent_at !== null) {
+                return;
+            }
+
+            $recipient->notify(new PlanOpsNotificationMail($outcome));
+            $notification?->forceFill(['email_sent_at' => now()])->save();
+        });
     }
 
-    private function authorizedOutcome(): NotificationOutcome
+    private function outcomeForDelivery(?User $recipient): ?NotificationOutcome
     {
-        $recipient = User::query()->find($this->outcome->recipientId);
-        if ($recipient === null) {
-            return $this->outcome->withoutTarget();
+        if ($recipient === null || $recipient->deactivated_at !== null) {
+            return null;
         }
 
-        $targetIsSafe = match ($this->outcome->eventType) {
-            NotificationEventType::INVITATION_CREATED => ProjectInvitation::query()
-                ->whereKey($this->outcome->targetId)
-                ->where('project_id', $this->outcome->projectId)
-                ->whereRaw('LOWER(normalized_email) = ?', [strtolower($recipient->email)])
-                ->whereNull('accepted_at')->whereNull('revoked_at')
-                ->where('expires_at', '>', now())->exists(),
-            NotificationEventType::ASSIGNEE_CHANGED => Task::query()
-                ->accessibleBy($recipient)
-                ->where('project_id', $this->outcome->projectId)
-                ->whereKey($this->outcome->targetId)->exists(),
+        return match ($this->outcome->eventType) {
+            NotificationEventType::INVITATION_CREATED => $this->invitationOutcome($recipient),
+            NotificationEventType::ASSIGNEE_CHANGED => $this->assignmentOutcome($recipient),
         };
+    }
 
-        return $targetIsSafe ? $this->outcome : $this->outcome->withoutTarget();
+    private function invitationOutcome(User $recipient): NotificationOutcome
+    {
+        $invitation = ProjectInvitation::query()
+            ->whereKey($this->outcome->targetId)
+            ->where('project_id', $this->outcome->projectId)
+            ->whereRaw('LOWER(normalized_email) = ?', [strtolower($recipient->email)])
+            ->whereNull('accepted_at')->whereNull('revoked_at')
+            ->where('expires_at', '>', now())
+            ->lockForUpdate()
+            ->first();
+
+        return $invitation !== null ? $this->outcome : $this->outcome->withoutTarget();
+    }
+
+    private function assignmentOutcome(User $recipient): ?NotificationOutcome
+    {
+        $task = Task::query()
+            ->accessibleBy($recipient)
+            ->where('project_id', $this->outcome->projectId)
+            ->whereKey($this->outcome->targetId)
+            ->with('project')
+            ->lockForUpdate()
+            ->first();
+
+        $activeMembership = ProjectMembership::query()
+            ->where('project_id', $this->outcome->projectId)
+            ->where('user_id', $recipient->getKey())
+            ->whereNull('removed_at')
+            ->lockForUpdate()
+            ->first();
+
+        $project = $task?->project;
+        $isProjectOwner = $project !== null
+            && ((string) $project->owner_id === (string) $recipient->getKey()
+                || (string) $project->user_id === (string) $recipient->getKey());
+
+        if ($activeMembership === null && ! $isProjectOwner) {
+            return null;
+        }
+
+        return $task !== null && (string) $task->assignee_id === (string) $recipient->getKey()
+            ? $this->outcome
+            : $this->outcome->withoutTarget();
     }
 }
