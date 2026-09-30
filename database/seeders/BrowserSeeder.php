@@ -7,7 +7,12 @@ use App\Domain\Activity\Models\TaskActivity;
 use App\Domain\Collaboration\Enums\ProjectEventType;
 use App\Domain\Collaboration\Enums\ProjectRole;
 use App\Domain\Collaboration\Models\ProjectEvent;
+use App\Domain\Collaboration\Models\ProjectInvitation;
 use App\Domain\Collaboration\Models\ProjectMembership;
+use App\Domain\Labels\Models\Label;
+use App\Domain\Notifications\Data\NotificationOutcome;
+use App\Domain\Notifications\Enums\NotificationEventType;
+use App\Domain\Notifications\Models\PlanOpsNotification;
 use App\Domain\Projects\Models\Project;
 use App\Domain\Projects\Enums\ProjectStatus;
 use App\Domain\Tasks\Enums\TaskStatus;
@@ -31,6 +36,10 @@ final class BrowserSeeder extends Seeder
             'name' => 'Browser Member',
             'email' => 'browser-member@example.test',
         ]);
+        $invitee = User::factory()->create([
+            'name' => 'Browser Invitee',
+            'email' => 'browser-invitee@example.test',
+        ]);
         $project = Project::factory()->create([
             'user_id' => $owner->id,
             'owner_id' => $owner->id,
@@ -51,10 +60,22 @@ final class BrowserSeeder extends Seeder
             'created_at' => now()->subMinutes(15),
         ]);
 
-        Task::factory()->forProject($project)->active()->create([
+        $active = Task::factory()->forProject($project)->active()->create([
             'title' => 'Review launch checklist',
             'assignee_id' => $admin->id,
         ]);
+        $launchLabel = Label::factory()->forProject($project)->create([
+            'name' => 'Launch readiness',
+            'normalized_name' => 'launch readiness',
+            'color' => '#287e87',
+        ]);
+        $active->labels()->attach($launchLabel);
+        $memberTask = Task::factory()->forProject($project)->create([
+            'title' => 'Validate member handoff',
+            'assignee_id' => $member->id,
+            'status' => TaskStatus::NOT_STARTED,
+        ]);
+        $memberTask->labels()->attach($launchLabel);
         Task::factory()->forProject($project)->blocked()->create([
             'title' => 'Resolve release blocker',
             'assignee_id' => $owner->id,
@@ -79,5 +100,41 @@ final class BrowserSeeder extends Seeder
             'new_value' => ['status' => TaskStatus::DONE->value],
             'created_at' => now()->subMinutes(30),
         ]);
+
+        PlanOpsNotification::query()->create([
+            'recipient_id' => $owner->id,
+            'event_type' => NotificationEventType::ASSIGNEE_CHANGED,
+            'idempotency_key' => 'BROWSER:ASSIGNEE_CHANGED:OWNER',
+            'project_id' => $project->id,
+            'target_type' => 'task',
+            'target_id' => $completed->id,
+            'data' => ['message' => 'Release review needs your attention.'],
+        ]);
+
+        $invitationProject = Project::factory()->create([
+            'user_id' => $owner->id,
+            'owner_id' => $owner->id,
+            'name' => 'Browser Invitations',
+            'key' => 'INVITE',
+            'status' => ProjectStatus::ACTIVE,
+        ]);
+        ProjectMembership::factory()->owner()->create([
+            'project_id' => $invitationProject->id,
+            'user_id' => $owner->id,
+        ]);
+        $invitation = ProjectInvitation::factory()->create([
+            'project_id' => $invitationProject->id,
+            'email' => $invitee->email,
+            'normalized_email' => strtolower($invitee->email),
+            'invited_by_user_id' => $owner->id,
+        ]);
+        PlanOpsNotification::query()->create(
+            PlanOpsNotification::fromOutcome(NotificationOutcome::invitationCreated(
+                $invitation->id,
+                $invitationProject->id,
+                $invitee->id,
+                $invitationProject->name,
+            )),
+        );
     }
 }

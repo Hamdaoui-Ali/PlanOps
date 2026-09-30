@@ -1,6 +1,6 @@
 # DYX-007 — Release verification and contract reconciliation
 
-**Status:** Verification in progress; browser/axe evidence is recorded for the currently covered public, Team Work, and Team Analytics journeys, while the full release gate remains open
+**Status:** Verification in progress; browser/axe evidence now includes the covered public, collaboration, My Work, label, invitation, and notification journeys, while the full release gate remains open
 
 **Priority:** Release gate
 
@@ -15,7 +15,7 @@ Prove that the collaboration foundation is safe, complete, and documented before
 ## Current branch evidence — 2026-09-30
 
 - `php artisan test --no-ansi`: 356 passed, 3 environment-scoped skips, 1706 assertions.
-- `npm.cmd run test:browser`: 8 passed, including the Team Work, Team Analytics, and role-change activity journeys.
+- `npm.cmd run test:browser`: 13 passed, including narrow-viewport Team Work keyboard scrolling, Team Analytics, role-change activity, assignment mutation, assignment-based My Work, label-filtering, invitation-acceptance, and notification read-state journeys.
 - `php artisan view:cache`: pass.
 - `npm.cmd run build`: pass.
 - Documentation link validation: pass.
@@ -24,7 +24,7 @@ Prove that the collaboration foundation is safe, complete, and documented before
   `tests/Feature/Collaboration/AssignmentConcurrencyTest.php`,
   `tests/Feature/Tasks/TaskNumberConcurrencyTest.php`, and
   `tests/Feature/Collaboration/TaskCreationConcurrencyTest.php`.
-- Detailed evidence: [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [role-change activity verification report](../reports/2026-09-29-planops-role-change-activity-verification.md), [notification recipient suppression report](../reports/2026-09-30-planops-notification-recipient-suppression-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and the [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
+- Detailed evidence: [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [role-change activity verification report](../reports/2026-09-29-planops-role-change-activity-verification.md), [collaboration browser verification report](../reports/2026-09-30-planops-collaboration-browser-verification.md), [notification recipient suppression report](../reports/2026-09-30-planops-notification-recipient-suppression-verification.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and the [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
 
 These results are branch evidence, not proof that the PostgreSQL migration,
 concurrency, and complete P0/P1 release criteria are finished.
@@ -63,11 +63,11 @@ Goal: Verify browser, keyboard, and accessibility contracts.
 
 Files: `tests/Browser/`, Playwright/axe configuration, Team/Team Work/Team Analytics/invitation/task/My Work/notification views, and UI tests.
 
-Action: Exercise the primary user journeys for Owner, Admin, and Member: invite, accept, assign, update assigned task, view My Work, manage labels, read notifications, and open the aggregate Team Analytics surface. Check keyboard navigation, focus after errors, live status messages, mobile Team cards, aggregate metric/privacy copy, and hidden Member-ineligible controls. The current configured coverage verifies public landing/login accessibility, authenticated Owner Team Work and Team Analytics, Member-forbidden Team Work and Team Analytics, keyboard-visible navigation, and serious/critical axe checks; the other collaboration journeys remain follow-up coverage.
+Action: Exercise the primary user journeys for Owner, Admin, and Member: invite, accept, assign, update assigned task, view My Work, manage labels, read notifications, and open the aggregate Team Analytics surface. Check keyboard navigation, focus after errors, live status messages, mobile Team cards, aggregate metric/privacy copy, and hidden Member-ineligible controls. The current configured coverage verifies public landing/login accessibility, authenticated Owner Team Work and Team Analytics, Member-forbidden Team Work and Team Analytics, keyboard-visible navigation, narrow-viewport Team Work scrolling, serious/critical axe checks, Owner assignment mutation, Member assignment-based My Work with label filtering, invitation acceptance, and notification read state. Other mobile-specific collaboration checks and the remaining collaboration journeys remain follow-up coverage.
 
 Why: a server-correct collaboration flow can still be unusable or misleading if the UI hides state or loses focus.
 
-Verification: Run `npm.cmd run test:browser` and record the configured Playwright/axe result. Do not generalize the current public, Team Work, and Team Analytics coverage to invitation, assignment, My Work, labels, or notifications until those journeys have their own evidence.
+Verification: Run `npm.cmd run test:browser` and record the configured Playwright/axe result. Do not generalize the current evidence to mobile-specific collaboration behavior until those journeys have their own checks.
 
 Expected result: Core collaboration journeys are usable by keyboard and expose authorization/state changes clearly.
 
@@ -117,7 +117,7 @@ Expected result: The release is approved, or the checklist identifies a specific
 
 - [ ] PostgreSQL fresh/legacy migration and rollback evidence is recorded.
 - [ ] Full P0/P1 Pest verification has zero unapproved failures and no skipped security/concurrency tests.
-- [x] Browser, keyboard, and axe evidence is present for the currently covered public, Team Work, and Team Analytics journeys; broader collaboration coverage remains open.
+- [x] Browser, keyboard, and axe evidence is present for public, Team Work including narrow-viewport scrolling, Team Analytics, role-change activity, assignment mutation, assignment-based My Work with label filtering, invitation acceptance, and notification read-state journeys; other mobile-specific checks and broader collaboration coverage remain open.
 - [ ] Cross-project, removed-member, deactivated-user, archived-project, direct-URL, and concurrent-race cases are covered.
 - [ ] No stale owner-only, unscoped query, raw-token, or contract-drift claim remains without an explicit exception.
 - [ ] Build and documentation checks pass.

@@ -45,6 +45,28 @@ test.describe('authenticated collaboration', () => {
         await expectNoSeriousOrCriticalViolations(page);
     });
 
+    test('owner can reach the Team Work table on a narrow viewport by keyboard', async ({ page }) => {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await loginAs(page, 'browser-owner@example.test');
+
+        const projectPath = await browserProjectPath(page);
+        await page.goto(projectPath);
+        await page.getByRole('link', { name: 'Team Work', exact: true }).click();
+
+        await expect(page).toHaveURL(new RegExp(`${projectPath}/team/work$`));
+        const tableRegion = page.getByRole('region', { name: /Workload by member table/ });
+        await expect(tableRegion).toHaveAttribute('tabindex', '0');
+        await tableRegion.focus();
+        await expect(tableRegion).toBeFocused();
+
+        const dimensions = await tableRegion.evaluate((element) => ({
+            clientWidth: element.clientWidth,
+            scrollWidth: element.scrollWidth,
+        }));
+        expect(dimensions.scrollWidth).toBeGreaterThan(dimensions.clientWidth);
+        await expectNoSeriousOrCriticalViolations(page);
+    });
+
     test('owner can inspect aggregate Team Analytics and reach Team Work by keyboard', async ({ page }) => {
         await loginAs(page, 'browser-owner@example.test');
 

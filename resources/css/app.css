@@ -294,7 +294,7 @@ html.theme-light .planops-nav-link.is-active {
 }
 
 .notification-card-type {
-    color: var(--planops-focus);
+    color: var(--planops-accent);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -1192,7 +1192,7 @@ html.theme-light .planops-nav-link.is-active {
 .task-detail-back {
     display: inline-flex;
     margin-bottom: 1.2rem;
-    color: var(--planops-accent);
+    color: var(--planops-text);
     font-size: 0.82rem;
     font-weight: 600;
     text-decoration: none;
@@ -1601,7 +1601,7 @@ html.theme-light .planops-nav-link.is-active {
     margin-bottom: 1.4rem;
     border: 1px solid rgba(183, 217, 107, 0.45);
     background: rgba(183, 217, 107, 0.08);
-    color: var(--planops-focus);
+    color: var(--planops-text);
     padding: 0.8rem 1rem;
     font-size: 0.85rem;
 }
@@ -3322,8 +3322,8 @@ kbd { padding: 0.1rem 0.35rem; border: 1px solid var(--planops-border); border-r
 .auth-status { margin: -0.8rem 0 1rem; color: var(--planops-focus); font-size: 0.75rem; }
 .auth-card [role="alert"], .auth-card .text-red-600 { color: var(--planops-danger); font-size: 0.7rem; }
 
-.team-work-page { display: grid; gap: 1rem; }
-.team-work-summary, .team-work-table-panel { border: 1px solid var(--planops-border); background: var(--planops-surface); }
+.team-work-page { display: grid; gap: 1rem; min-width: 0; }
+.team-work-summary, .team-work-table-panel { min-width: 0; border: 1px solid var(--planops-border); background: var(--planops-surface); }
 .team-work-summary { display: grid; grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.8fr); gap: 1rem; padding: 1.4rem; }
 .team-work-summary-heading h2, .team-work-section-heading h2 { margin: 0; color: var(--planops-text); font-size: 1.45rem; letter-spacing: -0.035em; }
 .team-work-summary-heading p:last-child { max-width: 34rem; margin: 0.55rem 0 0; color: var(--planops-muted); font-size: 0.82rem; line-height: 1.55; }
@@ -3334,7 +3334,7 @@ kbd { padding: 0.1rem 0.35rem; border: 1px solid var(--planops-border); border-r
 .team-work-table-panel { padding: 1.4rem; }
 .team-work-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .team-work-section-heading > span { color: var(--planops-muted); font-size: 0.7rem; }
-.team-work-table-wrap { overflow-x: auto; border: 1px solid var(--planops-border); }
+.team-work-table-wrap { min-width: 0; max-width: 100%; overflow-x: auto; border: 1px solid var(--planops-border); }
 .team-work-table { width: 100%; min-width: 44rem; border-collapse: collapse; }
 .team-work-table th, .team-work-table td { padding: 0.9rem 1rem; border-bottom: 1px solid var(--planops-border); color: var(--planops-muted); font-size: 0.76rem; text-align: left; vertical-align: middle; }
 .team-work-table thead th { background: var(--planops-canvas); color: var(--planops-text); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
