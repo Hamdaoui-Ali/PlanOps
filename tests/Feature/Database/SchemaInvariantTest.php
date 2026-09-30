@@ -22,6 +22,11 @@ function usesPostgresSchemaGrammar(): bool
     return Schema::getConnection()->getDriverName() === 'pgsql';
 }
 
+function schemaColumnIsTimestamptz(array $column): bool
+{
+    return preg_match('/^(?:timestamptz|timestamp(?:\(\d+\))? with time zone)$/i', (string) ($column['type'] ?? '')) === 1;
+}
+
 test('the PlanOps foundation contains the seven core tables', function () {
     foreach ([
         'users',
@@ -127,7 +132,7 @@ test('date-only and lifecycle timestamps use the documented database types', fun
             expect(columnDefinition($table, $column)['nullable'] ?? null)->toBe($nullable);
 
             if (usesPostgresSchemaGrammar()) {
-                expect(columnDefinition($table, $column)['type'] ?? null)->toBe('timestamptz');
+                expect(schemaColumnIsTimestamptz(columnDefinition($table, $column)))->toBeTrue();
             }
         }
     }
