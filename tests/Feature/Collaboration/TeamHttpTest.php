@@ -79,6 +79,19 @@ it('shows pending invitations on the project team surface', function (): void {
         ->assertSee('Pending');
 });
 
+it('does not render expired invitations as pending', function (): void {
+    $owner = User::factory()->create();
+    $project = Project::factory()->for($owner)->create();
+    ProjectMembership::factory()->owner()->create(['project_id' => $project->id, 'user_id' => $owner->id]);
+    $invitation = (new InviteProjectMember)->handle($owner, $project, 'expired@example.com', ProjectRole::MEMBER);
+    ProjectInvitation::query()->whereKey($invitation->getKey())->update(['expires_at' => now()->subMinute()]);
+
+    $this->actingAs($owner)->get(route('projects.team', $project))
+        ->assertOk()
+        ->assertDontSee('Pending invitations')
+        ->assertDontSee('expired@example.com');
+});
+
 it('allows a project manager to cancel a pending invitation', function (): void {
     $owner = User::factory()->create();
     $project = Project::factory()->for($owner)->create();
