@@ -11,16 +11,20 @@ class LabelPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isActive();
     }
 
     public function create(User $user, ?Project $project = null): bool
     {
-        return $project === null || $user->can('update', $project);
+        return $user->isActive() && ($project === null || $user->can('update', $project));
     }
 
     public function view(User $user, Label $label): bool
     {
+        if (! $user->isActive()) {
+            return false;
+        }
+
         return $label->project !== null
             ? $user->can('view', $label->project)
             : (string) $user->getKey() === (string) $label->user_id;
@@ -28,11 +32,15 @@ class LabelPolicy
 
     public function delete(User $user, Label $label): bool
     {
-        return $label->project !== null ? $user->can('update', $label->project) : (string) $user->getKey() === (string) $label->user_id;
+        return $user->isActive() && ($label->project !== null ? $user->can('update', $label->project) : (string) $user->getKey() === (string) $label->user_id);
     }
 
     public function attach(User $user, Label $label, Task $task): bool
     {
+        if (! $user->isActive()) {
+            return false;
+        }
+
         if ($label->project !== null) {
             return $task->project_id === $label->project_id && $user->can('update', $label->project);
         }

@@ -10,17 +10,17 @@ class ProjectPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isActive();
     }
 
     public function view(User $user, Project $project): bool
     {
-        return $this->role($user, $project) !== null;
+        return $user->isActive() && $this->role($user, $project) !== null;
     }
 
     public function create(User $user): bool
     {
-        return true;
+        return $user->isActive();
     }
 
     public function update(User $user, Project $project): bool
@@ -60,7 +60,7 @@ class ProjectPolicy
 
     public function exportAny(User $user): bool
     {
-        return Project::query()->exportableBy($user)->exists();
+        return $user->isActive() && Project::query()->exportableBy($user)->exists();
     }
 
     public function manageMembers(User $user, Project $project): bool
@@ -86,6 +86,10 @@ class ProjectPolicy
 
     private function role(User $user, Project $project): ?ProjectRole
     {
+        if (! $user->isActive()) {
+            return null;
+        }
+
         if ((string) $project->owner_id === (string) $user->getKey()
             || (string) $project->user_id === (string) $user->getKey()) {
             return ProjectRole::OWNER;

@@ -91,6 +91,10 @@ class Project extends Model
 
     public function scopeAccessibleBy(Builder $query, User|int $viewer): Builder
     {
+        if ($viewer instanceof User && ! $viewer->isActive()) {
+            return $query->whereRaw('1 = 0');
+        }
+
         $viewerId = $viewer instanceof User ? $viewer->getKey() : $viewer;
         $table = $query->getModel()->getTable();
 
@@ -110,6 +114,10 @@ class Project extends Model
 
     public function scopeDetailedReportsVisibleTo(Builder $query, User|int $viewer): Builder
     {
+        if ($viewer instanceof User && ! $viewer->isActive()) {
+            return $query->whereRaw('1 = 0');
+        }
+
         $viewerId = $viewer instanceof User ? $viewer->getKey() : $viewer;
         $table = $query->getModel()->getTable();
 

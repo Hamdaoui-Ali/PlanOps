@@ -11,7 +11,7 @@ class TaskPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->isActive();
     }
 
     public function create(User $user, Project $project): bool
@@ -80,7 +80,8 @@ class TaskPolicy
 
     private function legacyTaskOwner(User $user, Task $task): bool
     {
-        return (string) $task->user_id === (string) $user->getKey()
+        return $user->isActive()
+            && (string) $task->user_id === (string) $user->getKey()
             && $task->project?->memberships()->doesntExist();
     }
 
@@ -92,6 +93,10 @@ class TaskPolicy
 
     private function role(User $user, Project $project): ?ProjectRole
     {
+        if (! $user->isActive()) {
+            return null;
+        }
+
         if ((string) $project->owner_id === (string) $user->getKey()
             || (string) $project->user_id === (string) $user->getKey()) {
             return ProjectRole::OWNER;

@@ -50,6 +50,10 @@ class Label extends Model
 
     public function scopeAccessibleBy(Builder $query, User|int $viewer): Builder
     {
+        if ($viewer instanceof User && ! $viewer->isActive()) {
+            return $query->whereRaw('1 = 0');
+        }
+
         $viewerId = $viewer instanceof User ? $viewer->getKey() : $viewer;
 
         return $query->where(function (Builder $labels) use ($viewer, $viewerId): void {
