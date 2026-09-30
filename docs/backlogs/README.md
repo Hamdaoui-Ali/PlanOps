@@ -120,7 +120,13 @@ the collaboration role-history test, and the browser journey in
 ### S2-P2-003 — Member-removal notification
 
 - [ ] Decide whether removal notifications are required and what target data is safe.
-- [ ] Suppress delivery to deactivated or removed recipients.
+- [x] Suppress delivery to deactivated or removed recipients.
+
+Recipient suppression is covered by the existing notification delivery job:
+deactivated accounts and removed assignment recipients receive neither a
+persisted notification row nor mail. This closes the delivery-safety contract
+without deciding whether a separate member-removal message should exist. See
+the [notification recipient suppression verification report](../reports/2026-09-30-planops-notification-recipient-suppression-verification.md).
 
 ### S2-P2-004 — Team analytics
 
