@@ -1,6 +1,6 @@
 # DYX-007 — Release verification and contract reconciliation
 
-**Status:** Verification in progress; browser/axe evidence now includes the covered public, collaboration, My Work, label, invitation, and notification journeys, while the full release gate remains open
+**Status:** Verification in progress; the local SQLite and PostgreSQL 18 application suites are green and browser/build evidence is present, while production migration/rollback and the broader release gate remain open
 
 **Priority:** Release gate
 
@@ -14,17 +14,19 @@ Prove that the collaboration foundation is safe, complete, and documented before
 
 ## Current branch evidence — 2026-09-30
 
-- `php artisan test --no-ansi`: 365 passed, 3 environment-scoped skips, 1735 assertions.
+- `php artisan test --no-ansi` on SQLite: 366 passed, 3 environment-scoped skips, 1736 assertions.
+- `php artisan test --no-ansi` on a fresh disposable PostgreSQL 18 cluster: 368 passed, 1 environment-scoped skip, 1768 assertions. See the [PostgreSQL verification report](../reports/2026-09-30-planops-postgresql-verification.md).
 - `npm.cmd run test:browser`: 13 passed, including narrow-viewport Team Work keyboard scrolling, Team Analytics, role-change activity, assignment mutation, assignment-based My Work, label-filtering, invitation-acceptance, and notification read-state journeys.
 - `php artisan view:cache`: pass.
 - `npm.cmd run build`: pass.
 - Documentation link validation: pass.
 - `git diff --check`: pass.
-- The known environment-scoped skips are:
+- On SQLite, the known environment-scoped skips are:
   `tests/Feature/Collaboration/AssignmentConcurrencyTest.php`,
   `tests/Feature/Tasks/TaskNumberConcurrencyTest.php`, and
   `tests/Feature/Collaboration/TaskCreationConcurrencyTest.php`.
-- Detailed evidence: [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [role-change activity verification report](../reports/2026-09-29-planops-role-change-activity-verification.md), [collaboration browser verification report](../reports/2026-09-30-planops-collaboration-browser-verification.md), [notification recipient suppression report](../reports/2026-09-30-planops-notification-recipient-suppression-verification.md), [account lifecycle and security-scope audit](../reports/2026-09-30-planops-account-lifecycle-scope-audit.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and the [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
+- On PostgreSQL, assignment and task-creation race checks pass. The remaining task-number race skip is limited to the Windows runtime because the required POSIX process-control extensions are unavailable.
+- Detailed evidence: [PostgreSQL verification report](../reports/2026-09-30-planops-postgresql-verification.md), [Team Work and browser verification report](../reports/2026-09-28-planops-team-work-browser-verification.md), [role-change activity verification report](../reports/2026-09-29-planops-role-change-activity-verification.md), [collaboration browser verification report](../reports/2026-09-30-planops-collaboration-browser-verification.md), [notification recipient suppression report](../reports/2026-09-30-planops-notification-recipient-suppression-verification.md), [account lifecycle and security-scope audit](../reports/2026-09-30-planops-account-lifecycle-scope-audit.md), [Team Analytics design](../superpowers/specs/2026-09-29-team-analytics-design.md), and the [collaboration browser journeys](../../tests/Browser/collaboration.spec.js).
 
 These results are branch evidence, not proof that the PostgreSQL migration,
 concurrency, and complete P0/P1 release criteria are finished.
@@ -33,8 +35,10 @@ The DYX-007.3 application-side audit slice is now recorded in
 [`audit-context/DOSSIER.md`](../../audit-context/DOSSIER.md). It covers the
 account deactivation boundary, active-account scopes and policies, collaboration
 target guards, invitation-preview privacy, invitation route throttles, and
-expired-invitation state. PostgreSQL/concurrency evidence and the broader release
-decision remain open.
+expired-invitation state. The local PostgreSQL application-suite evidence is now
+recorded, including the UTC timestamp-session contract and the remaining
+Windows-only process-control exception. Production migration/rollback rehearsal,
+CI evidence, and the broader release decision remain open.
 
 ## Files
 
@@ -155,4 +159,4 @@ PlanOps can release the collaboration foundation with a traceable evidence set, 
 
 ## Next action
 
-Run the PostgreSQL migration/rollback and concurrency matrix, then complete the remaining DYX-007.4/DYX-007.5 release decision with named exceptions.
+Run the production-like PostgreSQL migration/rollback rehearsal and CI matrix, then complete the remaining DYX-007.4/DYX-007.5 release decision with named exceptions.
