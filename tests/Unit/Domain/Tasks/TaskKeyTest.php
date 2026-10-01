@@ -5,7 +5,6 @@ use App\Domain\Tasks\Models\Task;
 use App\Domain\Tasks\Queries\TaskKeyQuery;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use LogicException;
 
 uses(RefreshDatabase::class);
 
