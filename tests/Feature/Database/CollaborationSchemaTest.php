@@ -22,6 +22,11 @@ function collaborationUsesPostgres(): bool
     return Schema::getConnection()->getDriverName() === 'pgsql';
 }
 
+function collaborationColumnIsTimestamptz(array $column): bool
+{
+    return preg_match('/^(?:timestamptz|timestamp(?:\(\d+\))? with time zone)$/i', (string) ($column['type'] ?? '')) === 1;
+}
+
 test('collaboration roles expose only the authority values', function (): void {
     expect(ProjectRole::cases())->toHaveCount(3)
         ->and(array_column(ProjectRole::cases(), 'value'))->toBe(['OWNER', 'ADMIN', 'MEMBER']);
@@ -92,7 +97,7 @@ test('historical collaboration fields are nullable and use the documented types'
 
     if (collaborationUsesPostgres()) {
         expect(collaborationColumn('project_events', 'metadata')['type'] ?? null)->toBe('jsonb')
-            ->and(collaborationColumn('project_events', 'created_at')['type'] ?? null)->toBe('timestamptz');
+            ->and(collaborationColumnIsTimestamptz(collaborationColumn('project_events', 'created_at')))->toBeTrue();
     }
 });
 

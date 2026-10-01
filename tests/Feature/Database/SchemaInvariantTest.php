@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
@@ -22,6 +23,11 @@ function usesPostgresSchemaGrammar(): bool
     return Schema::getConnection()->getDriverName() === 'pgsql';
 }
 
+function schemaColumnIsTimestamptz(array $column): bool
+{
+    return preg_match('/^(?:timestamptz|timestamp(?:\(\d+\))? with time zone)$/i', (string) ($column['type'] ?? '')) === 1;
+}
+
 test('the PlanOps foundation contains the seven core tables', function () {
     foreach ([
         'users',
@@ -34,6 +40,16 @@ test('the PlanOps foundation contains the seven core tables', function () {
     ] as $table) {
         expect(Schema::hasTable($table))->toBeTrue();
     }
+});
+
+test('PostgreSQL timestamp sessions use UTC', function (): void {
+    if (! usesPostgresSchemaGrammar()) {
+        expect(true)->toBeTrue();
+
+        return;
+    }
+
+    expect(DB::scalar("select current_setting('TimeZone')"))->toBe('UTC');
 });
 
 test('the foundation contains required columns and lifecycle fields', function () {
@@ -127,7 +143,7 @@ test('date-only and lifecycle timestamps use the documented database types', fun
             expect(columnDefinition($table, $column)['nullable'] ?? null)->toBe($nullable);
 
             if (usesPostgresSchemaGrammar()) {
-                expect(columnDefinition($table, $column)['type'] ?? null)->toBe('timestamptz');
+                expect(schemaColumnIsTimestamptz(columnDefinition($table, $column)))->toBeTrue();
             }
         }
     }

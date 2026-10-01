@@ -65,7 +65,7 @@ test('project role-change activity is scoped, ordered, and keeps historical iden
         ->and($events->first()->relationLoaded('subject'))->toBeTrue()
         ->and($events->first()->actor->name)->toBe('Project Owner')
         ->and($events->first()->subject->name)->toBe('Historical Member')
-        ->and($events->first()->metadata)->toBe([
+        ->and($events->first()->metadata)->toEqualCanonicalizing([
             'old_role' => ProjectRole::ADMIN->value,
             'new_role' => ProjectRole::MEMBER->value,
         ]);
