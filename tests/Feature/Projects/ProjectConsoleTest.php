@@ -4,9 +4,6 @@ use App\Domain\Projects\Models\Project;
 use App\Domain\Tasks\Enums\TaskStatus;
 use App\Domain\Tasks\Models\Task;
 use App\Models\User;
-use DOMDocument;
-use DOMElement;
-use DOMXPath;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
 

@@ -9,7 +9,6 @@ use App\Domain\Tasks\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use LogicException;
 
 uses(RefreshDatabase::class);
 
